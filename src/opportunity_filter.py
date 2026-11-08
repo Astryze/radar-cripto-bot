@@ -8,7 +8,7 @@ from .utils import normalize, parse_date, utcnow
 CAMPAIGN = r"\b(airdrop|learndrop|learn\s*(?:&|and)\s*earn|quest|mission|campaign|testnet|rewards? program|incentive program|token distribution|campanha|missao|distribuicao de tokens|recompensas)\b"
 ACTION = r"\b(join|participate|complete|claim|enroll|register|answer|collect|earn|solve|eligible|inscreva|participe|complete|resgate|ganhe|receba|colete)\b"
 BENEFIT = r"\b(token[s]?|airdrop|reward[s]?|points|bits|degree|prize|usdt|usdc|btc|eth|nfts?|credits|recompensa[s]?|pontos|premio[s]?)\b"
-FINANCE = r"\b(deposit[s]?|purchase[s]?|buy|stake|staking|paid nft|mint|subscription|entry fee|registration fee|membership|paid plan|pay|payment|hold|own|minimum balance|trading volume|trade|liquidity|deposito|compra|comprar|assinatura|taxa de inscricao|pagar|pagamento|saldo minimo|negociar)\b"
+FINANCE = r"\b(deposit[s]?|purchase[s]?|buy|stake|staking|fund|funding|paid nft|mint|subscription|entry fee|registration fee|membership|paid plan|pay|payment|hold|own|minimum balance|trading volume|trade|liquidity|deposito|compra|comprar|assinatura|taxa de inscricao|pagar|pagamento|saldo minimo|negociar)\b"
 MANDATORY = r"\b(required|mandatory|must|need to|minimum|at least|prerequisite|to qualify|to participate|obrigatori[oa]|necessari[oa]|deve|precisa|minimo)\b"
 OPTIONAL = r"\b(optional|optionally|not required|not necessary|no need|not mandatory|opcional|nao obrigatorio|nao e necessario|nao exige)\b"
 FREE = r"\b(no (?:purchase or deposit|deposit or purchase) (?:is )?(?:required|necessary)|(?:participation|entry) is (?:completely |entirely )?free|free to participate|participacao (?:e )?(?:totalmente )?gratuita|sem (?:compra ou deposito|deposito ou compra)(?: obrigatorios?)?)\b"

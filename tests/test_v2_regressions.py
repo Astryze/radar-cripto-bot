@@ -68,3 +68,9 @@ def test_daily_highlights_do_not_repeat_unchanged_campaigns(candidate, now):
     summary = daily_summary([op], [], "2026-11-09", 16, highlight_urls=set())
     assert op.url not in summary and op.title not in summary
     assert "Gratuitas confirmadas: 1" in summary
+
+
+def test_unverified_country_and_expiry_claims_are_not_official(candidate, now):
+    op = classify(candidate("Brazil is eligible. KYC is required. This campaign has ended.", verified=False), now)
+    assert op.eligibility == "desconhecida" and op.kyc == "não confirmado"
+    assert op.conclusion == "NÃO CONFIRMADA"

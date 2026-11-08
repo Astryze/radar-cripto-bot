@@ -136,11 +136,15 @@ def enrich(op, candidate, now):
         # educacionais são expressamente identificadas e sem ação on-chain.
         tasks = candidate.text.split("Rounds", 1)[-1] if "Rounds" in candidate.text else candidate.text
         task_cost, task_evidence = cost_evidence(tasks, True)
-        if task_cost != Cost.REQUIRED and not task_evidence.get("custos_ambiguos") and not task_evidence.get("taxa_rede"):
+        noneducational = re.search(r"claim.{0,50}(?:bonus|reward)|get.{0,35}card|apply|fund|spend|sign up|create.{0,30}account|subscribe|swap|bridge|mint", normalize(tasks))
+        if noneducational:
+            op.evidence["rounds_nao_comprovados"] = [tasks[:500], "A FAQ educacional não comprova ativação de produto, financiamento ou resgate de bônus."]
+            op.participation_route = "Há rounds de produto ou bônus; participação completa sem custo não foi comprovada."
+        if not noneducational and task_cost != Cost.REQUIRED and not task_evidence.get("custos_ambiguos") and not task_evidence.get("taxa_rede"):
             op.cost = Cost.FREE
             op.evidence["gratuidade"] = [policy["quote"]]
             op.evidence["politica_oficial"] = [policy["url"], policy["scope"]]
-            op.participation_route = "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras."
+            op.participation_route = "Somente os rounds educacionais públicos da missão; sem operações financeiras. Prêmios comerciais externos não integram esta rota."
     # Testnet explicitamente sem valor real + faucet gratuito + ausência de custo.
     normalized = normalize(combined)
     if (op.cost == Cost.POSSIBLE and re.search(r"test(?:net)? tokens (?:have|with) no (?:real |monetary )?value", normalized)
@@ -154,12 +158,42 @@ def enrich(op, candidate, now):
         if paused:
             op.evidence["pausa"] = ["Campanha pausada na fonte oficial"]
     _rewards(op, combined if candidate.verified else "")
+    if "politica_oficial" in op.evidence:
+        _educational_rewards(op, combined)
     _requirements(op, combined)
+    if not candidate.verified:
+        op.eligibility = "desconhecida"
+        op.eligibility_basis = "alegações sem confirmação oficial"
+        op.kyc = "não confirmado"
     if candidate.investigation_errors and op.cost in {Cost.FREE, Cost.GAS}:
         op.cost = Cost.POSSIBLE
         op.evidence["investigacao_incompleta"] = ["Regras relacionadas não puderam ser verificadas; não anunciar custo zero."]
     op.conclusion = conclusion(op)
     return op
+
+
+def _educational_rewards(op, text):
+    """Bônus de conta/cartão não são prêmio da missão educacional gratuita."""
+    points = re.findall(r"\b(?:collect|earn|get|receive)\s+(?:more\s+|up to\s+)?(?:[\d,.]+\s+)?(?:Bits|points|Degree)\b", text, re.I)
+    prizes = re.findall(r"\b(?:chance to win|win|receive|earn)\s+[^.!?\n]{0,80}?\s+(?:for|by)\s+completing (?:this|the) (?:Mission|quiz)\b", text, re.I)
+    scoped = list(dict.fromkeys(points + prizes))
+    op.reward = " | ".join(scoped)[:350] if scoped else "Recompensa específica da rota educacional não confirmada"
+    op.reward_status = "confirmada" if points and not prizes else "estimada" if prizes else "desconhecida"
+    op.reward_type = "pontos internos; não equivalem a token negociável ou dinheiro sacável" if points else "recompensa educacional incerta"
+    op.token, op.token_quantity = "não informado", "não informada"
+    op.estimated_value, op.withdrawability = "não verificável", "não confirmada para a rota educacional"
+    op.reward_assets = []
+    if scoped:
+        _rewards(op, "\n".join(scoped))
+        symbols = re.findall(r"\b(?:USDC|USDT|BTC|ETH|ARB|OP|POL|ZK|STRK|SCR)\b", " ".join(prizes))
+        if symbols:
+            op.token = ", ".join(dict.fromkeys(symbols))
+        if prizes and points:
+            op.reward_type = "pontos internos e sorteio/prêmio condicional da missão; nenhum ganho garantido"
+        elif prizes:
+            op.reward_type = "sorteio/prêmio condicional da missão; nenhum ganho garantido"
+    op.evidence["recompensa_da_rota"] = scoped or ["Não há valor comprovado para a rota educacional."]
+    op.evidence["limite_da_rota"] = ["Cashback, bônus de boas-vindas e recompensas comerciais da exchange não foram confirmados como prêmios desta rota gratuita."]
 
 
 def _rewards(op, text):
@@ -228,10 +262,10 @@ def _requirements(op, text):
 
 
 def conclusion(op):
-    if op.deadline == "encerrado":
-        return Conclusion.CLOSED
     if not op.official:
         return Conclusion.UNKNOWN
+    if op.deadline == "encerrado":
+        return Conclusion.CLOSED
     if op.cost == Cost.REQUIRED:
         return Conclusion.REQUIRED
     if op.cost == Cost.GAS:

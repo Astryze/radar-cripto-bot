@@ -63,7 +63,9 @@ reais; uma exigência de depósito mainnet prevalece.
 
 A FAQ oficial é consultada e sua regra de missões gratuitas só é aplicada às tarefas
 educacionais de missões verificadas. Isso não comprova saque, token ou prêmio.
-A regra não remove depósitos obrigatórios nem custos de ações on-chain.
+A regra não remove depósitos obrigatórios nem custos de ações on-chain. Rounds de
+ativação de cartão ou resgate de bônus continuam com custo não comprovado. Cashback
+e bônus comerciais da exchange não são apresentados como prêmios da rota educacional.
 
 O catálogo `/missions` contém conteúdo criado por usuários. Apenas guilds explicitamente
 verificadas em `trusted_guilds` podem ser confirmadas nessa fonte; os demais anúncios

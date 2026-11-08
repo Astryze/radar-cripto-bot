@@ -71,6 +71,35 @@ def test_policy_cannot_override_mandatory_deposit(source, now):
     assert classify(c, now).cost == Cost.REQUIRED
 
 
+def test_educational_reward_does_not_include_commercial_bonus(source, now):
+    c = bitdegree_candidate(source)
+    c.text = c.text.replace("Learn and collect Bits!", "Learn and collect Bits! Earn a $100 welcome bonus for trading. Apply for a card for 10% cashback.")
+    c.documents[0]["text"] = c.text
+    op = classify(c, now)
+    assert op.cost == Cost.FREE
+    assert "$100" not in op.reward and "cashback" not in op.reward
+    assert op.token == "não informado" and "collect Bits" in op.reward
+
+
+def test_only_mission_specific_prize_is_kept(source, now):
+    c = bitdegree_candidate(source)
+    c.text = c.text.replace("Learn and collect Bits!", "Learn and collect Bits! You can earn a $100 welcome bonus for signing up and completing simple tasks (plus a chance to win USDC for completing this Mission)!")
+    c.documents[0]["text"] = c.text
+    op = classify(c, now)
+    assert "$100" not in op.reward and "USDC" in op.reward
+    assert op.reward_status == "estimada" and op.conclusion == Conclusion.UNCERTAIN
+
+
+@pytest.mark.parametrize("round_name", ["Claim Your Welcome Bonus!", "Get Your FREE Bybit Card"])
+def test_platform_faq_does_not_prove_product_activation_is_free(source, now, round_name):
+    c = bitdegree_candidate(source)
+    c.text = c.text.replace("Answer the quiz", round_name)
+    c.documents[0]["text"] = c.text
+    op = classify(c, now)
+    assert op.cost == Cost.POSSIBLE and op.conclusion == Conclusion.POSSIBLE
+    assert "rounds_nao_comprovados" in op.evidence
+
+
 def test_policy_cannot_apply_to_external_project(source, now):
     c = bitdegree_candidate(source)
     c.url = "https://external.test/mission"

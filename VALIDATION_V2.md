@@ -5,7 +5,7 @@ Data: 08/11/2026. Código-base preservado: `059c98e8b318da8dbda905137998b34ce0ac
 ## Verificações locais
 
 - Python 3.12.14 e dependências gratuitas já existentes; nenhuma dependência nova.
-- **184 testes aprovados**, todos offline, com bloqueio de rede e mocks HTTP/Telegram.
+- **189 testes aprovados**, todos offline, com bloqueio de rede e mocks HTTP/Telegram.
 - Ruff sem problemas; `compileall` sem erros; parsing YAML e actionlint aprovados.
 - Varredura de credenciais sem achados nos arquivos e no ZIP inicial.
 - Migração v1→v2, preservação de entregas, fila de transições, fechamento por prazo,
@@ -24,7 +24,7 @@ disponibilidade no GitHub. Arbitrum e Base tiveram RSS declarado em `link rel=al
 o CMS Scroll Ghost aparece no conteúdo de `scroll.io/blog` e declara seu RSS.
 Nenhum endpoint de API foi presumido ou criado por tentativa.
 
-Na pesquisa real completa da implementação, antes dos últimos ajustes de apresentação:
+Na pesquisa real completa da implementação, antes dos ajustes finais de escopo das recompensas:
 **12 candidatas**, **4 com participação gratuita comprovada**, **1 delas com prazo
 aberto confirmado**. As quatro correspondem a atividades educacionais com pontos ou
 recompensa incerta, não quatro pagamentos garantidos. Uma campanha estava encerrada.
@@ -66,3 +66,19 @@ e este documento. Nenhum arquivo operacional foi removido.
 
 O módulo de quizzes, os scripts de persistência/segredos, os nomes e valores dos
 Secrets, a branch de histórico e o ZIP inicial foram preservados.
+
+## Verificação inicial no GitHub Actions
+
+A primeira execução real da versão 2 migrou o estado existente para v2, registrou
+16 candidatas e confirmou o envio do resumo e três alertas. A persistência da
+branch de histórico e o upload dos artifacts passaram. A execução terminou
+parcial: Solana HTTP 429 com cooldown, Binance HTTP 202 pendente, Revolut HTTP 403
+e uma página Polygon acima de 2 MB. Fonte 202 não foi tratada como falha definitiva.
+
+A inspeção dos alertas revelou promoções Bybit que misturam educação e ativação de
+produto/bônus. Foram adicionados testes e restrições: a FAQ geral não comprova
+rounds de cartão ou resgate de bônus, e os valores comerciais não são atribuídos
+à rota educacional gratuita. Alegações de país ou encerramento vindas de missões
+não verificadas também não são promovidas a confirmação oficial.
+
+Referência da execução inicial: https://github.com/Astryze/radar-cripto-bot/actions/runs/42529198905
