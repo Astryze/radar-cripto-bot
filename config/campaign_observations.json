@@ -1,0 +1,76 @@
+{
+  "audit_method": "Pesquisa manual em fontes oficiais; não coletor automático. Revalidar após sete dias.",
+  "campaigns": [
+    {
+      "platform_id": "binance",
+      "title": "Bitcoin Basics — Earn Your First Bitcoin",
+      "url": "https://www.binance.com/en/academy/learn-and-earn/course/bitcoin-basics-BN1106506786176225281",
+      "official_domains": [
+        "www.binance.com"
+      ],
+      "official": true,
+      "reward": "0.00001 BTC em voucher para novos usuários elegíveis; limitado a 5.000 por mês",
+      "reward_type": "BTC",
+      "reward_verified": true,
+      "financial_requirements": {},
+      "official_rules_complete": false,
+      "fees": "Não confirmadas nas regras completas; saque separado não verificado",
+      "brazil": "desconhecido",
+      "ends_at": null,
+      "availability": "não confirmada",
+      "educational_quiz": true,
+      "requirements": [
+        "Novo usuário elegível",
+        "KYC conforme FAQ oficial",
+        "Acertar todas as perguntas",
+        "Cota mensal disponível; não confirmada para sua conta"
+      ],
+      "reviewed_at": "2026-11-08",
+      "evidence": [
+        {
+          "url": "https://www.binance.com/en/academy/learn-and-earn/course/bitcoin-basics-BN1106506786176225281",
+          "support": "Página oficial anuncia recompensa de 0.00001 BTC e limite mensal de 5.000 novos usuários elegíveis."
+        },
+        {
+          "url": "https://www.binance.com/en/support/faq/detail/3819c21bd5fb493fa5057c727043cb14",
+          "support": "Recompensas direcionadas a usuários selecionados com verificação de identidade e sujeitas a esgotamento."
+        }
+      ],
+      "access_note": "Somente link manual. Não há permissão de coleta nem perguntas extraídas."
+    },
+    {
+      "platform_id": "binance",
+      "title": "Trading Rewards — Community Support Campaign",
+      "url": "https://www.binance.com/en/square/post/383909382526921",
+      "official_domains": [
+        "www.binance.com"
+      ],
+      "official": true,
+      "reward": "Participação em pool anunciado de 20.000.000 USDC; valor individual condicionado ao volume",
+      "reward_type": "USDC",
+      "reward_verified": true,
+      "financial_requirements": {
+        "purchase": "required"
+      },
+      "official_rules_complete": false,
+      "fees": "Custos de negociação; voucher de rebate não é dinheiro gratuito",
+      "brazil": "desconhecido",
+      "ends_at": "2026-11-21T23:59:59Z",
+      "availability": "aberta",
+      "educational_quiz": false,
+      "requirements": [
+        "KYC",
+        "Ao menos US$ 10.000 de volume qualificado",
+        "Restrições regionais"
+      ],
+      "reviewed_at": "2026-11-08",
+      "evidence": [
+        {
+          "url": "https://www.binance.com/en/square/post/383909382526921",
+          "support": "Anúncio da conta oficial condiciona a distribuição a volume de negociação; período até 22/11/2026 07:59:59 UTC+8."
+        }
+      ],
+      "access_note": "Participação manual; não é oportunidade gratuita."
+    }
+  ]
+}

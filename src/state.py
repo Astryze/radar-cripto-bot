@@ -25,7 +25,7 @@ class State:
     def __init__(self, path):
         self.path = Path(path)
         self.data = {"version": 2, "sent": {}, "summaries": [], "campaigns": {},
-                     "source_health": {}, "cooldowns": {}, "pending_sources": {}, "quizzes": {}, "quiz_checks": {}}
+                     "source_health": {}, "cooldowns": {}, "pending_sources": {}, "quizzes": {}, "quiz_checks": {}, "platform_campaigns": {}, "platform_health": {}}
         if self.path.exists():
             data = json.loads(self.path.read_text(encoding="utf-8"))
             if (data.get("version") not in (1, 2) or not isinstance(data.get("sent"), dict)
@@ -33,7 +33,7 @@ class State:
                 raise ValueError("Estado inválido; não reiniciar deduplicação silenciosamente")
             self.data.update(data)
             self.data["version"] = 2
-            for key in ("campaigns", "source_health", "cooldowns", "pending_sources", "quizzes", "quiz_checks"):
+            for key in ("campaigns", "source_health", "cooldowns", "pending_sources", "quizzes", "quiz_checks", "platform_campaigns", "platform_health"):
                 if not isinstance(self.data[key], dict):
                     raise ValueError("Histórico inválido")
 

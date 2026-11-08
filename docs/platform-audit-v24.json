@@ -1,0 +1,197 @@
+{
+  "version": "2.4",
+  "at": "2026-11-08T23:13:22.420554+00:00",
+  "dry_run": true,
+  "sources": [
+    {
+      "id": "binance",
+      "permission": "AUTORIZACAO_NECESSARIA",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "manual_link_only",
+      "limitations": "Termos globais não expuseram texto completo; termos regionais restringem crawlers. Não foi identificado endpoint documentado de campanhas L&E."
+    },
+    {
+      "id": "coinmarketcap",
+      "permission": "AUTORIZACAO_NECESSARIA",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "manual_link_only",
+      "limitations": "Seção 6 restringe screen scraping/reutilização. API de mercado não autoriza coleta de Earn."
+    },
+    {
+      "id": "galxe",
+      "permission": "API_OFICIAL",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "skipped_api_access_or_free_plan_not_verified",
+      "limitations": "Termos gerais não acessíveis; autorização de integração limitada à API documentada, com token de proprietário/admin. Nenhum plano pago será contratado."
+    },
+    {
+      "id": "layer3",
+      "permission": "AUTOMACAO_PROIBIDA",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "manual_link_only",
+      "limitations": "Seção 7, item 19 proíbe sistemas automatizados não autorizados. CUBEs não comprovam prêmio financeiro."
+    },
+    {
+      "id": "zealy",
+      "permission": "API_OFICIAL",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "skipped_missing_api_key_or_admin_communities",
+      "limitations": "Termos vinculados pelo rodapé não acessíveis (400). Documentação autoriza API GET para comunidade administrada; não é busca global de campanhas. Plano gratuito inclui integrações."
+    },
+    {
+      "id": "intract",
+      "permission": "AUTOMACAO_PROIBIDA",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "manual_link_only",
+      "limitations": "Termos proíbem data mining, robôs e crawlers; página atual da plataforma indisponível na pesquisa."
+    },
+    {
+      "id": "questn",
+      "permission": "AUTORIZACAO_NECESSARIA",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "manual_link_only",
+      "limitations": "Homepage retornou 502 na pesquisa; termos oficiais e API autorizada não puderam ser verificados. Não classificar indisponibilidade como proibição comprovada."
+    },
+    {
+      "id": "revolut",
+      "permission": "ACESSO_PUBLICO_MANUAL",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "manual_link_only",
+      "limitations": "Termos permitem extratos pessoais; sem autorização expressa para crawler. FAQ Brasil confirma Crypto Learn, mas link de recompensas retorna 404. Valor/disponibilidade dependem do app."
+    },
+    {
+      "id": "bitdegree",
+      "permission": "AUTOMACAO_PROIBIDA",
+      "last_audit": "2026-11-08",
+      "last_execution": "2026-11-08T23:13:22.420554+00:00",
+      "http_status": null,
+      "errors": [],
+      "campaigns_found": [],
+      "status": "manual_link_only",
+      "limitations": "Barreira 2.3 preservada. Seção 10 proíbe cópia por crawler. Nenhuma nova coleta."
+    }
+  ],
+  "opportunities": [
+    {
+      "platform_id": "binance",
+      "title": "Bitcoin Basics — Earn Your First Bitcoin",
+      "url": "https://www.binance.com/en/academy/learn-and-earn/course/bitcoin-basics-BN1106506786176225281",
+      "official_domains": [
+        "www.binance.com"
+      ],
+      "official": true,
+      "reward": "0.00001 BTC em voucher para novos usuários elegíveis; limitado a 5.000 por mês",
+      "reward_type": "BTC",
+      "reward_verified": true,
+      "financial_requirements": {},
+      "official_rules_complete": false,
+      "fees": "Não confirmadas nas regras completas; saque separado não verificado",
+      "brazil": "desconhecido",
+      "ends_at": null,
+      "availability": "não confirmada",
+      "educational_quiz": true,
+      "requirements": [
+        "Novo usuário elegível",
+        "KYC conforme FAQ oficial",
+        "Acertar todas as perguntas",
+        "Cota mensal disponível; não confirmada para sua conta"
+      ],
+      "reviewed_at": "2026-11-08",
+      "evidence": [
+        {
+          "url": "https://www.binance.com/en/academy/learn-and-earn/course/bitcoin-basics-BN1106506786176225281",
+          "support": "Página oficial anuncia recompensa de 0.00001 BTC e limite mensal de 5.000 novos usuários elegíveis."
+        },
+        {
+          "url": "https://www.binance.com/en/support/faq/detail/3819c21bd5fb493fa5057c727043cb14",
+          "support": "Recompensas direcionadas a usuários selecionados com verificação de identidade e sujeitas a esgotamento."
+        }
+      ],
+      "access_note": "Somente link manual. Não há permissão de coleta nem perguntas extraídas.",
+      "platform": "Binance Academy / Learn & Earn",
+      "permission": "AUTORIZACAO_NECESSARIA",
+      "financial_classification": "GRATUIDADE_NAO_CONFIRMADA",
+      "score": 35,
+      "priority": "baixa",
+      "verification_status": "revisão manual recente; sem reconsulta automática"
+    },
+    {
+      "platform_id": "binance",
+      "title": "Trading Rewards — Community Support Campaign",
+      "url": "https://www.binance.com/en/square/post/383909382526921",
+      "official_domains": [
+        "www.binance.com"
+      ],
+      "official": true,
+      "reward": "Participação em pool anunciado de 20.000.000 USDC; valor individual condicionado ao volume",
+      "reward_type": "USDC",
+      "reward_verified": true,
+      "financial_requirements": {
+        "purchase": "required"
+      },
+      "official_rules_complete": false,
+      "fees": "Custos de negociação; voucher de rebate não é dinheiro gratuito",
+      "brazil": "desconhecido",
+      "ends_at": "2026-11-21T23:59:59Z",
+      "availability": "aberta",
+      "educational_quiz": false,
+      "requirements": [
+        "KYC",
+        "Ao menos US$ 10.000 de volume qualificado",
+        "Restrições regionais"
+      ],
+      "reviewed_at": "2026-11-08",
+      "evidence": [
+        {
+          "url": "https://www.binance.com/en/square/post/383909382526921",
+          "support": "Anúncio da conta oficial condiciona a distribuição a volume de negociação; período até 22/11/2026 07:59:59 UTC+8."
+        }
+      ],
+      "access_note": "Participação manual; não é oportunidade gratuita.",
+      "platform": "Binance Academy / Learn & Earn",
+      "permission": "AUTORIZACAO_NECESSARIA",
+      "financial_classification": "EXIGE_CAPITAL",
+      "score": 0,
+      "priority": "baixa",
+      "verification_status": "revisão manual recente; sem reconsulta automática"
+    }
+  ],
+  "sent": 0,
+  "errors": [],
+  "live_api_campaigns": 0,
+  "verified_zero_investment": 0,
+  "real_quiz_questions": 0,
+  "limitation": "Observações manuais não são descoberta contínua. Listagens API não confirmam recompensas de projetos."
+}

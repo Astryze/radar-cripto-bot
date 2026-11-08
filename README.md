@@ -312,3 +312,78 @@ Login, validade/expiração de sessão, leitura dinâmica e iframes autenticados
 não implementados nem testados em conta real. Os 252 testes aprovados verificam o
 código existente e o bloqueio novo; não demonstram acesso autenticado.
 Veja [`VALIDATION_V23.md`](VALIDATION_V23.md).
+
+## 2.4 — multiplataformas com permissões auditadas
+
+O cadastro central é `config/platforms.json`: Binance, CoinMarketCap, Galxe, Layer3,
+Zealy, Intract, QuestN, Revolut e a barreira BitDegree. Contém links oficiais, termos,
+documentação, data de auditoria, método permitido, limitações, tipos de recompensa e
+habilitação individual. A pesquisa dos termos foi manual; uma página pública não
+habilita scraping. Termos inacessíveis permanecem como limitação, não aprovação.
+
+Há APIs documentadas de Galxe e Zealy, com acesso específico de projeto/admin.
+Somente o conector GET da Zealy foi implementado: até três comunidades administradas
+pelo dono da chave, sem claims, 1 segundo de intervalo, até duas tentativas, limites
+HTTP existentes e cooldown persistente. A documentação inclui integrações no plano
+gratuito. Não é uma API de busca global nem concede acesso a comunidades de terceiros.
+Para usá-la, cadastre seus subdomínios em `communities` da Zealy e um GitHub Secret
+`ZEALY_API_KEY` com chave de **somente leitura**. Sem isso, a fonte é ignorada e as
+outras continuam. Não há cobrança contratada nem necessidade desse Secret para o radar.
+
+Galxe permanece sem coletor: token, escopo e disponibilidade de acesso gratuito não
+foram validados para esta conta. A API de mercado da CoinMarketCap não foi tratada
+como API de campanhas. Não existem endpoints inventados de quizzes ou de campanhas.
+A autorização GET da Zealy expira no código após 30 dias da auditoria: revise a evidência
+antes de atualizar a data no cadastro; a data isolada não cria uma permissão nova.
+
+Os caminhos antigos de coleta BitDegree, Binance L&E e Revolut foram desativados em
+`config/sources.json`. O HttpClient também bloqueia sites das nove plataformas e
+redirecionamentos para eles, exceto o GET documentado da Zealy. Isso fecha a coleta
+legada sem auditoria; os módulos anteriores continuam disponíveis e seus testes foram
+preservados. A BitDegree não é consultada novamente, mesmo pelo script de diagnóstico.
+As demais fontes do radar continuam funcionando. Não há login, cookies de sessão,
+carteiras ou transações. O cliente novo rejeita cookies do servidor.
+
+`config/campaign_observations.json` contém **observações reais de pesquisa manual**,
+com evidência oficial e data, não uma descoberta automatizada. Foram encontrados:
+
+- Bitcoin Basics, Binance: anuncia 0.00001 BTC para novos usuários, limite de 5.000 por
+  mês e KYC conforme FAQ. Brasil, cota atual e todas as obrigações financeiras não
+  comprovados: `GRATUIDADE_NAO_CONFIRMADA`, disponibilidade não confirmada.
+- Campanha Binance de volume de negociação: exige volume mínimo de US$ 10.000 para
+  compartilhar um pool anunciado. `EXIGE_CAPITAL`; não é dinheiro gratuito.
+
+Observações manuais vencem para novos alertas em sete dias; não são reconsultadas por
+scraping. O Telegram identifica sua data e limitações, informa custo, taxas, Brasil,
+requisitos, recompensa e permissão. Não reapresenta inalteradas; mudanças relevantes e
+encerramentos conhecidos de campanhas já notificadas podem gerar alertas. Datas de
+revisão isoladas não geram repetição. Nenhuma campanha fictícia entra na configuração.
+
+A classificação financeira exige regras oficiais completas e ausência comprovada das
+obrigações de depósito, compra, staking pago, NFT pago, assinatura, inscrição e gas
+para `ZERO_INVESTIMENTO`. Gas fica separado; KYC não é investimento. Pontos, badges,
+certificados e créditos não são tokens sacáveis. Sorteios e pools não garantem pagamento
+individual. Regras desconhecidas não viram gratuidade. Não há conversão financeira
+estimada de pontos. Brasil não elegível e campanhas encerradas recebem prioridade baixa.
+
+A análise de quizzes reutiliza os módulos existentes e exige tanto permissão de acesso
+quanto autorização específica de análise. Nenhuma das plataformas auditadas foi habilitada
+para coletar perguntas automaticamente. Não foram encontradas perguntas reais extraíveis
+por um meio automatizado autorizado. Listagem de quests de uma API não comprova regras,
+recompensas oficiais do projeto ou ausência de custo, e não gera sozinha alerta financeiro.
+
+```bash
+python -m src.multiplatform --dry-run
+# Envio com as mesmas variáveis Telegram já existentes:
+python -m src.multiplatform
+```
+
+A etapa participa do workflow existente antes da persistência de estado. O histórico
+`radar-state/radar.json` mantém os registros anteriores e adiciona `platform_campaigns`
+e `platform_health`. O relatório é `reports/multiplatform.json`; o estado da fonte
+contém última execução, HTTP real quando houve, erros, catálogos e limitações.
+
+**Resultado desta entrega:** 0 oportunidades zero investimento verificadas, 0 chamadas
+à API sem chave/admin configurado e 0 perguntas reais extraídas. A descoberta contínua
+ampla ainda não está disponível: as permissões e acessos encontrados não autorizam
+scraping geral das plataformas. Ver [`VALIDATION_V24.md`](VALIDATION_V24.md).

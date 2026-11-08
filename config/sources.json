@@ -13,7 +13,8 @@
       "policy_urls": [
         "https://www.bitdegree.org/faq"
       ],
-      "discovered_from": "https://www.bitdegree.org/learndrops"
+      "discovered_from": "https://www.bitdegree.org/learndrops",
+      "enabled": false
     },
     {
       "id": "bitdegree-official-guild",
@@ -27,7 +28,8 @@
       "policy_urls": [
         "https://www.bitdegree.org/faq"
       ],
-      "discovered_from": "https://www.bitdegree.org/faq"
+      "discovered_from": "https://www.bitdegree.org/faq",
+      "enabled": false
     },
     {
       "id": "bitdegree-missions",
@@ -48,7 +50,8 @@
       "policy_urls": [
         "https://www.bitdegree.org/faq"
       ],
-      "discovered_from": "https://www.bitdegree.org/faq"
+      "discovered_from": "https://www.bitdegree.org/faq",
+      "enabled": false
     },
     {
       "id": "ethereum",
@@ -134,7 +137,8 @@
       "selector": "a[href*='/learn-and-earn/'], a[href*='/learn-and-earn?'], a[href*='/activity/'], a[href*='/support/announcement/']",
       "path_pattern": "/(?:learn-and-earn|activity|support/announcement)[/?]",
       "max_items": 10,
-      "discovered_from": "https://www.binance.com/en/academy/learn-and-earn"
+      "discovered_from": "https://www.binance.com/en/academy/learn-and-earn",
+      "enabled": false
     },
     {
       "id": "arbitrum",
@@ -222,7 +226,8 @@
         "help.revolut.com"
       ],
       "max_items": 1,
-      "discovered_from": "https://help.revolut.com/en-IT/help/wealth/cryptocurrencies/learn-and-earn/what-is-crypto-learn-earn-and-where-can-i-access-it/"
+      "discovered_from": "https://help.revolut.com/en-IT/help/wealth/cryptocurrencies/learn-and-earn/what-is-crypto-learn-earn-and-where-can-i-access-it/",
+      "enabled": false
     }
   ]
 }

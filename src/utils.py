@@ -104,7 +104,7 @@ def atomic_json(path, data):
 class RedactFilter(logging.Filter):
     def filter(self, record):
         message = record.getMessage()
-        for key in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"):
+        for key in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "ZEALY_API_KEY"):
             secret = os.getenv(key)
             if secret:
                 message = message.replace(secret, "[REDACTED]")
@@ -183,10 +183,13 @@ class HttpClient:
         return target
 
     def get(self, url, domains):
+        from .platform_permissions import guard_request
+        guard_request(url)
         if url in self.cache:
             return self.cache[url]
         original_url = url
         for _redirect in range(5):
+            guard_request(url)
             validate_url(url, domains)
             host = urlsplit(url).hostname
             cooldown = self.cooldowns.get(host)

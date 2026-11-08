@@ -87,6 +87,18 @@ jobs:
       - name: Registrar bloqueio da análise autenticada BitDegree
         if: always() && (steps.restore.outcome == 'success' || inputs.dry_run == true)
         run: python -m src.bitdegree_authenticated
+      - name: Investigar plataformas com permissão auditada
+        if: always() && (steps.restore.outcome == 'success' || inputs.dry_run == true)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ZEALY_API_KEY: ${{ secrets.ZEALY_API_KEY }}
+          RADAR_DRY_RUN: ${{ inputs.dry_run }}
+        shell: bash
+        run: |
+          args=()
+          if [[ "$RADAR_DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
+          python -m src.multiplatform "${args[@]}"
       - name: Persistir entregas confirmadas, inclusive em falha parcial
         if: always() && steps.restore.outcome == 'success' && inputs.dry_run != true
         run: python scripts/state_sync.py save
