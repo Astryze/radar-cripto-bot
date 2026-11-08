@@ -72,6 +72,13 @@ def test_token_cannot_inject_url_path():
         TelegramBot("token/another-method", "test")
 
 
+def test_chat_not_found_diagnostic(response):
+    session = Mock()
+    session.post.return_value = response(status=400, payload={"ok": False, "description": "Bad Request: chat not found"})
+    with pytest.raises(FetchError, match="TELEGRAM_CHAT_ID"):
+        TelegramBot("test", "test", session, Mock()).send("test")
+
+
 def test_api_ok_false_even_with_http_200(response):
     session = Mock()
     session.post.return_value = response(payload={"ok": False, "error_code": 400})

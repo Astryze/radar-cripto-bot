@@ -74,6 +74,17 @@ class TelegramBot:
                 continue
             if status in {401, 404}:
                 raise FetchError(f"Telegram: HTTP {status}; confira TELEGRAM_BOT_TOKEN no Secret (somente token do BotFather, sem URL/prefixo bot)")
+            # Nunca registrar a descrição livre recebida da API: ela pode ecoar dados.
+            descriptions = {
+                "bad request: chat not found": "chat não encontrado; confira TELEGRAM_CHAT_ID e envie /start ao bot",
+                "bad request: chat_id is empty": "TELEGRAM_CHAT_ID vazio",
+                "bad request: message is too long": "mensagem excedeu o limite da API",
+                "forbidden: bot was blocked by the user": "bot bloqueado pelo destinatário",
+                "forbidden: bot can't initiate conversation with a user": "envie /start ao bot antes da execução",
+            }
+            detail = descriptions.get(str(data.get("description", "")).lower())
+            if detail:
+                raise FetchError(f"Telegram: HTTP {status}; {detail}")
             raise FetchError(f"Telegram: API recusou mensagem (HTTP {status}; código {code if isinstance(code, int) else 'inválido'})")
         raise FetchError("Telegram: tentativas esgotadas")
 

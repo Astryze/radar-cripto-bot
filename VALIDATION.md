@@ -3,7 +3,7 @@
 ## Verificações executadas
 
 - Python 3.12.14; dependências instaladas de `requirements-dev.txt`.
-- `python -m pytest`: suíte offline com mocks, incluindo integração local da branch
+- `python -m pytest`: **123 testes aprovados**, suíte offline com mocks, incluindo integração local da branch
   de histórico com um repositório Git bare temporário. Nenhuma mensagem real nos testes.
 - `ruff check .`: sem problemas.
 - `python -m compileall -q src scripts main.py`: sintaxe Python válida.
@@ -61,6 +61,29 @@ código 2 e salvou logs/relatório como artifact, sem marcar resumo falho como e
 Essa execução motivou a normalização de espaços e quebras de linha nas extremidades
 dos Secrets, validação contra injeção de caminho no token e mensagem de diagnóstico
 específica para HTTP 401/404. Falhas externas não são escondidas para deixar o job verde.
+
+## Segunda execução real e estado final
+
+Os 122 testes da correção passaram também no runner GitHub. A segunda execução real
+confirmou o funcionamento da coleta nas cinco primeiras fontes e a eliminação do
+HTTP 404 após normalização do token. O Telegram respondeu HTTP 400, sem confirmação
+de entrega. É necessário conferir `TELEGRAM_CHAT_ID` e iniciar a conversa com `/start`
+(ou permissões do bot no grupo); os valores dos Secrets não foram lidos ou alterados.
+Não houve entrega confirmada para persistir na branch de histórico.
+
+Solana continuou retornando HTTP 429 e Binance HTTP 202 a partir do runner. Não foram
+contornados bloqueios, login ou limites. O workflow corretamente terminou como falha
+parcial, mantendo os artifacts. Uma nova execução com as mesmas configurações não
+é apresentada como solução para essas recusas.
+
+Referências:
+- Validação inicial: https://github.com/Astryze/radar-cripto-bot/actions/runs/42525985066
+- Primeira pesquisa real: https://github.com/Astryze/radar-cripto-bot/actions/runs/42526042975
+- Segunda pesquisa real: https://github.com/Astryze/radar-cripto-bot/actions/runs/42526267348
+
+A última melhoria adiciona diagnóstico seguro para erros conhecidos do Telegram
+(incluindo chat não encontrado), sem registrar mensagens livres que possam expor dados.
+Foi validada localmente com 123 testes e os mesmos checks de sintaxe/YAML/segredos.
 
 ## Inventário exato de alterações
 
