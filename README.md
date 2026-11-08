@@ -131,7 +131,8 @@ alteração de recompensa/prazo/custo e encerramento. Reconsulta em rotação at
 campanhas históricas ausentes da listagem por fonte e aplica prazos oficiais já salvos.
 Não considera desaparecimento ou erro HTTP como prova de encerramento.
 
-Resumo é enviado **primeiro**, seguido dos alertas novos/atualizados. Uma alteração
+Resumo é enviado **primeiro**, seguido dos alertas novos/atualizados. Os destaques
+do resumo também excluem campanhas inalteradas, evitando repetição diária de links. Uma alteração
 não entregue permanece pendente. Marca entrega só após sucesso da API. Mensagens
 em texto simples são divididas por unidades UTF-16 e respeitam rate limits.
 POST com timeout é ambíguo e não é repetido imediatamente. Telegram e Git não têm

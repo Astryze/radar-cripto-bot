@@ -141,7 +141,8 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
     events = [(op, state.event(op)) for op in opportunities]
     unavailable = sum(not h["ok"] and h["status"] != "pending" for h in health)
     pending_count = sum(h["status"] == "pending" for h in health)
-    summary = daily_summary(opportunities, errors, day, len(health), new_count, unavailable, pending_count)
+    highlights = {op.url for op, event in events if event}
+    summary = daily_summary(opportunities, errors, day, len(health), new_count, unavailable, pending_count, highlights)
     if not dry_run:
         for op, event in events:
             state.observe(op, event)

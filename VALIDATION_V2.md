@@ -5,7 +5,7 @@ Data: 08/11/2026. Código-base preservado: `059c98e8b318da8dbda905137998b34ce0ac
 ## Verificações locais
 
 - Python 3.12.14 e dependências gratuitas já existentes; nenhuma dependência nova.
-- **183 testes aprovados**, todos offline, com bloqueio de rede e mocks HTTP/Telegram.
+- **184 testes aprovados**, todos offline, com bloqueio de rede e mocks HTTP/Telegram.
 - Ruff sem problemas; `compileall` sem erros; parsing YAML e actionlint aprovados.
 - Varredura de credenciais sem achados nos arquivos e no ZIP inicial.
 - Migração v1→v2, preservação de entregas, fila de transições, fechamento por prazo,

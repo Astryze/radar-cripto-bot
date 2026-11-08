@@ -112,12 +112,12 @@ def opportunity_message(op, event="oportunidade verificada"):
     ])
 
 
-def daily_summary(opportunities, errors, day, source_count, new_count=None, unavailable=None, pending_count=0):
+def daily_summary(opportunities, errors, day, source_count, new_count=None, unavailable=None, pending_count=0, highlight_urls=None):
     from collections import Counter
     from .models import Cost
     from .scoring import actionable
     counts = Counter(o.cost for o in opportunities if o.deadline != "encerrado")
-    best = sorted([o for o in opportunities if actionable(o)], key=lambda o: -o.score)[:5]
+    best = sorted([o for o in opportunities if actionable(o) and (highlight_urls is None or o.url in highlight_urls)], key=lambda o: -o.score)[:5]
     lines = ["RADAR CRIPTO — RELATÓRIO DIÁRIO", f"Data: {day} (Brasília)",
              f"Novas campanhas encontradas: {len(opportunities) if new_count is None else new_count}",
              f"Campanhas analisadas: {len(opportunities)}",
@@ -132,11 +132,11 @@ def daily_summary(opportunities, errors, day, source_count, new_count=None, unav
              f"Fontes consultadas: {source_count}",
              f"Fontes indisponíveis: {len(errors) if unavailable is None else unavailable}",
              f"Fontes aguardando resultado (202): {pending_count}",
-             "", "Melhores oportunidades gratuitas abertas:"]
+             "", "Melhores novidades gratuitas abertas:"]
     if best:
         lines.extend(f"• {o.title} — {o.priority}; {o.conclusion}; Brasil: {o.eligibility}\n{o.url}" for o in best)
     else:
-        lines.append("Nenhuma com gratuidade comprovada e prazo aberto nesta coleta.")
+        lines.append("Nenhuma novidade com gratuidade comprovada e prazo aberto nesta coleta.")
     if errors:
         lines.append("Cobertura parcial — " + "; ".join(errors[:8]))
     lines.append("Pontos internos e sorteios não são dinheiro garantido. Detalhes novos/atualizados seguem em alertas separados.")

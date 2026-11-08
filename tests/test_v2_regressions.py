@@ -61,3 +61,10 @@ def test_announced_new_symbol_and_points_never_convert(candidate, now):
 def test_portuguese_deadline(candidate, now):
     op = classify(candidate("No purchase or deposit required. Encerramento: 7 de novembro de 2026."), now)
     assert op.deadline == "encerrado" and op.deadline_at.startswith("2026-11-07")
+
+
+def test_daily_highlights_do_not_repeat_unchanged_campaigns(candidate, now):
+    op = classify(candidate("No purchase or deposit required."), now)
+    summary = daily_summary([op], [], "2026-11-09", 16, highlight_urls=set())
+    assert op.url not in summary and op.title not in summary
+    assert "Gratuitas confirmadas: 1" in summary
