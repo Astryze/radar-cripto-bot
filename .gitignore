@@ -11,3 +11,4 @@ state/
 logs/
 reports/
 *.log
+.auth/

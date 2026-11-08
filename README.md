@@ -288,3 +288,27 @@ python -m scripts.diagnose_bitdegree --output reports/bitdegree-diagnostic.json
 
 A coleta e análise de quizzes reais permanece **não demonstrada**; não há respostas
 reais produzidas. Detalhes e limites em [`VALIDATION_V22.md`](VALIDATION_V22.md).
+
+## 2.3 — análise autenticada bloqueada pelos termos
+
+A [seção 10 dos termos oficiais](https://www.bitdegree.org/terms-of-service) proíbe
+cópia por tecnologia de robôs/crawlers. Seguindo o requisito de interromper quando a
+plataforma proibir esse acesso, a coleta autenticada não foi habilitada. É necessária
+uma autorização específica da BitDegree para reavaliar essa integração.
+
+`python -m scripts.bitdegree_login` apenas explica o impedimento e sai com código 2:
+não abre Chromium, não solicita senha e não salva sessão. Não é um login funcional.
+Não configure `BITDEGREE_STORAGE_STATE_B64` nem envie cookies para esta integração.
+A pasta `.auth/` está preventivamente ignorada pelo Git; não deve integrar artifacts,
+relatórios ou fixtures. Não há sessão importada ou expirada a renovar nesta versão.
+
+`python -m src.bitdegree_authenticated` registra o bloqueio para cada uma das seis
+missões em `reports/bitdegree-authenticated.json`. Nenhum Secret é lido. Essa etapa
+retorna 0 para permitir que o radar continue, com status explícito de **não executada**.
+O workflow inclui esse registro sem instalar navegador ou transmitir sessão. Os fluxos
+anteriores permanecem preservados; não há alegação nova de autorização desses fluxos.
+
+Login, validade/expiração de sessão, leitura dinâmica e iframes autenticados continuam
+não implementados nem testados em conta real. Os 252 testes aprovados verificam o
+código existente e o bloqueio novo; não demonstram acesso autenticado.
+Veja [`VALIDATION_V23.md`](VALIDATION_V23.md).

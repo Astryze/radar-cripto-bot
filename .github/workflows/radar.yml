@@ -84,6 +84,9 @@ jobs:
           args=()
           if [[ "$RADAR_DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
           python -u -m src.bitdegree_quizzes "${args[@]}"
+      - name: Registrar bloqueio da análise autenticada BitDegree
+        if: always() && (steps.restore.outcome == 'success' || inputs.dry_run == true)
+        run: python -m src.bitdegree_authenticated
       - name: Persistir entregas confirmadas, inclusive em falha parcial
         if: always() && steps.restore.outcome == 'success' && inputs.dry_run != true
         run: python scripts/state_sync.py save
