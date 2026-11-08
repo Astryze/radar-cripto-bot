@@ -1,0 +1,170 @@
+{
+  "version": "2.2",
+  "mode": "public_extraction_audit_no_submission",
+  "missions": [
+    {
+      "title": "Ledger Atom: The Future of Crypto Security?",
+      "url": "https://www.bitdegree.org/guilds/ledger/ledger-atom-the-future-of-crypto-security",
+      "checked_at": "2026-11-08T22:55:58.180113+00:00",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "questions_extracted": 0,
+      "questions_analyzed": 0,
+      "conclusive_answers": 0,
+      "final_url": "https://www.bitdegree.org/guilds/ledger/ledger-atom-the-future-of-crypto-security",
+      "diagnostic": {
+        "url": "https://www.bitdegree.org/guilds/ledger/ledger-atom-the-future-of-crypto-security",
+        "page_type": "mission_spa_with_server_summary",
+        "round_titles": [
+          "Meet Ledger Atom",
+          "Explore Ledger Atom Yourself",
+          "Behind the Scenes: The Story of Ledger Atom"
+        ],
+        "embedded_json_blocks": 0,
+        "invalid_json_blocks": 0,
+        "dynamic_shell_observed": true,
+        "login_form_observed": false,
+        "access_requirement": "not_determined",
+        "reason_code": "dynamic_shell_without_question_payload",
+        "reason": "HTML contém resumo e títulos de rodadas, sem payload público de perguntas; JavaScript referenciado não demonstra acesso público nem exigência de login."
+      },
+      "body_hash": "5a7e84213a3c26db56d515a2be67b316062f95623baa4ccbdb12adbb78b82b15"
+    },
+    {
+      "title": "Vega Bet Quest: Learn Before You Bet",
+      "url": "https://www.bitdegree.org/guilds/vega-bet/vega-bet-quest-learn-before-you-bet",
+      "checked_at": "2026-11-08T22:56:08.200106+00:00",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "questions_extracted": 0,
+      "questions_analyzed": 0,
+      "conclusive_answers": 0,
+      "final_url": "https://www.bitdegree.org/guilds/vega-bet/vega-bet-quest-learn-before-you-bet",
+      "diagnostic": {
+        "url": "https://www.bitdegree.org/guilds/vega-bet/vega-bet-quest-learn-before-you-bet",
+        "page_type": "mission_spa_with_server_summary",
+        "round_titles": [
+          "Get to Know Vega Bet",
+          "Visit Vega Bet"
+        ],
+        "embedded_json_blocks": 0,
+        "invalid_json_blocks": 0,
+        "dynamic_shell_observed": true,
+        "login_form_observed": false,
+        "access_requirement": "not_determined",
+        "reason_code": "dynamic_shell_without_question_payload",
+        "reason": "HTML contém resumo e títulos de rodadas, sem payload público de perguntas; JavaScript referenciado não demonstra acesso público nem exigência de login."
+      },
+      "body_hash": "906afcb3be36e05994aae7a309b3a42fca9fe16cae98b7b0818fab43ff06708d"
+    },
+    {
+      "title": "Lucky Rollers Quest: 2 Steps to Your Bonus PAUSED",
+      "url": "https://www.bitdegree.org/guilds/lucky-rollers/lucky-rollers-quest-2-steps-to-your-bonus",
+      "checked_at": "2026-11-08T22:56:09.444138+00:00",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "questions_extracted": 0,
+      "questions_analyzed": 0,
+      "conclusive_answers": 0,
+      "final_url": "https://www.bitdegree.org/guilds/lucky-rollers/lucky-rollers-quest-2-steps-to-your-bonus",
+      "diagnostic": {
+        "url": "https://www.bitdegree.org/guilds/lucky-rollers/lucky-rollers-quest-2-steps-to-your-bonus",
+        "page_type": "mission_spa_with_server_summary",
+        "round_titles": [
+          "Get to know Lucky Rollers",
+          "Visit Lucky Rollers"
+        ],
+        "embedded_json_blocks": 0,
+        "invalid_json_blocks": 0,
+        "dynamic_shell_observed": true,
+        "login_form_observed": false,
+        "access_requirement": "not_determined",
+        "reason_code": "dynamic_shell_without_question_payload",
+        "reason": "HTML contém resumo e títulos de rodadas, sem payload público de perguntas; JavaScript referenciado não demonstra acesso público nem exigência de login."
+      },
+      "body_hash": "5a25175c247f2a6631107b1caeabc353f1d45ec4ef08a3f4fce50a0b01a18a9e"
+    },
+    {
+      "title": "Cracking the Code: BC.GAME Bonuses",
+      "url": "https://www.bitdegree.org/guilds/bcgame/cracking-the-code-bcgame-bonuses",
+      "checked_at": "2026-11-08T22:56:10.691188+00:00",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "questions_extracted": 0,
+      "questions_analyzed": 0,
+      "conclusive_answers": 0,
+      "final_url": "https://www.bitdegree.org/guilds/bcgame/cracking-the-code-bcgame-bonuses",
+      "diagnostic": {
+        "url": "https://www.bitdegree.org/guilds/bcgame/cracking-the-code-bcgame-bonuses",
+        "page_type": "mission_spa_with_server_summary",
+        "round_titles": [
+          "Exploring BC.GAME Promo Codes",
+          "Step Into BC.GAME"
+        ],
+        "embedded_json_blocks": 0,
+        "invalid_json_blocks": 0,
+        "dynamic_shell_observed": true,
+        "login_form_observed": false,
+        "access_requirement": "not_determined",
+        "reason_code": "dynamic_shell_without_question_payload",
+        "reason": "HTML contém resumo e títulos de rodadas, sem payload público de perguntas; JavaScript referenciado não demonstra acesso público nem exigência de login."
+      },
+      "body_hash": "ea632ff416574874298a5fa0624efadb8e58a14f4d59f4424f986a46fa7978c9"
+    },
+    {
+      "title": "Winna: No-KYC Casino, Licensed, Big Rewards",
+      "url": "https://www.bitdegree.org/guilds/winna/winna-no-kyc-casino-licensed-big-rewards",
+      "checked_at": "2026-11-08T22:56:11.931161+00:00",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "questions_extracted": 0,
+      "questions_analyzed": 0,
+      "conclusive_answers": 0,
+      "final_url": "https://www.bitdegree.org/guilds/winna/winna-no-kyc-casino-licensed-big-rewards",
+      "diagnostic": {
+        "url": "https://www.bitdegree.org/guilds/winna/winna-no-kyc-casino-licensed-big-rewards",
+        "page_type": "mission_spa_with_server_summary",
+        "round_titles": [
+          "Introduction to Winna Casino",
+          "Step Inside Winna"
+        ],
+        "embedded_json_blocks": 0,
+        "invalid_json_blocks": 0,
+        "dynamic_shell_observed": true,
+        "login_form_observed": false,
+        "access_requirement": "not_determined",
+        "reason_code": "dynamic_shell_without_question_payload",
+        "reason": "HTML contém resumo e títulos de rodadas, sem payload público de perguntas; JavaScript referenciado não demonstra acesso público nem exigência de login."
+      },
+      "body_hash": "72dc1a12bc42b8952f0df7d6bdd96c39ae9e4d76fe8766b981913dd9c53bb8a2"
+    },
+    {
+      "title": "All-in-One Crypto Casino with Slots & Sportsbook",
+      "url": "https://www.bitdegree.org/guilds/stake/all-in-one-crypto-casino-with-slots-sportsbook",
+      "checked_at": "2026-11-08T22:56:13.184141+00:00",
+      "http_status": 200,
+      "content_type": "text/html; charset=UTF-8",
+      "questions_extracted": 0,
+      "questions_analyzed": 0,
+      "conclusive_answers": 0,
+      "final_url": "https://www.bitdegree.org/guilds/stake/all-in-one-crypto-casino-with-slots-sportsbook",
+      "diagnostic": {
+        "url": "https://www.bitdegree.org/guilds/stake/all-in-one-crypto-casino-with-slots-sportsbook",
+        "page_type": "mission_spa_with_server_summary",
+        "round_titles": [
+          "Get to Know Stake",
+          "Your First Look at Stake"
+        ],
+        "embedded_json_blocks": 0,
+        "invalid_json_blocks": 0,
+        "dynamic_shell_observed": true,
+        "login_form_observed": false,
+        "access_requirement": "not_determined",
+        "reason_code": "dynamic_shell_without_question_payload",
+        "reason": "HTML contém resumo e títulos de rodadas, sem payload público de perguntas; JavaScript referenciado não demonstra acesso público nem exigência de login."
+      },
+      "body_hash": "f6b25aefcade383a1c917f8c51f0e99a2ae6f3beb53f1eb7637ccc50eb0117dc"
+    }
+  ],
+  "environment_note": "Leitura pública pelo proxy local; sem renderização JavaScript. Cliente de produção conserva DNS público. Nenhum login, cookie ou submissão."
+}

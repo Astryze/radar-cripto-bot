@@ -10,6 +10,8 @@ from urllib.parse import urljoin, urlsplit
 
 from .feed_reader import load_sources, read_source
 from .quiz_analyzer import ANALYZER_VERSION, analyze_question, extract_public_questions, public_soup, study_text
+from .quiz_diagnostics import diagnose
+from .public_questions import inconclusive
 from .state import State
 from .telegram_bot import TelegramBot
 from .utils import (FetchError, HttpClient, atomic_json, canonical_url, digest, normalize,
@@ -39,6 +41,12 @@ class Budget:
     def __init__(self, client, limits, clock=time.monotonic):
         self.client, self.limits, self.clock = client, limits, clock
         self.started, self.requests = clock(), 0
+
+    def metadata(self, url):
+        records = getattr(self.client, 'records', [])
+        entries = [r for r in records if r.get('url') == url]
+        latest = entries[-1] if entries else {}
+        return {'http_status': latest.get('status'), 'content_type': latest.get('content_type')}
 
     def get(self, url, domains):
         if (self.requests >= self.limits['max_requests'] or
@@ -120,7 +128,8 @@ def inspect_mission(candidate, budget, domains, previous, limits):
     else:
         results = []
         for q in questions:
-            answer = analyze_question(q['question'], q['options'], materials)
+            answer = (inconclusive(q) if q.get('question_type') in {'multiple', 'written'}
+                      else analyze_question(q['question'], q['options'], materials))
             answer['question_source'] = q['question_source']
             results.append(answer)
     status = 'quiz público analisado' if questions else 'perguntas não disponíveis publicamente'
@@ -132,6 +141,12 @@ def inspect_mission(candidate, budget, domains, previous, limits):
               'analyzed_at': previous.get('analyzed_at') if previous.get('source_hash') == source_hash
               else utcnow().isoformat(), 'analyzer_version': ANALYZER_VERSION,
               'materials': [{'url': m['url'], 'content_hash': digest(m['text'])} for m in materials]}
+    record.update(budget.metadata(final))
+    record['diagnostic'] = diagnose(body, final)
+    record['questions_extracted'] = len(questions)
+    record['questions_analyzed'] = len(results)
+    record['conclusive_answers'] = sum(r['probable_answer'] is not None for r in results)
+    record['diagnostic']['reason_code'] = 'public_questions_extracted' if questions else record['diagnostic']['reason_code']
     record['notification_hash'] = digest({k: record[k] for k in ('title', 'url', 'status', 'results')})
     record['delivered_hash'] = previous.get('delivered_hash')
     return record
@@ -158,7 +173,7 @@ def quiz_message(record, updated=False):
     return '\n'.join(lines)
 
 
-def run(sources, client, state, bot, report_dir, dry_run=False, limits=None):
+def run(sources, client, state, bot, report_dir, dry_run=False, limits=None, notify_diagnostics=True):
     limits = {**DEFAULT_LIMITS, **(limits or {})}
     for key, default in DEFAULT_LIMITS.items():
         if not isinstance(limits[key], int) or not 1 <= limits[key] <= default:
@@ -191,7 +206,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, limits=None):
         raise ValueError('Histórico de coletas BitDegree inválido')
     candidates.sort(key=lambda c: checks.get(canonical_url(c.url),
                     history.get(canonical_url(c.url), {}).get('checked_at', '')))
-    observed, sent = [], 0
+    observed, failed, sent = [], [], 0
     for candidate in candidates[:limits['max_missions']]:
         key = canonical_url(candidate.url)
         prior = history.get(key, {})
@@ -204,22 +219,25 @@ def run(sources, client, state, bot, report_dir, dry_run=False, limits=None):
                 continue
             history[key] = record
             state.save()  # Cache sobrevive inclusive a uma falha de Telegram.
-            if record['notification_hash'] != record.get('delivered_hash'):
+            if (record['results'] or notify_diagnostics) and record['notification_hash'] != record.get('delivered_hash'):
                 bot.send(quiz_message(record, bool(prior)))
                 record['delivered_hash'] = record['notification_hash']
                 state.save()
                 sent += 1
         except (FetchError, ValueError) as exc:
             errors.append({'mission': key, 'error_type': type(exc).__name__})
+            failed.append({'title': candidate.title, 'url': key, **budget.metadata(key),
+                           'questions_extracted': 0, 'questions_analyzed': 0, 'conclusive_answers': 0,
+                           'diagnostic': {'reason_code': 'technical_collection_failure', 'error_type': type(exc).__name__}})
     if not dry_run:
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version': '2.1', 'at': utcnow().isoformat(), 'dry_run': dry_run,
+    report = {'version': '2.2', 'at': utcnow().isoformat(), 'dry_run': dry_run,
               'requests': budget.requests, 'http': getattr(client, 'records', []), 'sources': health,
               'discovered_missions': len(candidates), 'checked_missions': len(observed),
               'public_quizzes': sum(bool(r['results']) for r in observed), 'sent': sent,
-              'errors': errors, 'missions': observed,
+              'errors': errors, 'missions': observed + failed,
               'limitations': 'HTML público estático; nenhuma autenticação, API privada ou submissão. '
                              'Ausência de perguntas públicas não significa ausência de quiz na plataforma.'}
     atomic_json(Path(report_dir) / 'bitdegree-quizzes.json', report)
@@ -239,7 +257,7 @@ def main():
     try:
         bot = None if args.dry_run else TelegramBot(os.getenv('TELEGRAM_BOT_TOKEN'), os.getenv('TELEGRAM_CHAT_ID'))
         return run(load_sources(args.sources), public_client(),
-                   State(args.state), bot, args.reports, args.dry_run)
+                   State(args.state), bot, args.reports, args.dry_run, notify_diagnostics=False)
     except Exception as exc:
         LOG.error('BitDegree interrompido: %s', type(exc).__name__)
         atomic_json(args.reports / 'bitdegree-failure.json', {'error_type': type(exc).__name__,

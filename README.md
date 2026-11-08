@@ -256,3 +256,35 @@ CAPTCHA, conexão de carteira ou submissão automática de respostas, mesmo se u
 plataforma passar a permiti-la: tal recurso não existe nesta implementação.
 
 Validação e limites desta entrega: [`VALIDATION_V21.md`](VALIDATION_V21.md).
+
+## Diagnóstico 2.2 — limites demonstrados
+
+A auditoria individual das seis missões está em
+[`docs/bitdegree-v22-diagnostic.json`](docs/bitdegree-v22-diagnostic.json).
+Todas entregaram resumo e nomes de rodadas, com uma aplicação `missions-mount` /
+`dashboard-layout`; não havia perguntas no HTML nem JSON de quiz incorporado.
+Isso demonstra ausência no documento recebido, **não** prova exigência de login.
+A inspeção renderizada não pôde ser concluída por limite do navegador deste ambiente.
+Não foram consultadas rotas internas nem simulada participação para obter perguntas.
+
+A etapa agora registra diagnóstico, status HTTP, tipo de conteúdo e contagens por missão,
+inclusive em falhas técnicas. Foram adicionados formatos públicos explícitos de questão
+única, múltipla e escrita, e JSON de Quiz explicitamente público. Estes formatos novos
+foram validados com exemplos artificiais; nenhum foi encontrado nas seis missões reais.
+Questões escritas e de múltiplas respostas ficam inconclusivas: não há inferência validada
+para determinar a resposta completa. HTML/JSON promocional e FAQ não viram perguntas.
+Nenhuma API dinâmica foi adicionada: não foi encontrada documentação oficial de uma
+API pública de perguntas. Não se extrai conteúdo de rotas internas ou hidratação arbitrária.
+
+O CLI de produção envia apenas resultados com perguntas públicas, mantendo histórico
+de diagnósticos sem alertas vazios. A API Python mantém o comportamento de notificação
+de diagnóstico 2.1 por compatibilidade; `notify_diagnostics=False` aplica a regra nova.
+
+Para reproduzir a auditoria de extração, sem envio e sem análise de respostas:
+
+```bash
+python -m scripts.diagnose_bitdegree --output reports/bitdegree-diagnostic.json
+```
+
+A coleta e análise de quizzes reais permanece **não demonstrada**; não há respostas
+reais produzidas. Detalhes e limites em [`VALIDATION_V22.md`](VALIDATION_V22.md).

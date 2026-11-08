@@ -12,7 +12,7 @@ from .feed_reader import load_sources
 from .utils import HttpClient, atomic_json, normalize, plain_text, validate_url
 
 STOP = set("a o e de da do as os um uma em na no the is of to and or for in an which what que qual como are on with".split())
-ANALYZER_VERSION = "2.1.0"
+ANALYZER_VERSION = "2.2.0"
 
 
 def public_soup(body):
@@ -46,12 +46,22 @@ def extract_public_questions(body, url, selectors=None):
         if question and key not in seen:
             seen.add(key)
             questions.append({'question': question, 'options': options, 'question_source': url})
+    from .public_questions import extract_additional
+    for question in extract_additional(body, url):
+        key = (question["question"], tuple(question["options"]))
+        if key not in seen:
+            seen.add(key)
+            questions.append(question)
+        else:
+            for existing in questions:
+                if (existing["question"], tuple(existing["options"])) == key:
+                    existing.update(question)
     return questions
 
 
 def study_text(body):
     soup = public_soup(body)
-    for el in list(soup.select('form, fieldset, [data-quiz-question], nav, footer, header, aside')):
+    for el in list(soup.select('form, fieldset, [data-quiz-question], [data-question-type], [role="group"][aria-labelledby], nav, footer, header, aside')):
         el.decompose()
     return plain_text(str(soup), article_only=True)
 
@@ -142,7 +152,9 @@ def analyze_public_quiz(data, sources, client):
         raise ValueError("Nenhuma pergunta pública identificada; não contornar login ou CAPTCHA")
     results = []
     for question in questions[:50]:
-        result = analyze_question(question["question"], question["options"], materials)
+        from .public_questions import inconclusive
+        result = (inconclusive(question) if question.get("question_type") in {"multiple", "written"}
+                  else analyze_question(question["question"], question["options"], materials))
         result["question_source"] = question.get("question_source", "entrada fornecida pelo usuário")
         results.append(result)
     return results
