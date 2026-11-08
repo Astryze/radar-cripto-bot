@@ -4,6 +4,9 @@ on:
   schedule:
     # 10h15 de Brasília (UTC-3). O GitHub pode atrasar o início.
     - cron: "15 13 * * *"
+    # Verificações extras às 16h15 e 22h15 de Brasília: só mudanças geram alertas.
+    - cron: "15 19 * * *"
+    - cron: "15 1 * * *"
   workflow_dispatch:
     inputs:
       dry_run:

@@ -1,93 +1,163 @@
-# Radar Cripto
+# Radar Cripto 2.0
 
-Radar gratuito de campanhas públicas, com Python 3.12, GitHub Actions e Telegram.
-Prioriza participação sem investimento inicial. Consulta páginas reais, analisa
-regras, conserva evidências e não inventa campanhas ou pagamentos.
+Radar de campanhas públicas Web3 com participação sem investimento inicial. Python
+3.12, GitHub Actions, fontes oficiais e Telegram, sem servidor ou API paga.
 
-## Colocar para executar
+## Executar
 
-1. Abra **Settings → Secrets and variables → Actions** e cadastre
-   `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID`. Preserve os valores existentes, caso
-   já estejam configurados. Nunca publique credenciais no código.
-2. No Telegram, abra uma conversa com seu bot e envie `/start`. Para grupos,
-   adicione o bot com permissão de envio e use o ID do grupo.
-3. Abra **Actions → Radar Cripto → Run workflow**, branch `main`.
-   `dry_run` desmarcado envia ao Telegram; marcado apenas pesquisa e gera artifacts.
-4. Confira os jobs e o artifact `radar-logs-...`, disponível também em falhas parciais.
+1. Em **Settings → Secrets and variables → Actions**, mantenha os Secrets
+   `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID`. Nunca coloque seus valores no código.
+2. Abra o bot no Telegram e envie `/start`. O ID deve pertencer à conta que iniciou
+   a conversa; em grupos, o bot precisa de permissão para enviar mensagens.
+3. Em **Actions → Radar Cripto → Run workflow**, escolha `main`. Marque `dry_run`
+   para pesquisar sem envio; desmarcado usa os Secrets existentes.
+4. Logs, `run.json`, `summary.txt` e `source-health.json` ficam nos artifacts,
+   inclusive quando a pesquisa é parcial.
 
-Agendamento: `15 13 * * *`, **10h15 de Brasília**, diariamente. O GitHub pode atrasar
-o início. Não é servidor permanente. O workflow deve estar na branch padrão.
-Em repositórios públicos sem atividade, o GitHub pode suspender agendamentos após
-60 dias: confira Actions se os relatórios pararem.
+O resumo diário está agendado às **10h15 de Brasília** (`15 13 * * *`). Há novas
+verificações às **16h15 e 22h15** (`15 19 * * *` e `15 1 * * *`) para alertas de
+novidades/atualizações. O resumo não se repete no mesmo dia. GitHub Actions não é
+servidor permanente e pode atrasar o início. Em repositórios públicos sem atividade,
+o GitHub pode suspender agendamentos após 60 dias: acompanhe a aba Actions.
 
-O job de pesquisa usa `contents: write` para persistir histórico em `radar-state`.
-Se a política de Actions/organização impedir, permita a criação/escrita dessa branch.
-O bot não altera o código em `main`.
+## Fontes reais, configuráveis
 
-## Relatórios
+A lista em [`config/sources.json`](config/sources.json) contém 16 fontes:
 
-- Alertas novos/atualizados: somente **GRATUITA CONFIRMADA**, fonte oficial consultada,
-  prazo aberto e sem exclusão explícita do Brasil. Elegibilidade desconhecida é
-  informada; não é apresentada como participação brasileira garantida.
-- Um resumo por dia de Brasília: total analisado, gratuitas, gas, investimento
-  obrigatório, possíveis custos, não confirmadas, indisponíveis e falhas de cobertura.
-- Cada alerta inclui campanha, projeto/fonte, recompensa e natureza, custo, esforço,
-  prioridade, Brasil, KYC, prazo, confirmação, passos, evidência e link oficial.
+- BitDegree LearnDrops, guild oficial BitDegree e catálogo público de missões;
+- Ethereum Foundation, Chainlink, Optimism, Starknet e Solana;
+- Arbitrum, Base, Polygon, ZKsync e Scroll;
+- Binance Academy, OKX Rewards/Learn & Earn e Revolut Crypto Learn Rewards.
 
-`reports/run.json` inclui todas as campanhas classificadas, inclusive as rejeitadas
-dos alertas gratuitos. Uma coleta falha não vira prova de ausência de oportunidades.
-Reexecuções no mesmo dia podem alertar mudanças sem repetir o resumo já entregue.
+Arbitrum, Base e Scroll usam RSS descobertos nas páginas oficiais. Scroll usa o
+CMS Ghost referenciado no conteúdo de `scroll.io/blog`. Os demais usam páginas
+públicas com seletores explícitos. O leitor também suporta Atom e JSON com schema
+configurado; **não foi inventado endpoint de API** para aumentar a lista.
 
-## Classificação conservadora
+`discovered_from` registra procedência. [`config/source_audit.json`](config/source_audit.json)
+é a fotografia da auditoria de desenvolvimento, com HTTP, data, endereço final,
+formato e resultado da extração. Não substitui o estado vivo: cada execução salva
+`source-health.json` e histórico por fonte em `radar-state`, com última tentativa,
+última coleta válida, status HTTP e próxima tentativa permitida.
 
-| Classificação | Evidência necessária |
+Uma página HTTP 200 sem itens identificáveis não é contada como coleta válida.
+Domínios são exatos e aprovados manualmente. Para fontes novas, verifique autoria,
+formato, caminho e seletores antes de cadastrar. Agregadores e missões de usuários
+não confirmam gratuidade ou recompensa por si só.
+
+## Investigação das campanhas
+
+Depois de ler a página individual, o radar segue até três links públicos de regras,
+recompensas ou requisitos relacionados à mesma campanha, dentro de domínios oficiais
+configurados. Não transforma termos genéricos de outra plataforma em regras da missão.
+Se uma regra relacionada falhar, não anuncia custo zero com investigação incompleta.
+
+A análise guarda URLs e trechos de evidência e verifica custo, recompensa, KYC,
+Brasil, prazo e requisitos de conta. Uma rota gratuita alternativa só é aceita quando
+as regras oficiais descrevem entrada completa sem compra/depósito e não há obrigação
+financeira global. Staking/deposito opcionais não viram obrigação automaticamente.
+Testnets precisam declarar faucet gratuito, tokens sem valor real e ausência de fundos
+reais; uma exigência de depósito mainnet prevalece.
+
+### BitDegree
+
+A FAQ oficial é consultada e sua regra de missões gratuitas só é aplicada às tarefas
+educacionais de missões verificadas. Isso não comprova saque, token ou prêmio.
+A regra não remove depósitos obrigatórios nem custos de ações on-chain.
+
+O catálogo `/missions` contém conteúdo criado por usuários. Apenas guilds explicitamente
+verificadas em `trusted_guilds` podem ser confirmadas nessa fonte; os demais anúncios
+ficam **NÃO CONFIRMADOS**. A listagem LearnDrops e a guild oficial são consultadas
+separadamente. Não se presume prazo aberto só porque a missão aparece numa página.
+
+Bits e Degree são pontos/progresso interno. Sorteios, tokens, NFTs e créditos são
+identificados separadamente. O radar nunca converte pontos em dinheiro sem uma taxa
+oficial verificável e não divide pools para inventar ganho individual.
+
+## Conclusões, custo e prioridade
+
+Custo financeiro e conclusão são campos separados: uma atividade pode ter participação
+sem custo e, ao mesmo tempo, recompensa incerta ou exigência de KYC.
+
+| Conclusão | Interpretação |
 | --- | --- |
-| GRATUITA CONFIRMADA | Regras oficiais declaram participação gratuita ou ausência de compra/depósito; nenhuma obrigação financeira ou ambiguidade detectada. |
-| GRATUITA COM TAXA DE REDE | Participação gratuita declarada e custo explícito de gas/rede, sem outra obrigação financeira detectada. |
-| PODE EXIGIR INVESTIMENTO | Regras oficiais incompletas, custos ambíguos ou operação on-chain sem explicação suficiente das taxas. |
-| EXIGE INVESTIMENTO | Depósito, compra, staking, saldo mínimo, NFT, assinatura ou pagamento obrigatório detectado. |
-| NÃO CONFIRMADA | Agregador ou página oficial sem verificação suficiente. |
+| GRATUITA CONFIRMADA | Participação sem custo demonstrada por fonte oficial. |
+| GRATUITA COM TAXA DE REDE | Existe gas/taxa de transação; não entra nos alertas de custo zero. |
+| GRATUITA COM REQUISITO DE KYC | Participação gratuita exige identificação; requisito de privacidade destacado. |
+| GRATUITA, MAS COM RECOMPENSA INCERTA | Sorteio, prêmio condicional ou pontos sem ganho cripto garantido. |
+| PODE EXIGIR INVESTIMENTO | Regras insuficientes ou ambíguas. Continua sendo investigada. |
+| EXIGE INVESTIMENTO | Compra, depósito, staking, saldo ou pagamento obrigatório. |
+| ENCERRADA | Status ou prazo oficial indica encerramento. |
+| NÃO CONFIRMADA | Falta confirmação oficial suficiente. |
 
-“Free”, “airdrop” e “rewards” isolados não comprovam gratuidade. Staking opcional
-não vira obrigação. KYC é identificação/privacidade, não investimento. Não se presume
-Brasil elegível por falta de restrições. Publicação recente não comprova prazo aberto.
-Campanhas com gas ou investimento obrigatório não geram alertas de investimento zero.
+O relatório inclui token/quantidade quando divulgados, natureza da recompensa, valor
+anunciado verificável, possibilidade de saque/negociação declarada, início, encerramento,
+países e restrições. Ticker não é prova de listagem ou saque. Nenhuma cotação é inventada.
 
-Recompensa confirmada significa descrição encontrada na fonte, **não pagamento
-individual garantido**. Sorteio/linguagem condicional recebe indicação de estimativa.
-Bits, Degree e pontos internos não são convertidos em dinheiro ou tokens negociáveis.
-Pools não são divididos para inventar ganho pessoal.
+O score pondera custo zero, esforço, fonte oficial, evidência de recompensa, Brasil,
+prazo aberto e condições da conta. Só exibe prioridade alta, média ou baixa e score
+comparativo; não inventa probabilidades numéricas de receber tokens. Missões de pontos,
+sorteios e perfis ainda condicionados não recebem prioridade alta. KYC é identificação,
+não investimento; Brasil desconhecido nunca é apresentado como confirmado.
 
-Pontuação: até 45 por custo zero, 15 por esforço baixo, 10 pela fonte oficial,
-10 por recompensa descrita, 10 por prazo aberto e 10 por Brasil confirmado.
-Prioridade alta exige todas essas condições. Encerradas, pausadas ou excluídas
-do Brasil não entram nas melhores oportunidades disponíveis.
+## HTTP, limites e disponibilidade
 
-## Fontes
+- **429:** interpreta `Retry-After` em segundos ou HTTP-date; espera com backoff e
+  jitter, limita a duas tentativas e registra cooldown por domínio. Se o tempo excede
+  o orçamento, adia sem consultar antes do prazo. O cooldown persiste entre execuções.
+- **202:** aceita como processamento pendente, sem fingir que recebeu campanhas.
+  Guarda somente `Location` ou `Link rel=monitor` explicitamente fornecido e autorizado;
+  consulta em execução posterior. Sem monitor, reconsulta a fonte depois da espera.
+  Resultado pendente não é rotulado como falha definitiva.
+- **5xx:** até três tentativas, backoff e jitter; depois adia e registra falha.
+- **403/404:** registra indisponibilidade sem repetir a mesma requisição.
+- Timeout de conexão/leitura, limite de 2 MB, até cinco redirecionamentos, HTTPS,
+  validação de domínio/IP público, XML sem entidades e intervalo por domínio.
 
-Edite [`config/sources.json`](config/sources.json). Fontes iniciais: BitDegree,
-Ethereum Foundation, Chainlink, Optimism, Starknet, Solana e Binance Academy.
-O radar pesquisa **as fontes configuradas**, não toda a internet. Adicione novos
-protocolos, testnets, campanhas de pontos, programas e exchanges conforme necessário.
+Cache em memória evita baixar a mesma FAQ várias vezes numa execução. Após três
+falhas de verificação em uma fonte, suspende aquela verificação. Orçamento global
+limita o trabalho. Restrições externas não são burladas para deixar o job verde.
 
-Em cada execução verifica HTTPS, domínio exato, IP público, redirecionamentos,
-HTTP, limite de conteúdo e estrutura RSS/Atom. HTML não é aceito como feed.
-Datas inválidas ficam desconhecidas. Publicações antigas/futuras são filtradas
-quando há data verificável. Artigos são consultados individualmente; menus e
-slogans gerais da plataforma não justificam gratuidade de uma campanha.
+## Histórico persistente e Telegram
 
-BitDegree: cards individuais de missões, cursos/quizzes e distribuição pública,
-status, requisitos e recompensas. Abas de prêmios não duplicam a missão. Status
-encerrado/pausado e data passada prevalecem sobre “Join now”. Campanhas de casino
-e apostas não são incluídas. Não há login, CAPTCHA ou sessão. Conteúdo disponível
-só após login/JavaScript pode não ser acessível; isso é limitação de cobertura.
+O estado é salvo na branch **`radar-state`**, usando a permissão `contents: write`
+do job de pesquisa. A branch principal não é alterada pelo bot. A versão 2 migra
+automaticamente o estado v1 preservando hashes e resumos existentes; um único resumo
+de migração v2 pode ser enviado no mesmo dia. Estado inválido não é apagado silenciosamente.
 
-Agregadores devem usar `official: false` e permanecem não confirmados. Para
-confirmar, cadastre a página original do projeto como fonte `page` após validar
-seu domínio. Não há promoção automática de agregadores a fontes oficiais.
-Detalhes de cadastro em [`config/README.md`](config/README.md).
+Todas as candidatas observadas são registradas, inclusive possíveis investimentos.
+O radar detecta: nova oportunidade gratuita, confirmação de uma rota gratuita,
+alteração de recompensa/prazo/custo e encerramento. Reconsulta em rotação até três
+campanhas históricas ausentes da listagem por fonte e aplica prazos oficiais já salvos.
+Não considera desaparecimento ou erro HTTP como prova de encerramento.
 
-## Execução local e testes
+Resumo é enviado **primeiro**, seguido dos alertas novos/atualizados. Uma alteração
+não entregue permanece pendente. Marca entrega só após sucesso da API. Mensagens
+em texto simples são divididas por unidades UTF-16 e respeitam rate limits.
+POST com timeout é ambíguo e não é repetido imediatamente. Telegram e Git não têm
+transação conjunta: uma interrupção depois da aceitação e antes de salvar pode causar
+repetição; não há promessa de exatamente uma entrega em toda falha possível.
+
+O estado público contém campanhas, evidências de regras resumidas em hashes/snapshots,
+metadados das fontes e datas. Não contém token, chat ID, cookies ou dados de carteira.
+Nenhum depósito, compra, transferência, assinatura ou conexão de carteira é executado.
+
+## Quizzes: estudo autorizado
+
+`src/quiz_analyzer.py` preserva leitura de perguntas em JSON ou HTML público estático,
+consulta material oficial permitido e retorna alternativa provável, explicação,
+confiança e citações. É recuperação lexical de apoio ao estudo, sem API paga: abstém
+quando não há evidência ou a pergunta é negativa. Não promete compreensão semântica.
+
+```bash
+python -m src.quiz_analyzer config/quiz.example.json --output reports/quiz-results.json
+```
+
+Ajuste o exemplo para materiais públicos autorizados e cadastre seus domínios oficiais.
+`question_pages` aceita `url`, `container_selector`, `question_selector` e `option_selector`.
+**Não existe submissão automática**, login, CAPTCHA ou consulta a avaliações privadas.
+
+## Testar e executar localmente
 
 ```bash
 python3.12 -m venv .venv
@@ -95,77 +165,27 @@ source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
 python -m pytest
 ruff check .
+actionlint -shellcheck= .github/workflows/radar.yml
 python -m compileall -q src scripts main.py
 python scripts/check_secrets.py
+python -m scripts.audit_sources
 python -m src.main --dry-run
 ```
 
-`--dry-run` não exige credenciais, não envia Telegram e não altera histórico.
-Leia `reports/run.json` e `reports/summary.txt`. Para envio real, forneça as duas
-variáveis de ambiente por mecanismo seguro e execute `python -m src.main`.
-`python main.py` permanece como entrada compatível.
+Os testes bloqueiam rede e simulam HTTP/Telegram; não enviam mensagens reais.
+`--dry-run` pesquisa fontes reais sem enviar ou alterar o histórico. Para envio real,
+forneça as duas variáveis de ambiente por meio seguro e execute `python -m src.main`.
+`python main.py` continua compatível. Nenhuma dependência paga foi adicionada.
 
-Saídas: `0` sem erros detectados; `2` cobertura/entrega parcial; `1` falha fatal.
-Um job vermelho pode já ter entregue alertas: entregas confirmadas são preservadas
-antes de terminar o workflow. Os testes bloqueiam rede e não enviam Telegram real.
+Saída `0`: sem erros detectados (pode haver fonte 202 pendente, indicada no relatório).
+Saída `2`: cobertura/entrega parcial. Saída `1`: falha fatal. Um job vermelho pode já
+ter enviado o resumo; entregas confirmadas são persistidas mesmo em falhas parciais.
 
-Telegram HTTP 401/404 indica necessidade de conferir `TELEGRAM_BOT_TOKEN`: use apenas
-o token do BotFather, sem URL ou prefixo `bot`. Espaços/newlines nas extremidades
-são removidos em memória. HTTP 400/403 pode indicar chat incorreto, bot bloqueado ou
-falta de `/start`/permissão no grupo. Não compartilhe o token para pedir suporte.
+Telegram 401/404: confira o token do BotFather sem URL/prefixo. 400/403: confira destino,
+`/start` e permissões. Não envie tokens para pedir suporte. A coleta é heurística e
+limitada às fontes públicas configuradas; não garante renda, elegibilidade pessoal ou
+quantidade diária de oportunidades.
 
-## Assistente de estudo de quizzes
-
-```bash
-python -m src.quiz_analyzer config/quiz.example.json --output reports/quiz-results.json
-```
-
-Primeiro ajuste o JSON com perguntas/alternativas de materiais públicos autorizados,
-URLs oficiais e domínios cadastrados conforme `config/README.md`. O exemplo é modelo
-de entrada, não respostas reais coletadas de uma avaliação.
-
-O analisador consulta as URLs fornecidas, compara termos e retorna alternativa
-provável, raciocínio, confiança e trechos com citações, guardando o JSON para consulta.
-É ferramenta lexical de estudo, sem IA paga: abstém quando a evidência é fraca ou
-a pergunta é negativa. Não promete compreensão semântica nem dá confiança alta
-a um casamento de palavras. **Não existe código de submissão automática**.
-
-Também aceita `question_pages`: lista de objetos com `url`, `container_selector`,
-`question_selector` e `option_selector` para ler perguntas de HTML público autorizado.
-Por padrão extrai `fieldset`, `legend` e `label`. Isso não preenche nem envia formulários.
-
-## Segurança e histórico
-
-- Timeout, até três tentativas GET e backoff exponencial para falhas transitórias.
-- XML sem entidades, domínio validado também nos redirecionamentos, limite de 2 MB,
-  rejeição de destinos privados/locais e deduplicação por URL normalizada.
-- Telegram em texto simples, sem HTML externo, divisão por unidades UTF-16,
-  tratamento de `ok: false`, erros HTTP e 429. Credenciais são ocultadas dos logs.
-- POST com timeout é entrega incerta e não é repetido imediatamente. Telegram e
-  Git não têm transação conjunta: uma interrupção após aceitação da mensagem e
-  antes de gravar estado pode causar repetição na próxima execução.
-- Branch `radar-state`: apenas URLs, hashes das características dos alertas e
-  datas dos resumos. Como o repositório é público, o histórico também será público.
-  Não grava ID do chat, token, cookies, senha ou conteúdo de carteiras.
-- Execução serializada. Falha de restauração/estado inválido interrompe sem apagar
-  a deduplicação. Entrega falha não é marcada como enviada.
-
-Não solicita chave privada/frase-semente. Não conecta carteiras, assina transações,
-compra, deposita, transfere, faz staking ou envia respostas. Usa bibliotecas abertas,
-páginas públicas, Actions e Telegram; não possui serviço com cobrança obrigatória.
-Limites e políticas das plataformas se aplicam. Nenhum ganho ou quantidade diária
-de oportunidades é garantido. As regras são heurísticas conservadoras: textos
-ambíguos ou mudanças de layout precisam de revisão, não de suposições otimistas.
-
-## Migração dos arquivos originais
-
-- Removido `.github/workflows/blank.yml`: template que só imprimia exemplos.
-- Removido `.github/workflows/main.yml`: vazio; tinha execução inválida no histórico.
-- Removido `radar.yml` da raiz: não era reconhecido como workflow. Horário, Python,
-  nomes dos Secrets e logs foram incorporados em `.github/workflows/radar.yml`.
-- Preservado `radar-cripto-bot-inicial.zip` sem alteração como referência histórica;
-  foi inspecionado, não é executado ou instalado automaticamente.
-- README reescrito; adicionados código em `src/`, entrada compatível, fontes,
-  dependências, testes, scripts de persistência/segredos e `.gitignore`.
-
-Resultados e limitações da validação em [`VALIDATION.md`](VALIDATION.md).
+O ZIP inicial permanece preservado. Nenhum workflow antigo foi reintroduzido.
+Resultados reais, limitações e mudanças estão em [`VALIDATION.md`](VALIDATION.md).
+Os testes e a auditoria da versão 2 estão em [`VALIDATION_V2.md`](VALIDATION_V2.md).

@@ -1,4 +1,5 @@
 import re
+from dataclasses import replace
 from urllib.parse import urljoin, urlsplit
 
 from bs4 import BeautifulSoup
@@ -52,7 +53,11 @@ def parse_learndrops(data, source):
         elif re.search(r"status:\s*active\b", normalize(text)):
             status = "aberto"
         seen.add(url)
-        found.append(Candidate(title[:240], url, source, text, listing_status=status, listing_text=text))
+        candidate_source = source
+        if not source.official:
+            guild = path.split("/")[2] if path.startswith("/guilds/") else ""
+            candidate_source = replace(source, official=guild in source.trusted_guilds)
+        found.append(Candidate(title[:240], url, candidate_source, text, listing_status=status, listing_text=text))
         if len(found) >= source.max_items:
             break
     if not found:

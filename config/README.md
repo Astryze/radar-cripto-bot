@@ -10,6 +10,23 @@ Tipos:
 - `listing`: links extraídos por `selector` e limitados por `path_pattern`.
 - `bitdegree`: cards individuais de missões e distribuição pública com status.
 - `page`: uma campanha individual ou página pública de regras, com título obrigatório.
+- `json`: API pública com `items_path` e `item_fields` explícitos; não descobre endpoints por tentativa.
+
+Na versão 2, `discovered_from` registra a página oficial usada para localizar cada
+fonte. `min_interval_seconds` controla o intervalo por domínio (padrão 0,5 s).
+`policy_urls` lista políticas oficiais que podem ser consultadas como evidência com
+escopo restrito. A regra universal da FAQ BitDegree não comprova prêmio ou saque e
+não remove uma obrigação financeira específica da missão.
+
+`trusted_guilds` é usado no catálogo BitDegree com `official: false`: apenas as
+guilds verificadas explicitamente podem receber confirmação. Não marque todo o
+catálogo de missões criadas por usuários como fonte oficial.
+
+Auditoria: `python -m scripts.audit_sources` gera `reports/source-audit.json`.
+`config/source_audit.json` guarda uma fotografia real de desenvolvimento; a coleta
+diária produz `reports/source-health.json` e mantém as datas/cooldowns no estado
+persistente. HTTP 202 é pendência; só acompanhar um endereço posterior quando
+a resposta fornecer `Location`/`Link rel=monitor` e ele estiver nos domínios permitidos.
 
 `max_items` limita trabalho por fonte (1–50); `max_age_days` limita publicações com
 data conhecida (1–365). Sem data válida, a publicação fica com data desconhecida,

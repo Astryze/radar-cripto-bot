@@ -7,7 +7,7 @@ from .utils import normalize, parse_date, utcnow
 
 CAMPAIGN = r"\b(airdrop|learndrop|learn\s*(?:&|and)\s*earn|quest|mission|campaign|testnet|rewards? program|incentive program|token distribution|campanha|missao|distribuicao de tokens|recompensas)\b"
 ACTION = r"\b(join|participate|complete|claim|enroll|register|answer|collect|earn|solve|eligible|inscreva|participe|complete|resgate|ganhe|receba|colete)\b"
-BENEFIT = r"\b(token[s]?|airdrop|reward[s]?|points|bits|degree|prize|recompensa[s]?|pontos|premio[s]?)\b"
+BENEFIT = r"\b(token[s]?|airdrop|reward[s]?|points|bits|degree|prize|usdt|usdc|btc|eth|nfts?|credits|recompensa[s]?|pontos|premio[s]?)\b"
 FINANCE = r"\b(deposit[s]?|purchase[s]?|buy|stake|staking|paid nft|mint|subscription|entry fee|registration fee|membership|paid plan|pay|payment|hold|own|minimum balance|trading volume|trade|liquidity|deposito|compra|comprar|assinatura|taxa de inscricao|pagar|pagamento|saldo minimo|negociar)\b"
 MANDATORY = r"\b(required|mandatory|must|need to|minimum|at least|prerequisite|to qualify|to participate|obrigatori[oa]|necessari[oa]|deve|precisa|minimo)\b"
 OPTIONAL = r"\b(optional|optionally|not required|not necessary|no need|not mandatory|opcional|nao obrigatorio|nao e necessario|nao exige)\b"
@@ -15,6 +15,7 @@ FREE = r"\b(no (?:purchase or deposit|deposit or purchase) (?:is )?(?:required|n
 GAS = r"\b(gas (?:fees?|costs?)|network fees?|transaction fees?|taxas? de (?:rede|gas|transacao))\b"
 ONCHAIN = r"\b(on.chain|mainnet|bridge|swap|mint|transaction|transacao|ponte)\b"
 DATE = r"(?:\d{4}-\d{2}-\d{2}(?:T[0-9:+Z-]+)?|\d{1,2}/\d{1,2}/\d{4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s+\d{4}|\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})"
+DATE = "(?:" + DATE + r"|\d{1,2}\s+de\s+(?:janeiro|fevereiro|março|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+de\s+\d{4})"
 
 
 def segments(text):
@@ -94,7 +95,7 @@ def cost_evidence(text, official):
 
 def deadline_info(text, listing_status, now):
     dates = []
-    for match in re.finditer(r"(?:deadline|ends? (?:on|at)|end date|claim until|participate until|valid until|prazo|encerra(?:mento)?(?: em)?)\s*[:\-]?\s*(" + DATE + ")", text, re.I):
+    for match in re.finditer(r"(?:deadline|ends? (?:on|at)|end date|claim until|participate until|valid until|prazo|encerra(?:mento)?(?: em)?|termina em)\s*[:\-]?\s*(" + DATE + ")", text, re.I):
         value = match.group(1)
         # dd/mm/yyyy: padrão brasileiro. Dia sem horário vale até 23:59:59 UTC.
         if re.fullmatch(r"\d{1,2}/\d{1,2}/\d{4}", value):
@@ -167,4 +168,5 @@ def classify(candidate, now=None):
     op.effort = "baixo" if simple else "médio"
     if re.search(r"\b(run a node|validator|deploy|daily|weekly|multiple transactions|executar um no|diariamente)\b", text):
         op.effort = "alto"
-    return op
+    from .investigation import enrich
+    return enrich(op, candidate, now)

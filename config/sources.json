@@ -5,73 +5,224 @@
       "name": "BitDegree Learn & Earn",
       "url": "https://www.bitdegree.org/learndrops",
       "kind": "bitdegree",
-      "domains": ["www.bitdegree.org"],
+      "domains": [
+        "www.bitdegree.org"
+      ],
       "official": true,
-      "max_items": 30
+      "max_items": 30,
+      "policy_urls": [
+        "https://www.bitdegree.org/faq"
+      ],
+      "discovered_from": "https://www.bitdegree.org/learndrops"
+    },
+    {
+      "id": "bitdegree-official-guild",
+      "name": "BitDegree Official Guild",
+      "url": "https://www.bitdegree.org/guilds/bitdegree",
+      "kind": "bitdegree",
+      "domains": [
+        "www.bitdegree.org"
+      ],
+      "max_items": 25,
+      "policy_urls": [
+        "https://www.bitdegree.org/faq"
+      ],
+      "discovered_from": "https://www.bitdegree.org/faq"
+    },
+    {
+      "id": "bitdegree-missions",
+      "name": "BitDegree Public Missions",
+      "url": "https://www.bitdegree.org/missions",
+      "kind": "bitdegree",
+      "domains": [
+        "www.bitdegree.org"
+      ],
+      "official": false,
+      "trusted_guilds": [
+        "bitdegree",
+        "ledger",
+        "bybit",
+        "bitgw"
+      ],
+      "max_items": 30,
+      "policy_urls": [
+        "https://www.bitdegree.org/faq"
+      ],
+      "discovered_from": "https://www.bitdegree.org/faq"
     },
     {
       "id": "ethereum",
       "name": "Ethereum Foundation",
       "url": "https://blog.ethereum.org/en/feed.xml",
       "kind": "feed",
-      "domains": ["blog.ethereum.org"],
+      "domains": [
+        "blog.ethereum.org"
+      ],
       "official": true,
-      "max_items": 20
+      "max_items": 20,
+      "discovered_from": "https://blog.ethereum.org/en/feed.xml"
     },
     {
       "id": "chainlink",
       "name": "Chainlink",
       "url": "https://chain.link/blog",
       "kind": "listing",
-      "domains": ["chain.link", "blog.chain.link"],
+      "domains": [
+        "chain.link",
+        "blog.chain.link"
+      ],
       "official": true,
       "selector": "a[href*='/blog/']",
       "path_pattern": "^https://chain\\.link/blog/[^/?]+$",
-      "max_items": 15
+      "max_items": 15,
+      "discovered_from": "https://chain.link/blog"
     },
     {
       "id": "optimism",
       "name": "Optimism",
       "url": "https://optimism.io/blog",
       "kind": "listing",
-      "domains": ["optimism.io", "www.optimism.io"],
+      "domains": [
+        "optimism.io",
+        "www.optimism.io"
+      ],
       "official": true,
       "selector": "a[href*='/blog/']",
       "path_pattern": "^https://optimism\\.io/blog/[^/?]+$",
-      "max_items": 12
+      "max_items": 12,
+      "discovered_from": "https://optimism.io/blog"
     },
     {
       "id": "starknet",
       "name": "Starknet",
       "url": "https://www.starknet.io/blog/",
       "kind": "listing",
-      "domains": ["www.starknet.io", "starknet.io"],
+      "domains": [
+        "www.starknet.io",
+        "starknet.io"
+      ],
       "official": true,
       "selector": "main a[href*='/blog/']",
       "path_pattern": "^https://www\\.starknet\\.io/blog/(?!all$)[^/?]+$",
-      "max_items": 12
+      "max_items": 12,
+      "discovered_from": "https://www.starknet.io/blog/"
     },
     {
       "id": "solana",
       "name": "Solana",
       "url": "https://solana.com/news",
       "kind": "listing",
-      "domains": ["solana.com"],
+      "domains": [
+        "solana.com"
+      ],
       "official": true,
       "selector": "a[href*='/news/']",
       "path_pattern": "^https://solana\\.com/news/[^/?]+$",
-      "max_items": 12
+      "max_items": 12,
+      "discovered_from": "https://solana.com/news"
     },
     {
       "id": "binance-learn",
       "name": "Binance Academy Learn & Earn",
       "url": "https://www.binance.com/en/academy/learn-and-earn",
       "kind": "listing",
-      "domains": ["academy.binance.com", "www.binance.com"],
+      "domains": [
+        "academy.binance.com",
+        "www.binance.com"
+      ],
       "official": true,
       "selector": "a[href*='/learn-and-earn/'], a[href*='/learn-and-earn?'], a[href*='/activity/'], a[href*='/support/announcement/']",
       "path_pattern": "/(?:learn-and-earn|activity|support/announcement)[/?]",
-      "max_items": 10
+      "max_items": 10,
+      "discovered_from": "https://www.binance.com/en/academy/learn-and-earn"
+    },
+    {
+      "id": "arbitrum",
+      "name": "Arbitrum",
+      "url": "https://blog.arbitrum.io/rss/",
+      "kind": "feed",
+      "domains": [
+        "blog.arbitrum.io",
+        "arbitrum.io"
+      ],
+      "max_items": 20,
+      "discovered_from": "https://blog.arbitrum.io/"
+    },
+    {
+      "id": "base",
+      "name": "Base",
+      "url": "https://www.base.org/blog/rss.xml",
+      "kind": "feed",
+      "domains": [
+        "www.base.org",
+        "base.org"
+      ],
+      "max_items": 20,
+      "discovered_from": "https://www.base.org/blog"
+    },
+    {
+      "id": "polygon",
+      "name": "Polygon",
+      "url": "https://polygon.technology/blog",
+      "kind": "listing",
+      "domains": [
+        "polygon.technology"
+      ],
+      "selector": "a[href*='/blog/']",
+      "path_pattern": "^https://polygon\\.technology/blog/(?!engineering$)[^/?]+$",
+      "max_items": 12,
+      "discovered_from": "https://polygon.technology/"
+    },
+    {
+      "id": "zksync",
+      "name": "ZKsync",
+      "url": "https://www.zksync.io/blog",
+      "kind": "listing",
+      "domains": [
+        "www.zksync.io",
+        "zksync.io"
+      ],
+      "selector": "a[href*='/blog/']",
+      "path_pattern": "^https://www\\.zksync\\.io/blog/[^/?]+$",
+      "max_items": 12,
+      "discovered_from": "https://www.zksync.io/"
+    },
+    {
+      "id": "scroll",
+      "name": "Scroll",
+      "url": "https://scroll.ghost.io/rss/",
+      "kind": "feed",
+      "domains": [
+        "scroll.ghost.io",
+        "scroll.io"
+      ],
+      "max_items": 20,
+      "max_age_days": 365,
+      "discovered_from": "https://scroll.io/blog"
+    },
+    {
+      "id": "okx-learn",
+      "name": "OKX Learn & Earn / Rewards",
+      "url": "https://www.okx.com/pt-br/help/section/faq-rewards",
+      "kind": "listing",
+      "domains": [
+        "www.okx.com"
+      ],
+      "selector": "a[href*='/help/']",
+      "path_pattern": "/help/(?!section/|category/)[^/?]+$",
+      "max_items": 20,
+      "discovered_from": "https://www.okx.com/pt-br/help/section/faq-rewards"
+    },
+    {
+      "id": "revolut-learn",
+      "name": "Revolut Crypto Learn Rewards",
+      "url": "https://help.revolut.com/en-AU/help/wealth/cryptocurrencies/learn-and-earn/i-completed-a-lesson-but-i-did-not-get-a-reward/",
+      "kind": "page",
+      "domains": [
+        "help.revolut.com"
+      ],
+      "max_items": 1,
+      "discovered_from": "https://help.revolut.com/en-IT/help/wealth/cryptocurrencies/learn-and-earn/what-is-crypto-learn-earn-and-where-can-i-access-it/"
     }
   ]
 }

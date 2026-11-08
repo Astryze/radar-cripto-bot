@@ -1,5 +1,8 @@
 # Validação da implementação — 08/11/2026
 
+> Este documento registra a versão inicial. Para a evolução atual, consulte
+> [VALIDATION_V2.md](VALIDATION_V2.md).
+
 ## Verificações executadas
 
 - Python 3.12.14; dependências instaladas de `requirements-dev.txt`.

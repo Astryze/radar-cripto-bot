@@ -33,7 +33,7 @@ def test_canonical_retains_campaign_identifier():
 def test_transient_retry(response):
     session, sleep = Mock(), Mock()
     session.get.side_effect = [response(status=503), response(data=b"ok")]
-    data, final, kind = HttpClient(session, sleep).get("https://example.org", ["example.org"])
+    data, final, kind = HttpClient(session, sleep, jitter=lambda: 0).get("https://example.org", ["example.org"])
     assert data == b"ok" and session.get.call_count == 2
     sleep.assert_called_once_with(1)
 

@@ -21,13 +21,15 @@ def load_sources(path):
     if len({s.id for s in sources}) != len(sources):
         raise ValueError("IDs de fontes duplicados")
     for source in sources:
-        if source.kind not in {"feed", "listing", "bitdegree", "page"}:
+        if source.kind not in {"feed", "listing", "bitdegree", "page", "json"}:
             raise ValueError("Tipo de fonte inválido")
         if not 1 <= source.max_items <= 50 or not 1 <= source.max_age_days <= 365:
             raise ValueError("Limites de fonte inválidos")
         if not all(isinstance(d, str) and d == d.lower() and "/" not in d for d in source.domains):
             raise ValueError("Domínio inválido")
         validate_url(source.url, source.domains, resolve=False)
+        for url in source.policy_urls:
+            validate_url(url, source.domains, resolve=False)
         re.compile(source.path_pattern)
     return sources
 
@@ -107,6 +109,8 @@ def read_source(source, client):
     source = replace(source, url=final)
     if source.kind == "feed":
         return parse_feed(data, source)
+    if source.kind == "json":
+        return parse_json_source(data, source)
     if "html" not in content_type.lower():
         raise ValueError("Página não retornou HTML")
     if source.kind == "bitdegree":
@@ -132,7 +136,13 @@ def verify_candidate(candidate, client):
     candidate.text = text
     candidate.url = canonical_url(final)
     candidate.verified = candidate.source.official
+    if candidate.source.kind == "bitdegree" and not candidate.source.official:
+        from urllib.parse import urlsplit
+        parts = urlsplit(final).path.split("/")
+        candidate.verified = len(parts) >= 4 and parts[1] == "guilds" and parts[2] in candidate.source.trusted_guilds
     candidate.verification_url = final
+    from .investigation import public_links
+    candidate.links = public_links(data, final)
     if not candidate.published:
         soup = BeautifulSoup(data, "html.parser")
         meta = soup.select_one('meta[property="article:published_time"]')
@@ -140,3 +150,24 @@ def verify_candidate(candidate, client):
         published = parse_date(meta.get("content") if meta else stamp.get("datetime") if stamp else None)
         candidate.published = published.isoformat() if published else None
     return candidate
+
+
+def parse_json_source(data, source):
+    """Apenas JSON público cujo schema/endereço foi previamente verificado."""
+    value = json.loads(data)
+    for key in source.items_path.split(".") if source.items_path else []:
+        value = value[key]
+    if not isinstance(value, list):
+        raise ValueError("API não retornou a lista configurada")
+    found = []
+    for item in value[:source.max_items]:
+        title = item.get(source.item_fields.get("title", "title"), "")
+        url = urljoin(source.url, item.get(source.item_fields.get("url", "url"), ""))
+        try:
+            validate_url(url, source.domains, resolve=False)
+        except ValueError:
+            continue
+        if title:
+            found.append(Candidate(str(title)[:240], canonical_url(url), source,
+                                   plain_text(str(item.get(source.item_fields.get("text", "description"), "")))))
+    return found

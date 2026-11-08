@@ -89,45 +89,55 @@ class TelegramBot:
         raise FetchError("Telegram: tentativas esgotadas")
 
 
-def opportunity_message(op):
+def opportunity_message(op, event="oportunidade verificada"):
     return "\n".join([
-        "RADAR CRIPTO — oportunidade verificada",
-        f"Nome da campanha: {op.title}", f"Projeto/fonte: {op.project}",
+        f"RADAR CRIPTO — {event.upper()}",
+        f"Campanha: {op.title}", f"Projeto: {op.project}",
         f"Recompensa: {op.reward}", f"Natureza: {op.reward_type}",
-        f"Recompensa ({op.reward_status}): descrição da fonte, sem garantia de pagamento individual",
-        f"Custo de participação: {op.cost}", f"Esforço: {op.effort}",
-        f"Prioridade: {op.priority} ({op.score}/100)",
-        f"Elegibilidade no Brasil: {op.eligibility}", f"KYC: {op.kyc}",
+        f"Token: {op.token}", f"Quantidade: {op.token_quantity}",
+        f"Valor: {op.estimated_value}", f"Saque/negociação: {op.withdrawability}",
+        f"Custo: {op.cost}", f"Conclusão: {op.conclusion}",
+        f"Esforço: {op.effort}; prioridade {op.priority} ({op.score}/100)",
+        f"Brasil: {op.eligibility}", f"Elegibilidade: {op.eligibility_basis}", f"KYC: {op.kyc}",
+        "Restrições da conta: " + (" | ".join(op.eligibility_requirements) or "não informadas"),
         f"Prazo: {op.deadline}" + (f" — {op.deadline_at}" if op.deadline_at else " — data não informada"),
-        f"Status da confirmação: fonte oficial; confiança {op.confidence}",
-        "O que precisa ser feito:", *[f"• {s}" for s in op.steps],
-        "Evidência de gratuidade: " + " | ".join(op.evidence.get("gratuidade", [])),
-        f"Link oficial: {op.url}",
+        f"Início: {op.starts_at or 'não informado'}",
+        f"Confirmação oficial: {'sim' if op.official else 'não'}; investigação {op.investigation_status}",
+        f"Rota de participação: {op.participation_route}",
+        "O que fazer:", *[f"• {step}" for step in op.steps],
+        "Evidência de custo zero: " + " | ".join(op.evidence.get("gratuidade", [])),
+        "Fontes das regras: " + " | ".join(op.investigated_urls),
+        f"Link para participar: {op.url}",
+        "Pontos e sorteios não garantem tokens ou renda. Confira as regras antes de participar.",
     ])
 
 
-def daily_summary(opportunities, errors, day, source_count):
+def daily_summary(opportunities, errors, day, source_count, new_count=None, unavailable=None, pending_count=0):
+    from collections import Counter
     from .models import Cost
     from .scoring import actionable
-    from collections import Counter
-    counts = Counter(op.cost for op in opportunities)
+    counts = Counter(o.cost for o in opportunities if o.deadline != "encerrado")
     best = sorted([o for o in opportunities if actionable(o)], key=lambda o: -o.score)[:5]
-    lines = [f"RADAR CRIPTO — resumo de {day} (Brasília)",
-             f"Campanhas candidatas verificadas/analisadas hoje: {len(opportunities)}",
-             f"Gratuitas confirmadas (inclui encerradas, quando identificadas): {counts[Cost.FREE]}",
-             f"Gratuitas com taxa de rede: {counts[Cost.GAS]}",
-             f"Exigem investimento: {counts[Cost.REQUIRED]}",
-             f"Podem exigir investimento: {counts[Cost.POSSIBLE]}",
+    lines = ["RADAR CRIPTO — RELATÓRIO DIÁRIO", f"Data: {day} (Brasília)",
+             f"Novas campanhas encontradas: {len(opportunities) if new_count is None else new_count}",
+             f"Campanhas analisadas: {len(opportunities)}",
+             f"Gratuitas confirmadas: {counts[Cost.FREE]} (participação; não ganho garantido)",
+             f"Gratuitas com taxa: {counts[Cost.GAS]}",
+             f"Gratuitas com KYC: {sum(o.cost == Cost.FREE and 'obrigatório' in o.kyc and o.deadline != 'encerrado' for o in opportunities)}",
+             f"Gratuitas com recompensa incerta/pontos: {sum(o.conclusion == 'GRATUITA, MAS COM RECOMPENSA INCERTA' for o in opportunities)}",
+             f"Possíveis investimentos: {counts[Cost.POSSIBLE]}",
+             f"Investimento obrigatório: {counts[Cost.REQUIRED]}",
+             f"Campanhas encerradas: {sum(o.deadline == 'encerrado' for o in opportunities)}",
              f"Não confirmadas: {counts[Cost.UNKNOWN]}",
-             f"Fontes consultadas: {source_count}; falhas: {len(errors)}",
-             "Melhores oportunidades abertas com gratuidade confirmada:"]
+             f"Fontes consultadas: {source_count}",
+             f"Fontes indisponíveis: {len(errors) if unavailable is None else unavailable}",
+             f"Fontes aguardando resultado (202): {pending_count}",
+             "", "Melhores oportunidades gratuitas abertas:"]
     if best:
-        lines.extend(f"• {o.title} — {o.priority}; {o.reward_type}; Brasil: {o.eligibility}\n{o.url}" for o in best)
+        lines.extend(f"• {o.title} — {o.priority}; {o.conclusion}; Brasil: {o.eligibility}\n{o.url}" for o in best)
     else:
-        lines.append("Nenhuma oportunidade aberta com gratuidade confirmada pelas regras consultadas.")
-    unavailable = sum(o.deadline == "encerrado" or "pausa" in o.evidence for o in opportunities)
-    lines.append(f"Encerradas/pausadas identificadas: {unavailable}")
+        lines.append("Nenhuma com gratuidade comprovada e prazo aberto nesta coleta.")
     if errors:
-        lines.append("Cobertura parcial — falhas: " + "; ".join(errors[:15]))
-    lines.append("Pontos internos não são dinheiro sacável. Campanhas com custo obrigatório não geram alertas gratuitos.")
+        lines.append("Cobertura parcial — " + "; ".join(errors[:8]))
+    lines.append("Pontos internos e sorteios não são dinheiro garantido. Detalhes novos/atualizados seguem em alertas separados.")
     return "\n".join(lines)
