@@ -1,9 +1,9 @@
 {
   "version": 2,
   "sent": {
-    "https://www.bitdegree.org/guilds/ledger/ledger-atom-the-future-of-crypto-security": "5dec01aed82ecfc66b1889d63d754cb71c3292c76900f291e3954dc96458aca5",
-    "https://www.bitdegree.org/guilds/bybit/bybit-card-spend-crypto-with-up-to-10-cashback": "f0f3bfe8a21aee5ca61ad6d8e889eeeee00215de55da6bb17ac931a767bdd6cf",
-    "https://www.bitdegree.org/guilds/bybit/trade-everything-in-one-place-with-bybit": "49aceae2e6f60f17b699bd66dfbd0d34eb59101ea38f4e1973c91570c56f1372"
+    "https://www.bitdegree.org/guilds/ledger/ledger-atom-the-future-of-crypto-security": "a863f9d063697ff3dc0a6530dc6583ba34970494683779bca080e30005bac3c1",
+    "https://www.bitdegree.org/guilds/bybit/bybit-card-spend-crypto-with-up-to-10-cashback": "540c3c03eb28dd30c09d9a8c508e3ac3cb9b00da8e6f364be6e89925de421bf8",
+    "https://www.bitdegree.org/guilds/bybit/trade-everything-in-one-place-with-bybit": "1f9c931896ec533af62578afb7282743026a4e1c5cf8c729a566cc1a8773c9d6"
   },
   "summaries": [
     "2026-11-08",
@@ -15,7 +15,7 @@
       "latest": {
         "title": "Ledger Atom: The Future of Crypto Security?",
         "cost": "GRATUITA CONFIRMADA",
-        "reward": "Learn about Ledger’s newest release, Atom, its next-gen security features, & collect Bits!",
+        "reward": "collect Bits | collect more Bits",
         "reward_status": "confirmada",
         "reward_type": "pontos internos; não equivalem a token negociável ou dinheiro sacável",
         "deadline": "aberto",
@@ -31,10 +31,10 @@
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
-        "withdrawability": "não confirmada",
+        "withdrawability": "não confirmada para a rota educacional",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Somente os rounds educacionais públicos da missão; sem operações financeiras. Prêmios comerciais externos não integram esta rota.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/ledger/ledger-atom-the-future-of-crypto-security",
         "project": "Ledger",
@@ -43,12 +43,12 @@
         "score": 80,
         "priority": "média"
       },
-      "last_seen": "2026-11-08T22:15:54.482557+00:00",
+      "last_seen": "2026-11-08T22:23:07.743129+00:00",
       "pending_event": null,
       "notified": {
         "title": "Ledger Atom: The Future of Crypto Security?",
         "cost": "GRATUITA CONFIRMADA",
-        "reward": "Learn about Ledger’s newest release, Atom, its next-gen security features, & collect Bits!",
+        "reward": "collect Bits | collect more Bits",
         "reward_status": "confirmada",
         "reward_type": "pontos internos; não equivalem a token negociável ou dinheiro sacável",
         "deadline": "aberto",
@@ -64,10 +64,10 @@
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
-        "withdrawability": "não confirmada",
+        "withdrawability": "não confirmada para a rota educacional",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Somente os rounds educacionais públicos da missão; sem operações financeiras. Prêmios comerciais externos não integram esta rota.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/ledger/ledger-atom-the-future-of-crypto-security",
         "project": "Ledger",
@@ -76,13 +76,14 @@
         "score": 80,
         "priority": "média"
       },
-      "notified_hash": "5dec01aed82ecfc66b1889d63d754cb71c3292c76900f291e3954dc96458aca5"
+      "notified_hash": "a863f9d063697ff3dc0a6530dc6583ba34970494683779bca080e30005bac3c1",
+      "last_checked": "2026-11-08T22:21:39.444749+00:00"
     },
     "https://www.bitdegree.org/guilds/bybit/bybit-card-spend-crypto-with-up-to-10-cashback": {
       "first_seen": "2026-11-08T22:15:54.482562+00:00",
       "latest": {
         "title": "Bybit Card: Spend Crypto With Up to 10% Cashback",
-        "cost": "GRATUITA CONFIRMADA",
+        "cost": "PODE EXIGIR INVESTIMENTO",
         "reward": "Apply for the Bybit Card now to get a 10% Cashback Booster & a chance to win USDC!",
         "reward_status": "estimada",
         "reward_type": "prêmio cripto descrito pela fonte; valor e recebimento não garantidos",
@@ -95,27 +96,27 @@
           "Find out more in this Mission!🎉 How USDC Winners Will Be Selected:✅ Complete the Mission"
         ],
         "effort": "médio",
-        "conclusion": "GRATUITA, MAS COM RECOMPENSA INCERTA",
+        "conclusion": "PODE EXIGIR INVESTIMENTO",
         "token": "USDC",
         "token_quantity": "10 USDC (escopo individual não confirmado)",
         "estimated_value": "não verificável",
         "withdrawability": "não confirmada",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Há rounds de produto ou bônus; participação completa sem custo não foi comprovada.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/bybit/bybit-card-spend-crypto-with-up-to-10-cashback",
         "project": "Bybit",
         "source_id": "bitdegree",
         "official": true,
-        "score": 73,
-        "priority": "média"
+        "score": 28,
+        "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482598+00:00",
+      "last_seen": "2026-11-08T22:23:07.743316+00:00",
       "pending_event": null,
       "notified": {
         "title": "Bybit Card: Spend Crypto With Up to 10% Cashback",
-        "cost": "GRATUITA CONFIRMADA",
+        "cost": "PODE EXIGIR INVESTIMENTO",
         "reward": "Apply for the Bybit Card now to get a 10% Cashback Booster & a chance to win USDC!",
         "reward_status": "estimada",
         "reward_type": "prêmio cripto descrito pela fonte; valor e recebimento não garantidos",
@@ -128,29 +129,30 @@
           "Find out more in this Mission!🎉 How USDC Winners Will Be Selected:✅ Complete the Mission"
         ],
         "effort": "médio",
-        "conclusion": "GRATUITA, MAS COM RECOMPENSA INCERTA",
+        "conclusion": "PODE EXIGIR INVESTIMENTO",
         "token": "USDC",
         "token_quantity": "10 USDC (escopo individual não confirmado)",
         "estimated_value": "não verificável",
         "withdrawability": "não confirmada",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Há rounds de produto ou bônus; participação completa sem custo não foi comprovada.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/bybit/bybit-card-spend-crypto-with-up-to-10-cashback",
         "project": "Bybit",
         "source_id": "bitdegree",
         "official": true,
-        "score": 73,
-        "priority": "média"
+        "score": 28,
+        "priority": "baixa"
       },
-      "notified_hash": "f0f3bfe8a21aee5ca61ad6d8e889eeeee00215de55da6bb17ac931a767bdd6cf"
+      "notified_hash": "540c3c03eb28dd30c09d9a8c508e3ac3cb9b00da8e6f364be6e89925de421bf8",
+      "last_checked": "2026-11-08T22:21:43.342671+00:00"
     },
     "https://www.bitdegree.org/guilds/bybit/trade-everything-in-one-place-with-bybit": {
       "first_seen": "2026-11-08T22:15:54.482603+00:00",
       "latest": {
         "title": "Trade Everything in One Place With Bybit",
-        "cost": "GRATUITA CONFIRMADA",
+        "cost": "PODE EXIGIR INVESTIMENTO",
         "reward": "And right now, you can earn a $100 welcome bonus for signing up and completing simple tasks (plus a chance to win USDC for completing this Mission)!Besides, you can do even more on Bybit apart from trading.",
         "reward_status": "estimada",
         "reward_type": "prêmio cripto descrito pela fonte; valor e recebimento não garantidos",
@@ -164,27 +166,27 @@
           "Claim Your Welcome Bonus!"
         ],
         "effort": "médio",
-        "conclusion": "GRATUITA, MAS COM RECOMPENSA INCERTA",
+        "conclusion": "PODE EXIGIR INVESTIMENTO",
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
         "withdrawability": "não confirmada",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Há rounds de produto ou bônus; participação completa sem custo não foi comprovada.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/bybit/trade-everything-in-one-place-with-bybit",
         "project": "Bybit",
         "source_id": "bitdegree",
         "official": true,
-        "score": 73,
-        "priority": "média"
+        "score": 28,
+        "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482619+00:00",
+      "last_seen": "2026-11-08T22:23:07.743347+00:00",
       "pending_event": null,
       "notified": {
         "title": "Trade Everything in One Place With Bybit",
-        "cost": "GRATUITA CONFIRMADA",
+        "cost": "PODE EXIGIR INVESTIMENTO",
         "reward": "And right now, you can earn a $100 welcome bonus for signing up and completing simple tasks (plus a chance to win USDC for completing this Mission)!Besides, you can do even more on Bybit apart from trading.",
         "reward_status": "estimada",
         "reward_type": "prêmio cripto descrito pela fonte; valor e recebimento não garantidos",
@@ -198,30 +200,31 @@
           "Claim Your Welcome Bonus!"
         ],
         "effort": "médio",
-        "conclusion": "GRATUITA, MAS COM RECOMPENSA INCERTA",
+        "conclusion": "PODE EXIGIR INVESTIMENTO",
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
         "withdrawability": "não confirmada",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Há rounds de produto ou bônus; participação completa sem custo não foi comprovada.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/bybit/trade-everything-in-one-place-with-bybit",
         "project": "Bybit",
         "source_id": "bitdegree",
         "official": true,
-        "score": 73,
-        "priority": "média"
+        "score": 28,
+        "priority": "baixa"
       },
-      "notified_hash": "49aceae2e6f60f17b699bd66dfbd0d34eb59101ea38f4e1973c91570c56f1372"
+      "notified_hash": "1f9c931896ec533af62578afb7282743026a4e1c5cf8c729a566cc1a8773c9d6",
+      "last_checked": "2026-11-08T22:21:42.866573+00:00"
     },
     "https://www.bitdegree.org/guilds/bitdegree/money-transfers-to-pakistan-around-the-world": {
       "first_seen": "2026-11-08T22:15:54.482622+00:00",
       "latest": {
         "title": "Money Transfers to Pakistan & Around the World",
         "cost": "GRATUITA CONFIRMADA",
-        "reward": "Collect Bits by discovering seamless methods to support your loved ones in Pakistan or elsewhere!",
+        "reward": "Collect Bits",
         "reward_status": "confirmada",
         "reward_type": "pontos internos; não equivalem a token negociável ou dinheiro sacável",
         "deadline": "não confirmado",
@@ -236,10 +239,10 @@
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
-        "withdrawability": "não confirmada",
+        "withdrawability": "não confirmada para a rota educacional",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Somente os rounds educacionais públicos da missão; sem operações financeiras. Prêmios comerciais externos não integram esta rota.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/bitdegree/money-transfers-to-pakistan-around-the-world",
         "project": "BitDegree",
@@ -248,15 +251,16 @@
         "score": 70,
         "priority": "média"
       },
-      "last_seen": "2026-11-08T22:15:54.482637+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743178+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:21:55.377508+00:00"
     },
     "https://www.bitdegree.org/guilds/bitdegree/transfer-smarter-to-the-philippines-and-globally": {
       "first_seen": "2026-11-08T22:15:54.482640+00:00",
       "latest": {
         "title": "Transfer Smarter to the Philippines and Globally",
         "cost": "GRATUITA CONFIRMADA",
-        "reward": "Earn Bits and learn the most efficient ways to send money to the Philippines and beyond!",
+        "reward": "Earn Bits",
         "reward_status": "confirmada",
         "reward_type": "pontos internos; não equivalem a token negociável ou dinheiro sacável",
         "deadline": "não confirmado",
@@ -272,10 +276,10 @@
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
-        "withdrawability": "não confirmada",
+        "withdrawability": "não confirmada para a rota educacional",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Somente os rounds educacionais públicos da missão; sem operações financeiras. Prêmios comerciais externos não integram esta rota.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/bitdegree/transfer-smarter-to-the-philippines-and-globally",
         "project": "BitDegree",
@@ -284,16 +288,17 @@
         "score": 70,
         "priority": "média"
       },
-      "last_seen": "2026-11-08T22:15:54.482656+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743251+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:21:54.839904+00:00"
     },
     "https://www.bitdegree.org/guilds/bitdegree/safest-ways-to-send-money-worldwide": {
       "first_seen": "2026-11-08T22:15:54.482659+00:00",
       "latest": {
         "title": "Safest Ways to Send Money Worldwide",
         "cost": "GRATUITA CONFIRMADA",
-        "reward": "Discover safe money transfer services, collect Bits & get a chance to win USDC!",
-        "reward_status": "estimada",
+        "reward": "collect Bits | collect more Bits",
+        "reward_status": "confirmada",
         "reward_type": "pontos internos; não equivalem a token negociável ou dinheiro sacável",
         "deadline": "não confirmado",
         "deadline_at": null,
@@ -309,20 +314,21 @@
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
-        "withdrawability": "não confirmada",
+        "withdrawability": "não confirmada para a rota educacional",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Somente os rounds educacionais públicos da missão; sem operações financeiras. Prêmios comerciais externos não integram esta rota.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/bitdegree/safest-ways-to-send-money-worldwide",
         "project": "BitDegree",
         "source_id": "bitdegree-official-guild",
         "official": true,
-        "score": 63,
+        "score": 70,
         "priority": "média"
       },
-      "last_seen": "2026-11-08T22:15:54.482673+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743215+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:21:57.439623+00:00"
     },
     "https://www.bitdegree.org/guilds/bitgw/keep-it-simple-trade-crypto-with-bitgw": {
       "first_seen": "2026-11-08T22:15:54.482676+00:00",
@@ -356,8 +362,9 @@
         "score": 28,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482691+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743282+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:21:42.365070+00:00"
     },
     "https://www.bitdegree.org/guilds/bitdegree/mining-staking-in-crypto": {
       "first_seen": "2026-11-08T22:15:54.482694+00:00",
@@ -391,8 +398,9 @@
         "score": 20,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482710+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743380+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:22:03.383377+00:00"
     },
     "https://www.bitdegree.org/guilds/bydfi/supercharge-your-deposit-with-bydfi": {
       "first_seen": "2026-11-08T22:15:54.482713+00:00",
@@ -405,7 +413,7 @@
         "deadline": "não confirmado",
         "deadline_at": null,
         "eligibility": "desconhecida",
-        "kyc": "não informado",
+        "kyc": "não confirmado",
         "steps": [
           "Deposit funds to BYDFi and earn up to 2,000 USDT bonus!",
           "The higher your deposit, the larger the reward, with bonuses reaching up to 2,000 USDT!Complete this Mission to learn more & claim your bonus now.📅 EVENT END DATE:Mar 31, 2026",
@@ -428,8 +436,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482726+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743407+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:22:13.857673+00:00"
     },
     "https://www.bitdegree.org/guilds/channel-ai": {
       "first_seen": "2026-11-08T22:15:54.482729+00:00",
@@ -442,7 +451,7 @@
         "deadline": "não confirmado",
         "deadline_at": null,
         "eligibility": "desconhecida",
-        "kyc": "não informado",
+        "kyc": "não confirmado",
         "steps": [
           "Join the Channel AI Guild: Win Rewards & Airdrops",
           "Complete this Mission to get 50% off Channel Plus subscription!"
@@ -464,8 +473,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482742+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743433+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:22:17.324320+00:00"
     },
     "https://www.bitdegree.org/guilds/figure-markets/figure-special-deposit-to-earn-50": {
       "first_seen": "2026-11-08T22:15:54.482745+00:00",
@@ -478,7 +488,7 @@
         "deadline": "não confirmado",
         "deadline_at": null,
         "eligibility": "desconhecida",
-        "kyc": "não informado",
+        "kyc": "não confirmado",
         "steps": [
           "Figure Special: Deposit to Earn $50 - Figure Markets",
           "Figure Special: Deposit to Earn $50",
@@ -503,17 +513,18 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482759+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743461+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:22:11.344259+00:00"
     },
     "https://www.bitdegree.org/guilds/lucky-rollers/lucky-rollers-quest-2-steps-to-your-bonus": {
       "first_seen": "2026-11-08T22:15:54.482762+00:00",
       "latest": {
         "title": "Lucky Rollers Quest: 2 Steps to Your Bonus PAUSED",
         "cost": "GRATUITA CONFIRMADA",
-        "reward": "Não informada",
+        "reward": "Recompensa específica da rota educacional não confirmada",
         "reward_status": "desconhecida",
-        "reward_type": "desconhecida",
+        "reward_type": "recompensa educacional incerta",
         "deadline": "não confirmado",
         "deadline_at": null,
         "eligibility": "desconhecida",
@@ -527,10 +538,10 @@
         "token": "não informado",
         "token_quantity": "não informada",
         "estimated_value": "não verificável",
-        "withdrawability": "não confirmada",
+        "withdrawability": "não confirmada para a rota educacional",
         "starts_at": null,
         "countries": [],
-        "participation_route": "Somente os rounds educacionais públicos da missão para acumular Bits; sem operações financeiras.",
+        "participation_route": "Somente os rounds educacionais públicos da missão; sem operações financeiras. Prêmios comerciais externos não integram esta rota.",
         "eligibility_requirements": [],
         "url": "https://www.bitdegree.org/guilds/lucky-rollers/lucky-rollers-quest-2-steps-to-your-bonus",
         "project": "Lucky Rollers",
@@ -539,8 +550,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482777+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743492+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:21:40.366955+00:00"
     },
     "https://www.bitdegree.org/guilds/ogaga1977/complete-your-token-a-d-gain-more-solana": {
       "first_seen": "2026-11-08T22:15:54.482779+00:00",
@@ -553,7 +565,7 @@
         "deadline": "não confirmado",
         "deadline_at": null,
         "eligibility": "desconhecida",
-        "kyc": "não informado",
+        "kyc": "não confirmado",
         "steps": [
           "Complete your token a d gain more solana - Ogaga1977",
           "Complete your token a d gain more solana",
@@ -577,8 +589,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482791+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743517+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:22:06.821311+00:00"
     },
     "https://www.bitdegree.org/leaderboard": {
       "first_seen": "2026-11-08T22:15:54.482794+00:00",
@@ -612,8 +625,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482807+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743544+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:21:38.631044+00:00"
     },
     "https://www.okx.com/pt-br/help/deposit-match-faq": {
       "first_seen": "2026-11-08T22:15:54.482810+00:00",
@@ -651,8 +665,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482834+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743589+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:22:57.564014+00:00"
     },
     "https://www.okx.com/pt-br/help/trade-like-a-pro-hype-rules": {
       "first_seen": "2026-11-08T22:15:54.482837+00:00",
@@ -689,8 +704,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-08T22:15:54.482851+00:00",
-      "pending_event": null
+      "last_seen": "2026-11-08T22:23:07.743618+00:00",
+      "pending_event": null,
+      "last_checked": "2026-11-08T22:23:02.927689+00:00"
     }
   },
   "source_health": {
@@ -699,8 +715,8 @@
       "ok": true,
       "candidates": 10,
       "analyzed": 6,
-      "last_attempt_at": "2026-11-08T22:14:22.597859+00:00",
-      "last_collected_at": "2026-11-08T22:14:23.027952+00:00",
+      "last_attempt_at": "2026-11-08T22:21:37.780340+00:00",
+      "last_collected_at": "2026-11-08T22:21:38.630552+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://www.bitdegree.org/learndrops",
@@ -714,8 +730,8 @@
       "ok": true,
       "candidates": 25,
       "analyzed": 4,
-      "last_attempt_at": "2026-11-08T22:14:28.367543+00:00",
-      "last_collected_at": "2026-11-08T22:14:28.832300+00:00",
+      "last_attempt_at": "2026-11-08T22:21:43.882841+00:00",
+      "last_collected_at": "2026-11-08T22:21:44.420169+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://www.bitdegree.org/guilds/bitdegree",
@@ -728,9 +744,9 @@
       "id": "bitdegree-missions",
       "ok": true,
       "candidates": 30,
-      "analyzed": 4,
-      "last_attempt_at": "2026-11-08T22:14:49.829811+00:00",
-      "last_collected_at": "2026-11-08T22:14:50.320493+00:00",
+      "analyzed": 5,
+      "last_attempt_at": "2026-11-08T22:22:05.360325+00:00",
+      "last_collected_at": "2026-11-08T22:22:05.837109+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://www.bitdegree.org/missions",
@@ -744,8 +760,8 @@
       "ok": true,
       "candidates": 14,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:01.804305+00:00",
-      "last_collected_at": "2026-11-08T22:15:02.076253+00:00",
+      "last_attempt_at": "2026-11-08T22:22:17.976587+00:00",
+      "last_collected_at": "2026-11-08T22:22:18.201509+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://blog.ethereum.org/en/feed.xml",
@@ -759,8 +775,8 @@
       "ok": true,
       "candidates": 15,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:02.076910+00:00",
-      "last_collected_at": "2026-11-08T22:15:02.214208+00:00",
+      "last_attempt_at": "2026-11-08T22:22:18.202502+00:00",
+      "last_collected_at": "2026-11-08T22:22:18.333572+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://chain.link/blog",
@@ -774,8 +790,8 @@
       "ok": true,
       "candidates": 12,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:10.189456+00:00",
-      "last_collected_at": "2026-11-08T22:15:10.499266+00:00",
+      "last_attempt_at": "2026-11-08T22:22:26.307278+00:00",
+      "last_collected_at": "2026-11-08T22:22:26.511486+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://optimism.io/blog",
@@ -789,8 +805,8 @@
       "ok": true,
       "candidates": 12,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:16.425932+00:00",
-      "last_collected_at": "2026-11-08T22:15:16.663522+00:00",
+      "last_attempt_at": "2026-11-08T22:22:32.737206+00:00",
+      "last_collected_at": "2026-11-08T22:22:33.254463+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://www.starknet.io/blog/",
@@ -804,14 +820,11 @@
       "ok": false,
       "candidates": 0,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:28.835685+00:00",
+      "last_attempt_at": "2026-11-08T22:22:44.902538+00:00",
       "last_collected_at": null,
       "http_status": 429,
       "status": "cooldown",
       "next_retry_at": "2026-11-08T22:30:30.961374+00:00",
-      "effective_url": "https://solana.com/news",
-      "http_attempts": 2,
-      "content_type": "text/html; charset=utf-8",
       "verification_failures": 0,
       "investigation_failures": 0
     },
@@ -820,14 +833,11 @@
       "ok": false,
       "candidates": 0,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:30.962410+00:00",
+      "last_attempt_at": "2026-11-08T22:22:44.949378+00:00",
       "last_collected_at": null,
       "http_status": 202,
       "status": "pending",
       "next_retry_at": "2026-11-08T22:30:31.297144+00:00",
-      "effective_url": "https://www.binance.com/en/academy/learn-and-earn",
-      "http_attempts": 1,
-      "content_type": "text/html; charset=UTF-8",
       "verification_failures": 0,
       "investigation_failures": 0
     },
@@ -836,8 +846,8 @@
       "ok": true,
       "candidates": 5,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:31.298073+00:00",
-      "last_collected_at": "2026-11-08T22:15:31.473335+00:00",
+      "last_attempt_at": "2026-11-08T22:22:45.048368+00:00",
+      "last_collected_at": "2026-11-08T22:22:45.170747+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://blog.arbitrum.io/rss/",
@@ -851,8 +861,8 @@
       "ok": true,
       "candidates": 15,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:31.475735+00:00",
-      "last_collected_at": "2026-11-08T22:15:31.841808+00:00",
+      "last_attempt_at": "2026-11-08T22:22:45.174323+00:00",
+      "last_collected_at": "2026-11-08T22:22:45.347209+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://www.base.org/blog/rss.xml",
@@ -866,8 +876,8 @@
       "ok": true,
       "candidates": 12,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:31.842328+00:00",
-      "last_collected_at": "2026-11-08T22:15:32.327440+00:00",
+      "last_attempt_at": "2026-11-08T22:22:45.347886+00:00",
+      "last_collected_at": "2026-11-08T22:22:45.495241+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://polygon.technology/blog",
@@ -881,8 +891,8 @@
       "ok": true,
       "candidates": 10,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:38.460915+00:00",
-      "last_collected_at": "2026-11-08T22:15:38.826401+00:00",
+      "last_attempt_at": "2026-11-08T22:22:51.714405+00:00",
+      "last_collected_at": "2026-11-08T22:22:52.215349+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://www.zksync.io/blog",
@@ -896,8 +906,8 @@
       "ok": true,
       "candidates": 4,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:43.755512+00:00",
-      "last_collected_at": "2026-11-08T22:15:43.879776+00:00",
+      "last_attempt_at": "2026-11-08T22:22:56.839794+00:00",
+      "last_collected_at": "2026-11-08T22:22:57.083251+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://scroll.ghost.io/rss/",
@@ -911,8 +921,8 @@
       "ok": true,
       "candidates": 20,
       "analyzed": 2,
-      "last_attempt_at": "2026-11-08T22:15:43.881599+00:00",
-      "last_collected_at": "2026-11-08T22:15:44.357448+00:00",
+      "last_attempt_at": "2026-11-08T22:22:57.086036+00:00",
+      "last_collected_at": "2026-11-08T22:22:57.563746+00:00",
       "http_status": 200,
       "status": "collected",
       "effective_url": "https://www.okx.com/pt-br/help/section/faq-rewards",
@@ -926,7 +936,7 @@
       "ok": false,
       "candidates": 0,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-08T22:15:54.246623+00:00",
+      "last_attempt_at": "2026-11-08T22:23:07.514812+00:00",
       "last_collected_at": null,
       "http_status": 403,
       "status": "unavailable",
