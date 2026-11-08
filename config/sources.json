@@ -1,0 +1,77 @@
+{
+  "sources": [
+    {
+      "id": "bitdegree",
+      "name": "BitDegree Learn & Earn",
+      "url": "https://www.bitdegree.org/learndrops",
+      "kind": "bitdegree",
+      "domains": ["www.bitdegree.org"],
+      "official": true,
+      "max_items": 30
+    },
+    {
+      "id": "ethereum",
+      "name": "Ethereum Foundation",
+      "url": "https://blog.ethereum.org/en/feed.xml",
+      "kind": "feed",
+      "domains": ["blog.ethereum.org"],
+      "official": true,
+      "max_items": 20
+    },
+    {
+      "id": "chainlink",
+      "name": "Chainlink",
+      "url": "https://chain.link/blog",
+      "kind": "listing",
+      "domains": ["chain.link", "blog.chain.link"],
+      "official": true,
+      "selector": "a[href*='/blog/']",
+      "path_pattern": "^https://chain\\.link/blog/[^/?]+$",
+      "max_items": 15
+    },
+    {
+      "id": "optimism",
+      "name": "Optimism",
+      "url": "https://optimism.io/blog",
+      "kind": "listing",
+      "domains": ["optimism.io", "www.optimism.io"],
+      "official": true,
+      "selector": "a[href*='/blog/']",
+      "path_pattern": "^https://optimism\\.io/blog/[^/?]+$",
+      "max_items": 12
+    },
+    {
+      "id": "starknet",
+      "name": "Starknet",
+      "url": "https://www.starknet.io/blog/",
+      "kind": "listing",
+      "domains": ["www.starknet.io", "starknet.io"],
+      "official": true,
+      "selector": "main a[href*='/blog/']",
+      "path_pattern": "^https://www\\.starknet\\.io/blog/(?!all$)[^/?]+$",
+      "max_items": 12
+    },
+    {
+      "id": "solana",
+      "name": "Solana",
+      "url": "https://solana.com/news",
+      "kind": "listing",
+      "domains": ["solana.com"],
+      "official": true,
+      "selector": "a[href*='/news/']",
+      "path_pattern": "^https://solana\\.com/news/[^/?]+$",
+      "max_items": 12
+    },
+    {
+      "id": "binance-learn",
+      "name": "Binance Academy Learn & Earn",
+      "url": "https://www.binance.com/en/academy/learn-and-earn",
+      "kind": "listing",
+      "domains": ["academy.binance.com", "www.binance.com"],
+      "official": true,
+      "selector": "a[href*='/learn-and-earn/'], a[href*='/learn-and-earn?'], a[href*='/activity/'], a[href*='/support/announcement/']",
+      "path_pattern": "/(?:learn-and-earn|activity|support/announcement)[/?]",
+      "max_items": 10
+    }
+  ]
+}

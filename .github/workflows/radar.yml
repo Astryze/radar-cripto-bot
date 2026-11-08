@@ -1,0 +1,85 @@
+name: Radar Cripto
+
+on:
+  schedule:
+    # 10h15 de Brasília (UTC-3). O GitHub pode atrasar o início.
+    - cron: "15 13 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Pesquisar sem enviar ao Telegram (teste seguro)"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Testes e validação
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m pytest
+      - run: python -m compileall -q src scripts main.py
+      - run: ruff check .
+      - run: actionlint -shellcheck= .github/workflows/radar.yml
+      - run: python scripts/check_secrets.py
+
+  radar:
+    name: Pesquisa e relatório
+    needs: validate
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    concurrency:
+      group: radar-delivery
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - name: Restaurar histórico de entregas
+        id: restore
+        if: inputs.dry_run != true
+        run: python scripts/state_sync.py restore
+      - name: Executar radar
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RADAR_DRY_RUN: ${{ inputs.dry_run }}
+        shell: bash
+        run: |
+          args=()
+          if [[ "$RADAR_DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
+          python -u -m src.main "${args[@]}"
+      - name: Persistir entregas confirmadas, inclusive em falha parcial
+        if: always() && steps.restore.outcome == 'success' && inputs.dry_run != true
+        run: python scripts/state_sync.py save
+      - name: Salvar logs e relatórios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            logs/
+            reports/
+          retention-days: 14
+          if-no-files-found: warn

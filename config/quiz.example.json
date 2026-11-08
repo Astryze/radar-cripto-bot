@@ -1,0 +1,10 @@
+{
+  "authorized_public_material": true,
+  "materials": ["https://ethereum.org/en/developers/docs/intro-to-ethereum/"],
+  "questions": [
+    {
+      "question": "What is Ethereum?",
+      "options": ["A decentralized blockchain platform", "A centralized weather database"]
+    }
+  ]
+}
