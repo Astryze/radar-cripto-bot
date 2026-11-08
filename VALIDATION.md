@@ -62,7 +62,7 @@ Essa execução motivou a normalização de espaços e quebras de linha nas extr
 dos Secrets, validação contra injeção de caminho no token e mensagem de diagnóstico
 específica para HTTP 401/404. Falhas externas não são escondidas para deixar o job verde.
 
-## Segunda execução real e estado final
+## Segunda execução real
 
 Os 122 testes da correção passaram também no runner GitHub. A segunda execução real
 confirmou o funcionamento da coleta nas cinco primeiras fontes e a eliminação do
@@ -84,6 +84,21 @@ Referências:
 A última melhoria adiciona diagnóstico seguro para erros conhecidos do Telegram
 (incluindo chat não encontrado), sem registrar mensagens livres que possam expor dados.
 Foi validada localmente com 123 testes e os mesmos checks de sintaxe/YAML/segredos.
+
+## Envio confirmado após configuração do destino
+
+Após atualizar o Secret de destino e o usuário iniciar a conversa com o bot,
+a reexecução confirmou a entrega do resumo ao Telegram em 08/11/2026. Não houve
+falha Telegram. A branch `radar-state` foi criada e registrou o resumo desse dia,
+com persistência e upload dos artifacts concluídos com sucesso.
+
+A pesquisa permaneceu parcial: cinco fontes consultadas, Solana com HTTP 429 e
+Binance com HTTP 202. Foram classificadas três candidatas e nenhuma gerou alerta
+de gratuidade confirmada. O código de saída 2 reflete essas duas falhas de fonte,
+não falha de entrega. O agendamento diário continua em 10h15 de Brasília.
+
+Comprovante: https://github.com/Astryze/radar-cripto-bot/actions/runs/42526870517/attempts/2
+Nenhum ID pessoal ou valor de Secret foi acrescentado aos arquivos do projeto.
 
 ## Inventário exato de alterações
 
