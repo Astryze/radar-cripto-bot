@@ -471,3 +471,35 @@ O diagnóstico da `main` indica se cada credencial está disponível para o runn
 e se há escopo no cadastro. Respostas 401, 403, 429, falhas genéricas e catálogos
 vazios têm mensagens próprias. O relatório habitual do Telegram inclui esse
 diagnóstico e mantém as oportunidades pendentes apenas no JSON.
+
+## Radar 2.8
+
+1. Obtenha acesso somente aos Spaces que você pode consultar na Galxe. No
+   painel oficial, abra Settings → Server API → Generate New API Tokens.
+   Use o menor escopo disponível para consultas. A integração usa apenas
+   queries GraphQL fixas. [Autenticação Galxe](https://docs.galxe.com/galxe-integration/getting-started/authentication).
+2. Na Zealy, use as configurações de uma comunidade que você administra e
+   selecione uma chave **read-only**. A API exige acesso administrativo
+   à comunidade para listar quests. [Autenticação Zealy](https://docs.zealy.io/authentication)
+   e [listagem de quests](https://docs.zealy.io/api-reference/quests/list-quests).
+3. No repositório, abra **Settings → Secrets and variables → Actions →
+   New repository secret**. Cadastre `GALXE_ACCESS_TOKEN` e `ZEALY_API_KEY`
+   diretamente no GitHub.
+4. Em `config/platforms.json`, preencha `space_ids` e `communities` nas
+   entradas correspondentes da lista `platforms`. A seção
+   `configuration_examples` é apenas ilustrativa. Após selecionar uma chave
+   Zealy somente leitura no painel, declare `read_only_key: true` no JSON
+   da entrada Zealy. Essa declaração registra a configuração feita pelo
+   operador. A API de listagem não verifica o escopo da própria chave.
+5. Execute **Actions → Radar Cripto → Run workflow** em `main` com
+   `dry_run` marcado. Verifique o diagnóstico e `reports/multiplatform.json`.
+   Com credencial e escopo válidos, o dry-run executa as consultas reais de leitura.
+   O teste de conexão não envia mensagens. As execuções normais incluem um
+   bloco para cada plataforma no relatório do Telegram.
+
+Cada conector aceita até três escopos sem duplicatas. A Galxe informa cobertura
+parcial quando encontra páginas adicionais. A Zealy retorna uma lista no endpoint
+documentado e sinaliza corte local acima de 50 entradas por comunidade.
+Tipos de recompensa, tarefas e condições observados são metadados do catálogo.
+A confirmação de custo zero, acesso brasileiro e resgate depende de evidência
+oficial adicional. Veja [VALIDATION_V28.md](VALIDATION_V28.md).

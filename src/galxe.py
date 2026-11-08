@@ -7,6 +7,7 @@ from urllib.parse import urlsplit
 
 import requests
 
+from .integration_setup import integration_setup
 from .utils import FetchError, MAX_BYTES, parse_date, retry_after_seconds, utcnow, validate_url
 
 ENDPOINT = 'https://graphigo-business.prd.galaxy.eco/query'
@@ -20,6 +21,7 @@ LIST = """query GetSpaceQuests($input: ListQuestInput!) {
 DETAIL = """query GetQuest($id: ID!) {
   quest(id: $id) {
     id name type status startTime endTime cap participantsCount loyaltyPoints gasType chain
+    description space { id }
   }
 }"""
 class GalxeAuthorizationError(FetchError):
@@ -79,16 +81,15 @@ def galxe_catalog(platform, client):
     spaces = platform.get('space_ids', [])
     if not platform['enabled'] or platform['permission'] != 'API_OFICIAL':
         return [], 'skipped_permission'
+    setup = integration_setup(platform, 'galxe')
+    if not setup['scope_valid']:
+        return [], 'skipped_invalid_scope'
     if not token or not spaces:
         return [], 'skipped_missing_access_token_or_spaces'
     audit = parse_date(platform.get('last_audit'))
     now = utcnow()
     if not audit or not now - timedelta(days=30) <= audit <= now:
         return [], 'skipped_expired_audit'
-    if len(spaces) > 3 or len(set(spaces)) != len(spaces) or any(
-        not isinstance(space, str) or not re.fullmatch(r'[0-9]{1,20}', space) for space in spaces
-    ):
-        raise ValueError('Spaces Galxe inválidos')
     until = parse_date(client.cooldowns.get(HOST, {}).get('until'))
     if until and until > now:
         return [], 'skipped_api_cooldown'
@@ -111,9 +112,27 @@ def galxe_catalog(platform, client):
                 detail = _query(client, token, DETAIL, {'id': quest_id}).get('quest')
                 if not isinstance(detail, dict) or detail.get('id') != quest_id:
                     raise FetchError('Detalhe Galxe indisponível')
+                detail_space = detail.get('space')
+                if detail_space is not None and (
+                    not isinstance(detail_space, dict) or detail_space.get('id') != space
+                ):
+                    raise FetchError('Detalhe Galxe fora do Space autorizado')
                 item = {**item, **detail}
             row = {key: item[key] for key in FIELDS if isinstance(item.get(key), (str, int, float))}
-            row.update(space_id=space, queried_at=client.now().isoformat(), source=ENDPOINT, brazil='desconhecido', reward_verified=False,
+            description = item.get('description')
+            description = description if isinstance(description, str) else ''
+            signals = [term for term, pattern in {
+                'depósito': r'\b(deposit|depósito)\b',
+                'compra': r'\b(buy|purchase|compra)\b',
+                'trade': r'\b(trade|trading|swap)\b',
+                'staking': r'\b(stake|staking)\b',
+                'gas': r'\b(gas|network fee)\b',
+            }.items() if re.search(pattern, description, re.I)]
+            reward_hint = {'Points': 'pontos', 'MysteryBox': 'recompensa aleatória',
+                           'Airdrop': 'distribuição anunciada de token'}.get(item.get('type'), 'não identificado')
+            row.update(financial_mentions=signals, reward_hint=reward_hint,
+                       pagination_available=listing.get('pageInfo', {}).get('hasNextPage'),
+                       space_id=space, queried_at=client.now().isoformat(), source=ENDPOINT, brazil='desconhecido', reward_verified=False,
                        financial_classification='GRATUIDADE_NAO_CONFIRMADA',
                        quiz='não confirmado', educational_content='não confirmado',
                        requirements='não confirmados',

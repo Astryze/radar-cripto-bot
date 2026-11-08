@@ -6,6 +6,7 @@ import re
 from datetime import timedelta
 from pathlib import Path
 from .galxe import galxe_catalog
+from .integration_setup import integration_setup
 from .platform_permissions import load_platforms
 from .quiz_analyzer import analyze_public_quiz
 from .state import State
@@ -61,17 +62,51 @@ def authorized_quiz(data, platform, sources, client):
     return analyze_public_quiz(data, sources, client)
 
 
+def zealy_quest_metadata(item):
+    """Extrai campos públicos estruturados. settings/metadata de tarefas podem conter chaves."""
+    def objects(field):
+        values = item.get(field)
+        return [value for value in values[:50] if isinstance(value, dict)] if isinstance(values, list) else []
+
+    def types(field, supported):
+        return sorted({value['type'] for value in objects(field)
+                       if isinstance(value.get('type'), str) and value['type'] in supported})
+
+    dates = []
+    for condition in objects('conditions'):
+        value = condition.get('value')
+        operator = condition.get('operator')
+        if (condition.get('type') == 'date' and operator in ('<', '>') and isinstance(value, str)
+                and re.fullmatch(r'\d{4}-\d{2}-\d{2}(?:T[0-9:Z.+-]+)?', value) and parse_date(value)):
+            dates.append({'operator': operator, 'at': parse_date(value).isoformat()})
+    return {
+        'reward_types': types('rewards', {'xp', 'token', 'nft', 'custom', 'other', 'points', 'role', 'voucher', 'raffle'}),
+        'task_types': types('tasks', {'api', 'quiz', 'onchain', 'visit', 'text', 'url', 'discord',
+                                     'twitter', 'telegram', 'file', 'number', 'opensea'}),
+        'condition_types': types('conditions', {'date', 'level', 'role', 'nft', 'quest', 'twitterFollowers'}),
+        'date_conditions': dates,
+        'condition_operator': item.get('conditionOperator') if item.get('conditionOperator') in ('AND', 'OR') else None,
+        'claim_limit': item.get('claimLimit') if type(item.get('claimLimit')) is int else None,
+        'claim_counter': item.get('claimCounter') if type(item.get('claimCounter')) is int else None,
+        'pagination_available': None,
+    }
+
+
 def zealy_catalog(platform, client):
     """GET documentado, somente comunidades administradas e configuradas; nunca claims."""
     key = os.getenv('ZEALY_API_KEY', '').strip()
     communities = platform.get('communities', [])
     if not platform['enabled'] or platform['permission'] != 'API_OFICIAL':
         return [], 'skipped_permission'
+    setup = integration_setup(platform, 'zealy')
+    if not setup['scope_valid']:
+        return [], 'skipped_invalid_scope'
     if not key or not communities:
         return [], 'skipped_missing_api_key_or_admin_communities'
-    if len(communities)>3 or any(not re.fullmatch('[a-z0-9-]{1,80}', x) for x in communities):
-        raise ValueError('Comunidades inválidas')
+    if not setup['read_only_declared']:
+        return [], 'skipped_read_only_not_declared'
     catalog = []
+    truncated = False
     prior = client.session.headers.get('x-api-key')
     client.session.headers['x-api-key'] = key
     try:
@@ -83,11 +118,13 @@ def zealy_catalog(platform, client):
             data = json.loads(body)
             if not isinstance(data, list):
                 raise ValueError('Schema da API não reconhecido')
+            truncated |= len(data) > 50
             for item in data[:50]:
                 if not isinstance(item,dict) or item.get('published') is not True or item.get('archived') or item.get('deleted'):
                     continue
                 if isinstance(item.get('id'),str) and isinstance(item.get('name'),str):
-                    catalog.append({'id':item['id'][:100], 'title':item['name'][:240], 'community':community,
+                    metadata = zealy_quest_metadata(item)
+                    catalog.append({**metadata, 'id':item['id'][:100], 'title':item['name'][:240], 'community':community,
                                     'queried_at': utcnow().isoformat(), 'source': url,
                                     'brazil': 'desconhecido', 'reward_verified': False,
                                     'financial_classification': 'GRATUIDADE_NAO_CONFIRMADA',
@@ -97,7 +134,7 @@ def zealy_catalog(platform, client):
         client.session.headers.pop('x-api-key',None)
         if prior is not None:
             client.session.headers['x-api-key'] = prior
-    return catalog, 'collected_api_catalog'
+    return catalog, 'collected_api_catalog_partial' if truncated else 'collected_api_catalog'
 
 
 def verified_opportunity(campaign):
@@ -131,12 +168,7 @@ def message(campaign):
 
 
 def integration_diagnostic(platform, health):
-    secret, scope = {
-        'galxe': ('GALXE_ACCESS_TOKEN', 'space_ids'),
-        'zealy': ('ZEALY_API_KEY', 'communities'),
-    }[platform['id']]
-    present = bool(os.getenv(secret, '').strip())
-    configured = bool(platform.get(scope))
+    setup = integration_setup(platform)
     status = health['status']
     total = len(health['campaigns_found'])
     if status.startswith('collected_api_catalog'):
@@ -159,14 +191,16 @@ def integration_diagnostic(platform, health):
     elif status in {'disabled', 'skipped_permission', 'skipped_expired_audit', 'manual_link_only'}:
         label = 'autorização de coleta desativada ou auditoria vencida'
     else:
-        missing = []
-        if not present:
-            missing.append('credencial indisponível nesta execução')
-        if not configured:
-            missing.append('escopo autorizado não configurado')
-        label = ' e '.join(missing) or 'consulta ignorada'
-    return {'credential_available': present, 'scope_configured': configured,
-            'results': total, 'message': label}
+        label = ' e '.join(setup['issues']) or 'consulta ignorada'
+    return {**setup, 'results': total, 'message': label}
+
+
+def integration_report(item, confirmed):
+    identifier = item['id']
+    name = {'galxe': 'Galxe', 'zealy': 'Zealy'}[identifier]
+    status = item['integration']['message']
+    count = sum(result['platform_id'] == identifier for result in confirmed)
+    return f'{name} — {status}\nOportunidades gratuitas confirmadas: {count}'
 
 
 def run(platforms, observations, state, client, bot, reports, dry_run=False, *, send_empty_summary=False):
@@ -252,17 +286,16 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
     summary = 'Nenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução.'
     if confirmed:
         summary = f'Oportunidades financeiras verificadas para o Brasil com investimento zero: {len(confirmed)}.'
-    diagnostics = [f"{item['id'].title()} — {item['integration']['message']}"
-                   for item in health if 'integration' in item]
+    diagnostics = [integration_report(item, confirmed) for item in health if 'integration' in item]
     if not dry_run and send_empty_summary:
         day = now.date().isoformat()
-        marker = f'v27:multiplatform:diagnostic:{day}:{digest([summary, diagnostics])}'
+        marker = f'v28:multiplatform:diagnostic:{day}:{digest([summary, diagnostics])}'
         if marker not in state.data['summaries']:
             try:
                 bot.send('RADAR CRIPTO — MULTIPLATAFORMAS\n' + '\n'.join([summary, *diagnostics]))
                 previous = state.data['summaries']
                 state.data['summaries'] = [
-                    item for item in previous if not item.startswith(('v25:multiplatform:empty:', 'v27:multiplatform:diagnostic:'))
+                    item for item in previous if not item.startswith(('v25:multiplatform:empty:', 'v27:multiplatform:diagnostic:', 'v28:multiplatform:diagnostic:'))
                 ] + [marker]
                 state.save()
                 sent += 1
@@ -273,7 +306,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version':'2.7','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    report = {'version':'2.8','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
               'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,

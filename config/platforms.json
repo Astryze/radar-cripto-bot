@@ -106,7 +106,8 @@
       "errors": [],
       "campaigns_found": [],
       "communities": [],
-      "quiz_automation_authorized": false
+      "quiz_automation_authorized": false,
+      "read_only_key": false
     },
     {
       "id": "intract",
@@ -184,5 +185,19 @@
       "communities": [],
       "quiz_automation_authorized": false
     }
-  ]
+  ],
+  "configuration_examples": {
+    "note": "Exemplos inativos. Use somente IDs e comunidades com autorização.",
+    "galxe": {
+      "space_ids": [
+        "123456"
+      ]
+    },
+    "zealy": {
+      "communities": [
+        "minha-comunidade"
+      ],
+      "read_only_key": true
+    }
+  }
 }

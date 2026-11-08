@@ -15,7 +15,7 @@ from src.utils import utcnow, RedactFilter
 def platform():
     return {'id':'zealy','name':'TESTE ARTIFICIAL','url':'https://zealy.io','enabled':True,
             'permission':'API_OFICIAL','last_audit':utcnow().date().isoformat(),
-            'limitations':'exemplo offline','communities':[],'quiz_automation_authorized':False}
+            'limitations':'exemplo offline','communities':[],'read_only_key':True,'quiz_automation_authorized':False}
 
 
 @pytest.fixture

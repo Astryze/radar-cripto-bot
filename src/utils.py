@@ -238,6 +238,9 @@ class HttpClient:
             if response is None:
                 raise FetchError("Sem resposta HTTP")
             if response.status_code in {301, 302, 303, 307, 308}:
+                if host == 'api-v2.zealy.io':
+                    response.close()
+                    raise FetchError('Redirecionamento Zealy rejeitado')
                 target = urljoin(url, response.headers.get("Location", ""))
                 response.close()
                 url = target
