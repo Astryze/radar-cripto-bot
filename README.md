@@ -192,3 +192,67 @@ quantidade diária de oportunidades.
 O ZIP inicial permanece preservado. Nenhum workflow antigo foi reintroduzido.
 Resultados reais, limitações e mudanças estão em [`VALIDATION.md`](VALIDATION.md).
 Os testes e a auditoria da versão 2 estão em [`VALIDATION_V2.md`](VALIDATION_V2.md).
+
+## Radar 2.1 — estudo assistido de quizzes BitDegree
+
+A etapa independente `src.bitdegree_quizzes` agora participa das mesmas verificações
+programadas. O radar de airdrops, seus filtros, horários, relatórios e entregas continuam
+no fluxo 2.0. A nova etapa usa os três hubs BitDegree já cadastrados em
+`config/sources.json`: LearnDrops, guilda oficial e missões públicas. Guildas de usuários
+só entram quando explicitamente confiáveis na configuração existente.
+
+O monitor visita missões e links de estudo/quiz publicados na própria página; aceita
+apenas domínios oficiais cadastrados, com validação HTTPS, DNS público e redirects.
+Não inventa endpoints. Perguntas e alternativas são extraídas exclusivamente do HTML
+público estático (`fieldset/legend/label` ou marcação `data-quiz-question`). Conteúdo
+oculto, JSON de hidratação, formulários de login e gabaritos privados não são lidos.
+Materiais de estudo excluem os formulários do quiz para impedir uma resposta de servir
+como evidência de si mesma. Layouts diferentes exigem atualização do extrator.
+
+Quando há perguntas, o Telegram recebe pergunta, alternativas, resposta provável,
+justificativa, trecho de apoio, URL oficial, confiança e limitações. A busca lexical é
+conservadora: exige frase de apoio e diferença entre alternativas; perguntas negativas,
+alternativas semelhantes, evidências conflitantes ou insuficientes retornam **“não
+determinado”**. Não há compreensão semântica completa nem garantia de acerto. A
+confiança máxima automática é média; a revisão humana é necessária. A pesquisa usa
+materiais públicos efetivamente vinculados à missão e domínios oficiais configurados,
+sem busca geral na internet ou serviço de IA pago.
+
+Quando nenhuma pergunta está pública, o bot informa isso e fornece o link da missão.
+Não confunde ausência de HTML extraível com inexistência de quiz na plataforma e não
+inventa respostas. Uma missão monitorada não constitui confirmação de gratuidade,
+recompensa, prazo ou elegibilidade. Essa avaliação continua no radar 2.0.
+
+O estado existente `radar-state/radar.json` ganhou apenas os campos `quizzes` e
+`quiz_checks`, preservando a versão e todos os registros anteriores. São salvos hashes,
+respostas, citações, última consulta e entrega confirmada. Conteúdo idêntico reutiliza a
+análise; novas perguntas, alternativas ou respostas alteradas geram novo alerta. Falhas
+de coleta preservam a análise anterior. Falhas de Telegram mantêm a entrega pendente.
+Uma falha após envio parcial pode repetir partes na tentativa seguinte: a API não oferece
+transação atômica para várias mensagens. O mesmo divisor UTF-16 do Telegram é usado.
+
+Limites por execução: até 18 chamadas de coleta, seis missões, dois links relacionados
+por missão e 12 perguntas por missão. O orçamento de 120 segundos é verificado entre
+chamadas; uma requisição em andamento pode excedê-lo até seu timeout/retry. Reutiliza
+os limites HTTP existentes (2 MB, timeout, redirects seguros e cooldown persistente),
+com até duas tentativas, intervalo mínimo de um segundo e espera máxima local de cinco
+segundos antes de adiar uma fonte. As missões são alternadas por última tentativa,
+inclusive quando falham, para não bloquear a descoberta das demais.
+
+```bash
+# Coleta real, sem Telegram nem alterações no histórico
+python -m src.bitdegree_quizzes --dry-run
+
+# Usa os mesmos dois Secrets/variáveis já configurados
+python -m src.bitdegree_quizzes
+```
+
+O relatório separado é `reports/bitdegree-quizzes.json`; erros fatais vão para
+`reports/bitdegree-failure.json`. O workflow executa a etapa mesmo após falha parcial
+do radar, desde que o histórico tenha sido restaurado, e persiste o estado ao final.
+As execuções de push/PR continuam apenas validando o código. Não são necessários novos
+Secrets ou dependências. Não há login, cookies de sessão, armazenamento de credenciais,
+CAPTCHA, conexão de carteira ou submissão automática de respostas, mesmo se uma
+plataforma passar a permiti-la: tal recurso não existe nesta implementação.
+
+Validação e limites desta entrega: [`VALIDATION_V21.md`](VALIDATION_V21.md).
