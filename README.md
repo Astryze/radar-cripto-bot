@@ -442,3 +442,32 @@ Sorteios ficam fora dos alertas. Quando a lista está vazia, o Telegram informa
 “Nenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução.”
 
 A auditoria de novembro e o resultado da execução estão em [VALIDATION_V26.md](VALIDATION_V26.md).
+
+## Radar 2.7
+
+1. **Galxe.** No painel oficial, abra Settings → Server API → Generate New API
+   Tokens. Use um token autorizado a consultar as quests dos Spaces escolhidos
+   e selecione somente leitura, se o painel oferecer esse escopo. Cadastre
+   `GALXE_ACCESS_TOKEN` e informe em `config/platforms.json` os IDs numéricos
+   dos seus Spaces autorizados no campo `space_ids` da entrada Galxe.
+   [Autenticação Galxe](https://docs.galxe.com/galxe-integration/getting-started/authentication).
+2. **Zealy.** Nas configurações da comunidade administrada, crie uma chave
+   **read-only**. O endpoint exige papel de administrador na comunidade.
+   Cadastre `ZEALY_API_KEY` e informe no campo `communities` da entrada Zealy
+   os subdomínios autorizados. Cada subdomínio é o trecho após `/cw/` na URL.
+   [Autenticação Zealy](https://docs.zealy.io/authentication) e
+   [endpoint de quests](https://docs.zealy.io/api-reference/quests/list-quests).
+3. **GitHub.** No repositório, abra Settings → Secrets and variables → Actions →
+   New repository secret. Cole cada valor no formulário do Secret correspondente.
+   Mantenha os valores no formulário do GitHub. Os identificadores de escopo vão
+   no cadastro, sem credenciais.
+4. **Conexão.** Abra Actions → Radar Cripto → Run workflow, selecione `main` e
+   marque `dry_run`. Confira o log da etapa de plataformas e o artefato
+   `reports/multiplatform.json`. Com escopos e credenciais autorizados, o teste
+   faz consultas reais de leitura e registra horário, endpoint, HTTP e resultados.
+   O dry-run desabilita envio ao Telegram e alteração do histórico.
+
+O diagnóstico da `main` indica se cada credencial está disponível para o runner
+e se há escopo no cadastro. Respostas 401, 403, 429, falhas genéricas e catálogos
+vazios têm mensagens próprias. O relatório habitual do Telegram inclui esse
+diagnóstico e mantém as oportunidades pendentes apenas no JSON.

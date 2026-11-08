@@ -177,3 +177,39 @@ def test_report_keeps_http_evidence_without_headers(tmp_path, monkeypatch):
     evidence = next(source for source in json.loads(output)['sources'] if source['id'] == 'galxe')
     assert evidence['http_responses'][0]['status'] == 403
     assert 'SOMENTE_TESTE' not in output
+
+
+def test_diagnostic_distinguishes_missing_secret_and_scope(monkeypatch):
+    from src.multiplatform import integration_diagnostic
+
+    monkeypatch.delenv('GALXE_ACCESS_TOKEN', raising=False)
+    platform = {'id': 'galxe', 'space_ids': []}
+    health = {'status': 'skipped_missing_access_token_or_spaces', 'campaigns_found': []}
+    result = integration_diagnostic(platform, health)
+    assert result['credential_available'] is False and result['scope_configured'] is False
+    monkeypatch.setenv('GALXE_ACCESS_TOKEN', 'SOMENTE_TESTE')
+    result = integration_diagnostic(platform, health)
+    assert result['credential_available'] is True
+    assert result['message'] == 'escopo autorizado não configurado'
+    assert 'SOMENTE_TESTE' not in json.dumps(result)
+
+
+def test_galxe_graphql_denial_is_not_empty_catalog(galxe, tmp_path):
+    platform, client = galxe
+    platform.update(id='galxe', limitations='')
+    client.session.post.return_value = response({'errors': [{'extensions': {'http_status': 403}}]})
+    assert run([platform], [], State(tmp_path / 'state'), client, None, tmp_path, True) == 2
+    report = json.loads((tmp_path / 'multiplatform.json').read_text())
+    source = report['sources'][0]
+    assert source['http_status'] == 200
+    assert source['integration']['message'] == 'autorização negada pela API (403)'
+
+
+def test_empty_catalog_diagnostic_differs_from_success_with_results():
+    from src.multiplatform import integration_diagnostic
+
+    platform = {'id': 'zealy'}
+    health = {'status': 'collected_api_catalog', 'campaigns_found': []}
+    assert integration_diagnostic(platform, health)['message'] == 'consulta concluída sem resultados'
+    health['campaigns_found'].append({'id': 'example'})
+    assert integration_diagnostic(platform, health)['message'] == 'conectada e consultada, 1 resultado(s)'

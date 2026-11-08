@@ -22,6 +22,12 @@ DETAIL = """query GetQuest($id: ID!) {
     id name type status startTime endTime cap participantsCount loyaltyPoints gasType chain
   }
 }"""
+class GalxeAuthorizationError(FetchError):
+    def __init__(self, status):
+        self.status = status
+        super().__init__('Acesso Galxe rejeitado')
+
+
 FIELDS = ('id', 'name', 'type', 'status', 'startTime', 'endTime', 'cap',
           'participantsCount', 'loyaltyPoints', 'gasType', 'chain')
 
@@ -56,8 +62,12 @@ def _query(client, token, query, variables):
         raise FetchError('Resposta Galxe inválida')
     if payload.get('errors'):
         for error in payload['errors']:
-            if isinstance(error, dict) and (error.get('extensions') or {}).get('http_status') == 429:
+            extensions = error.get('extensions') if isinstance(error, dict) else None
+            status = extensions.get('http_status') if isinstance(extensions, dict) else None
+            if status == 429:
                 client._defer(ENDPOINT, 429, 900)
+            if status in (401, 403):
+                raise GalxeAuthorizationError(status)
         raise FetchError('Consulta Galxe rejeitada')
     if not isinstance(payload.get('data'), dict):
         raise FetchError('Resposta Galxe sem dados')

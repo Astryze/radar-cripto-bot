@@ -130,6 +130,45 @@ def message(campaign):
         'Recompensa sujeita aos requisitos, elegibilidade e disponibilidade; não é ganho garantido.'])
 
 
+def integration_diagnostic(platform, health):
+    secret, scope = {
+        'galxe': ('GALXE_ACCESS_TOKEN', 'space_ids'),
+        'zealy': ('ZEALY_API_KEY', 'communities'),
+    }[platform['id']]
+    present = bool(os.getenv(secret, '').strip())
+    configured = bool(platform.get(scope))
+    status = health['status']
+    total = len(health['campaigns_found'])
+    if status.startswith('collected_api_catalog'):
+        label = f'conectada e consultada, {total} resultado(s)' if total else 'consulta concluída sem resultados'
+        if status.endswith('_partial'):
+            label += ' na cobertura parcial'
+    elif status == 'api_failure':
+        codes = {record.get('status') for record in health['http_responses']}
+        codes.add(health.get('api_error_status'))
+        if 403 in codes:
+            label = 'autorização negada pela API (403)'
+        elif 401 in codes:
+            label = 'credencial rejeitada pela API (401)'
+        elif 429 in codes:
+            label = 'limite de consultas atingido (429)'
+        else:
+            label = 'erro de API'
+    elif status == 'skipped_api_cooldown':
+        label = 'consulta adiada pelo limite da API'
+    elif status in {'disabled', 'skipped_permission', 'skipped_expired_audit', 'manual_link_only'}:
+        label = 'autorização de coleta desativada ou auditoria vencida'
+    else:
+        missing = []
+        if not present:
+            missing.append('credencial indisponível nesta execução')
+        if not configured:
+            missing.append('escopo autorizado não configurado')
+        label = ' e '.join(missing) or 'consulta ignorada'
+    return {'credential_available': present, 'scope_configured': configured,
+            'results': total, 'message': label}
+
+
 def run(platforms, observations, state, client, bot, reports, dry_run=False, *, send_empty_summary=False):
     health, results, sent, errors = [], [], 0, []
     pending = []
@@ -144,6 +183,8 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
              'status':'manual_link_only', 'http_responses': [], 'limitations':platform['limitations']}
         if not platform['enabled']:
             h['status'] = 'disabled'
+            if platform['id'] in {'galxe', 'zealy'}:
+                h['integration'] = integration_diagnostic(platform, h)
             health.append(h)
             continue
         connector = {'zealy': zealy_catalog, 'galxe': galxe_catalog}.get(platform['id'])
@@ -153,6 +194,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
                 h['campaigns_found'], h['status'] = connector(platform, client)
             except Exception as exc:
                 h['status'] = 'api_failure'
+                h['api_error_status'] = getattr(exc, 'status', None)
                 h['errors'].append(type(exc).__name__)
                 errors.append({'platform':platform['id'], 'error_type':type(exc).__name__})
             records = client.records[before:]
@@ -165,6 +207,8 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
                 h['http_status'] = records[-1]['status']
         if platform['permission']=='API_OFICIAL' and connector is None:
             h['status'] = 'skipped_api_access_or_free_plan_not_verified'
+        if connector:
+            h['integration'] = integration_diagnostic(platform, h)
         health.append(h)
         if platform['id']=='bitdegree':
             continue
@@ -208,15 +252,17 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
     summary = 'Nenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução.'
     if confirmed:
         summary = f'Oportunidades financeiras verificadas para o Brasil com investimento zero: {len(confirmed)}.'
-    if not dry_run and send_empty_summary and not confirmed:
+    diagnostics = [f"{item['id'].title()} — {item['integration']['message']}"
+                   for item in health if 'integration' in item]
+    if not dry_run and send_empty_summary:
         day = now.date().isoformat()
-        marker = f'v25:multiplatform:empty:{day}'
+        marker = f'v27:multiplatform:diagnostic:{day}:{digest([summary, diagnostics])}'
         if marker not in state.data['summaries']:
             try:
-                bot.send('RADAR CRIPTO — MULTIPLATAFORMAS\n' + summary)
+                bot.send('RADAR CRIPTO — MULTIPLATAFORMAS\n' + '\n'.join([summary, *diagnostics]))
                 previous = state.data['summaries']
                 state.data['summaries'] = [
-                    item for item in previous if not item.startswith('v25:multiplatform:empty:')
+                    item for item in previous if not item.startswith(('v25:multiplatform:empty:', 'v27:multiplatform:diagnostic:'))
                 ] + [marker]
                 state.save()
                 sent += 1
@@ -227,13 +273,15 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version':'2.6','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    report = {'version':'2.7','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
               'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,
               'real_quiz_questions':0,
               'limitation':'Observações manuais não são descoberta contínua. Listagens API não confirmam recompensas de projetos.'}
     atomic_json(Path(reports)/'multiplatform.json',report)
+    for diagnostic in diagnostics:
+        print(diagnostic)
     print(f"Multiplataformas: {len(platforms)} fontes auditadas; {report['live_api_campaigns']} registros API; {report['verified_zero_investment']} gratuitas verificadas; {sent} alertas")
     return 2 if errors else 0
 
