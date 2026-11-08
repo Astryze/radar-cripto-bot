@@ -35,7 +35,7 @@ def test_unconfirmed_binance_only_reports_empty_summary(tmp_path):
         assert run(load_platforms(), observations(), state, Mock(records=[]), bot,
                    tmp_path, send_empty_summary=True) == 0
     bot.send.assert_called_once()
-    assert 'Nenhuma oportunidade financeira verificada' in bot.send.call_args.args[0]
+    assert 'Nenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução.' in bot.send.call_args.args[0]
     report = json.loads((tmp_path / 'multiplatform.json').read_text())
     assert report['api_http_responses'] == report['verified_zero_investment'] == 0
 
@@ -121,3 +121,59 @@ def test_zealy_deleted_quests_excluded(monkeypatch):
     platform['permission'] = 'AUTORIZACAO_NECESSARIA'
     assert zealy_catalog(platform, client)[1] == 'skipped_permission'
     client.get.assert_called_once()
+
+
+def test_galxe_empty_list_is_a_successful_observation(galxe):
+    platform, client = galxe
+    client.session.post.return_value = response({'data': {'quests': {'list': []}}})
+    assert galxe_catalog(platform, client) == ([], 'collected_api_catalog')
+    assert client.records[0]['attempted_at']
+
+
+def test_galxe_missing_list_is_an_error(galxe):
+    platform, client = galxe
+    client.session.post.return_value = response({'data': {'quests': None}})
+    with pytest.raises(FetchError, match='Listagem Galxe inválida'):
+        galxe_catalog(platform, client)
+
+
+def test_galxe_graphql_quota_error_sets_cooldown(galxe):
+    platform, client = galxe
+    client.session.post.return_value = response({'errors': [{'extensions': {'http_status': 429}}]})
+    with pytest.raises(DeferredFetch):
+        galxe_catalog(platform, client)
+    assert galxe_catalog(platform, client)[1] == 'skipped_api_cooldown'
+    client.session.post.assert_called_once()
+
+
+@pytest.mark.parametrize('change', [
+    {'distribution': 'sorteio'}, {'redeemable': None}, {'brazil': 'desconhecido'},
+    {'availability': 'encerrada'}, {'financial_classification': 'GRATUIDADE_NAO_CONFIRMADA'},
+])
+def test_verified_opportunity_requires_all_criteria(change):
+    from src.multiplatform import verified_opportunity
+
+    eligible = {
+        'official': True, 'reward_verified': True, 'evidence': [{'url': ENDPOINT}],
+        'reward_type': 'BTC', 'redeemable': True, 'brazil': 'confirmado', 'availability': 'aberta',
+        'financial_classification': 'ZERO_INVESTIMENTO',
+        'verification_status': 'revisão manual recente; sem reconsulta automática',
+    }
+    assert verified_opportunity(eligible)
+    assert not verified_opportunity({**eligible, **change})
+
+
+def test_report_keeps_http_evidence_without_headers(tmp_path, monkeypatch):
+    client = Mock(records=[])
+
+    def collect(platform, http):
+        http.records.append({'url': ENDPOINT, 'status': 403, 'attempted_at': utcnow().isoformat(),
+                             'headers': {'access-token': 'SOMENTE_TESTE'}})
+        raise FetchError('Galxe HTTP 403')
+
+    monkeypatch.setattr('src.multiplatform.galxe_catalog', collect)
+    assert run(load_platforms(), [], State(tmp_path / 'state'), client, None, tmp_path, True) == 2
+    output = (tmp_path / 'multiplatform.json').read_text()
+    evidence = next(source for source in json.loads(output)['sources'] if source['id'] == 'galxe')
+    assert evidence['http_responses'][0]['status'] == 403
+    assert 'SOMENTE_TESTE' not in output

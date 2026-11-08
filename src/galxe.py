@@ -37,7 +37,8 @@ def _query(client, token, query, variables):
             headers={'access-token': token}, allow_redirects=False, stream=True, timeout=(5, 15),
         ) as response:
             status = response.status_code
-            client.records.append({'url': ENDPOINT, 'status': status})
+            client.records.append({'url': ENDPOINT, 'status': status,
+                                   'attempted_at': client.now().isoformat()})
             if status == 429:
                 wait = retry_after_seconds(response.headers.get('Retry-After'), client.now())
                 client._defer(ENDPOINT, 429, max(wait or 0, 900))
@@ -87,22 +88,22 @@ def galxe_catalog(platform, client):
     for space in spaces:
         listing = _query(client, token, LIST, {'input': {
             'spaceId': space, 'statuses': ['Active', 'NotStarted'], 'first': 20,
-        }})['quests']
-        items = listing['list']
-        if not isinstance(items, list):
+        }}).get('quests')
+        if not isinstance(listing, dict) or not isinstance(listing.get('list'), list):
             raise FetchError('Listagem Galxe inválida')
+        items = listing['list']
         truncated |= bool(listing.get('pageInfo', {}).get('hasNextPage')) or len(items) > 20
         for index, item in enumerate(items[:20]):
-            quest_id = item['id']
+            quest_id = item.get('id') if isinstance(item, dict) else None
             if not isinstance(quest_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,100}', quest_id):
                 raise FetchError('Identificador Galxe inválido')
             if index < 2:
-                detail = _query(client, token, DETAIL, {'id': quest_id})['quest']
+                detail = _query(client, token, DETAIL, {'id': quest_id}).get('quest')
                 if not isinstance(detail, dict) or detail.get('id') != quest_id:
                     raise FetchError('Detalhe Galxe indisponível')
                 item = {**item, **detail}
             row = {key: item[key] for key in FIELDS if isinstance(item.get(key), (str, int, float))}
-            row.update(space_id=space, brazil='desconhecido', reward_verified=False,
+            row.update(space_id=space, queried_at=client.now().isoformat(), source=ENDPOINT, brazil='desconhecido', reward_verified=False,
                        financial_classification='GRATUIDADE_NAO_CONFIRMADA',
                        quiz='não confirmado', educational_content='não confirmado',
                        requirements='não confirmados',

@@ -426,3 +426,19 @@ A leitura Zealy continua restrita ao GET oficial de comunidades administradas.
 Use chave somente leitura em `ZEALY_API_KEY` para esse endpoint. As observações
 públicas manuais funcionam sem chaves Galxe ou Zealy.
 [Documentação Zealy](https://docs.zealy.io/api-reference/quests/list-quests).
+
+## Radar 2.6
+
+O relatório registra URL, status HTTP e horário por fonte quando há resposta das
+APIs. As campanhas de catálogo conservam a origem e o horário de consulta.
+A ausência de credencial ou de escopo configurado aparece como execução ignorada.
+A Galxe sinaliza listagens parciais quando a API informa páginas adicionais.
+A Zealy continua limitada às comunidades autorizadas do cadastro.
+
+`financial_classification` descreve os custos. `opportunity_status` só recebe
+`GRATUITA_CONFIRMADA` com evidência oficial recente, recompensa financeira
+resgatável, disponibilidade, Brasil confirmado e investimento inicial zero.
+Sorteios ficam fora dos alertas. Quando a lista está vazia, o Telegram informa
+“Nenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução.”
+
+A auditoria de novembro e o resultado da execução estão em [VALIDATION_V26.md](VALIDATION_V26.md).

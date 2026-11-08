@@ -63,7 +63,7 @@ def authorized_quiz(data, platform, sources, client):
 
 def zealy_catalog(platform, client):
     """GET documentado, somente comunidades administradas e configuradas; nunca claims."""
-    key = os.getenv('ZEALY_API_KEY')
+    key = os.getenv('ZEALY_API_KEY', '').strip()
     communities = platform.get('communities', [])
     if not platform['enabled'] or platform['permission'] != 'API_OFICIAL':
         return [], 'skipped_permission'
@@ -88,6 +88,10 @@ def zealy_catalog(platform, client):
                     continue
                 if isinstance(item.get('id'),str) and isinstance(item.get('name'),str):
                     catalog.append({'id':item['id'][:100], 'title':item['name'][:240], 'community':community,
+                                    'queried_at': utcnow().isoformat(), 'source': url,
+                                    'brazil': 'desconhecido', 'reward_verified': False,
+                                    'financial_classification': 'GRATUIDADE_NAO_CONFIRMADA',
+                                    'deadline': None, 'redeemable': None,
                                     'verification':'listagem API; recompensa e gratuidade ainda não verificadas'})
     finally:
         client.session.headers.pop('x-api-key',None)
@@ -97,6 +101,10 @@ def zealy_catalog(platform, client):
 
 
 def verified_opportunity(campaign):
+    reward_description = ' '.join(str(campaign.get(field) or '') for field in
+                                  ('reward', 'reward_form', 'distribution'))
+    if re.search(r'\b(sorteios?|rifas?|raffles?|lotter(?:y|ies)|giveaways?)\b', reward_description, re.I):
+        return False
     return (campaign.get('official') and campaign.get('reward_verified') and campaign.get('evidence')
             and campaign.get('redeemable') is True and campaign.get('reward_type') in FINANCIAL
             and campaign.get('availability') == 'aberta' and campaign.get('brazil') == 'confirmado'
@@ -109,6 +117,7 @@ def message(campaign):
         f"Plataforma: {campaign['platform']}", f"Recompensa: {campaign.get('reward','não confirmada')}",
         f"Tipo: {campaign.get('reward_type','desconhecido')}",
         f"Investimento inicial: {campaign['financial_classification']}",
+        f"Resgate: {'comprovado' if campaign.get('redeemable') is True else 'não confirmado'}",
         f"Valor e moeda: {campaign.get('reward_amount', 'não confirmado')} {campaign.get('reward_currency', '')}",
         f"KYC: {campaign.get('kyc', 'não confirmado')}",
         f"Taxas adicionais: {campaign.get('fees','não confirmadas')}",
@@ -132,7 +141,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
     for platform in platforms:
         h = {'id':platform['id'],'permission':platform['permission'],'last_audit':platform['last_audit'],
              'last_execution':now.isoformat(),'http_status':None,'errors':[], 'campaigns_found':[],
-             'status':'manual_link_only','limitations':platform['limitations']}
+             'status':'manual_link_only', 'http_responses': [], 'limitations':platform['limitations']}
         if not platform['enabled']:
             h['status'] = 'disabled'
             health.append(h)
@@ -147,6 +156,10 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
                 h['errors'].append(type(exc).__name__)
                 errors.append({'platform':platform['id'], 'error_type':type(exc).__name__})
             records = client.records[before:]
+            h['http_responses'] = [
+                {field: record[field] for field in ('url', 'status', 'attempted_at') if field in record}
+                for record in records
+            ]
             api_responses += len(records)
             if records:
                 h['http_status'] = records[-1]['status']
@@ -165,6 +178,8 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
             reviewed = parse_date(result.get('reviewed_at'))
             fresh = reviewed and now-timedelta(days=7) <= reviewed <= now
             result['verification_status'] = 'revisão manual recente; sem reconsulta automática' if fresh else 'revisão vencida; não anunciar como disponível'
+            result['opportunity_status'] = ('GRATUITA_CONFIRMADA' if verified_opportunity(result)
+                                            else 'OPORTUNIDADE_NAO_CONFIRMADA')
             key = canonical_url(result['url'])
             previous = history.get(key,{})
             relevant = {k:v for k,v in result.items() if k not in {'score','priority','verification_status','reviewed_at'}}
@@ -190,7 +205,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
             sent += 1
         except Exception as exc:
             errors.append({'platform': result['platform_id'], 'error_type': type(exc).__name__})
-    summary = 'Nenhuma oportunidade financeira verificada para o Brasil com investimento inicial zero.'
+    summary = 'Nenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução.'
     if confirmed:
         summary = f'Oportunidades financeiras verificadas para o Brasil com investimento zero: {len(confirmed)}.'
     if not dry_run and send_empty_summary and not confirmed:
@@ -212,7 +227,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version':'2.5','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    report = {'version':'2.6','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
               'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,
