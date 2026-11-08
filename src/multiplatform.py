@@ -5,13 +5,14 @@ import os
 import re
 from datetime import timedelta
 from pathlib import Path
+from .galxe import galxe_catalog
 from .platform_permissions import load_platforms
 from .quiz_analyzer import analyze_public_quiz
 from .state import State
 from .telegram_bot import TelegramBot
 from .utils import HttpClient, atomic_json, canonical_url, digest, parse_date, utcnow, validate_url
 
-OBLIGATIONS = ('deposit','purchase','paid_staking','paid_nft','subscription','entry_fee','gas')
+OBLIGATIONS = ('deposit','purchase','paid_staking','paid_nft','subscription','entry_fee','trading_volume','redemption_fee','gas')
 FINANCIAL = {'token','crypto','USDC','BTC'}
 
 
@@ -64,6 +65,8 @@ def zealy_catalog(platform, client):
     """GET documentado, somente comunidades administradas e configuradas; nunca claims."""
     key = os.getenv('ZEALY_API_KEY')
     communities = platform.get('communities', [])
+    if not platform['enabled'] or platform['permission'] != 'API_OFICIAL':
+        return [], 'skipped_permission'
     if not key or not communities:
         return [], 'skipped_missing_api_key_or_admin_communities'
     if len(communities)>3 or any(not re.fullmatch('[a-z0-9-]{1,80}', x) for x in communities):
@@ -81,7 +84,7 @@ def zealy_catalog(platform, client):
             if not isinstance(data, list):
                 raise ValueError('Schema da API não reconhecido')
             for item in data[:50]:
-                if not isinstance(item,dict) or item.get('published') is not True or item.get('archived'):
+                if not isinstance(item,dict) or item.get('published') is not True or item.get('archived') or item.get('deleted'):
                     continue
                 if isinstance(item.get('id'),str) and isinstance(item.get('name'),str):
                     catalog.append({'id':item['id'][:100], 'title':item['name'][:240], 'community':community,
@@ -93,11 +96,21 @@ def zealy_catalog(platform, client):
     return catalog, 'collected_api_catalog'
 
 
+def verified_opportunity(campaign):
+    return (campaign.get('official') and campaign.get('reward_verified') and campaign.get('evidence')
+            and campaign.get('redeemable') is True and campaign.get('reward_type') in FINANCIAL
+            and campaign.get('availability') == 'aberta' and campaign.get('brazil') == 'confirmado'
+            and campaign.get('financial_classification') == 'ZERO_INVESTIMENTO'
+            and campaign.get('verification_status') == 'revisão manual recente; sem reconsulta automática')
+
+
 def message(campaign):
     return '\n'.join(['RADAR CRIPTO — MULTIPLATAFORMAS', f"Campanha: {campaign['title']}",
         f"Plataforma: {campaign['platform']}", f"Recompensa: {campaign.get('reward','não confirmada')}",
         f"Tipo: {campaign.get('reward_type','desconhecido')}",
         f"Investimento inicial: {campaign['financial_classification']}",
+        f"Valor e moeda: {campaign.get('reward_amount', 'não confirmado')} {campaign.get('reward_currency', '')}",
+        f"KYC: {campaign.get('kyc', 'não confirmado')}",
         f"Taxas adicionais: {campaign.get('fees','não confirmadas')}",
         f"Brasil: {campaign.get('brazil','desconhecido')}",
         f"Prazo: {campaign.get('ends_at') or 'não confirmado'}; {campaign['availability']}",
@@ -108,8 +121,10 @@ def message(campaign):
         'Recompensa sujeita aos requisitos, elegibilidade e disponibilidade; não é ganho garantido.'])
 
 
-def run(platforms, observations, state, client, bot, reports, dry_run=False):
+def run(platforms, observations, state, client, bot, reports, dry_run=False, *, send_empty_summary=False):
     health, results, sent, errors = [], [], 0, []
+    pending = []
+    api_responses = 0
     history = state.data['platform_campaigns']
     if isinstance(client, HttpClient):
         client.cooldowns.update(state.data['cooldowns'])
@@ -122,18 +137,20 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False):
             h['status'] = 'disabled'
             health.append(h)
             continue
-        if platform['id']=='zealy' and platform['permission']=='API_OFICIAL':
+        connector = {'zealy': zealy_catalog, 'galxe': galxe_catalog}.get(platform['id'])
+        if connector and platform['permission']=='API_OFICIAL':
             before = len(client.records)
             try:
-                h['campaigns_found'], h['status'] = zealy_catalog(platform, client)
+                h['campaigns_found'], h['status'] = connector(platform, client)
             except Exception as exc:
                 h['status'] = 'api_failure'
                 h['errors'].append(type(exc).__name__)
                 errors.append({'platform':platform['id'], 'error_type':type(exc).__name__})
             records = client.records[before:]
+            api_responses += len(records)
             if records:
                 h['http_status'] = records[-1]['status']
-        if platform['permission']=='API_OFICIAL' and platform['id']!='zealy':
+        if platform['permission']=='API_OFICIAL' and connector is None:
             h['status'] = 'skipped_api_access_or_free_plan_not_verified'
         health.append(h)
         if platform['id']=='bitdegree':
@@ -160,25 +177,45 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False):
             state.save()
             changed = fingerprint != record['delivered_hash']
             verified = result.get('official') and result.get('reward_verified') and result.get('evidence')
-            closed_update = result['availability']=='encerrada' and bool(previous.get('delivered_hash'))
-            if changed and verified and ((fresh and result['availability']!='encerrada') or closed_update):
-                try:
-                    bot.send(message(result))
-                    record['delivered_hash'] = fingerprint
-                    state.save()
-                    sent += 1
-                except Exception as exc:
-                    errors.append({'platform':platform['id'],'error_type':type(exc).__name__})
-    results.sort(key=lambda x:-x['score'])
+            closed_update = result['availability']=='encerrada' and bool(previous.get('delivered_hash')) and previous.get('latest', {}).get('redeemable') is True
+            if changed and verified and (verified_opportunity(result) or closed_update):
+                pending.append((result, record, fingerprint))
+    results.sort(key=lambda x: -x['score'])
+    confirmed = [result for result in results if verified_opportunity(result)]
+    for result, record, fingerprint in sorted(pending, key=lambda item: -item[0]['score']):
+        try:
+            bot.send(message(result))
+            record['delivered_hash'] = fingerprint
+            state.save()
+            sent += 1
+        except Exception as exc:
+            errors.append({'platform': result['platform_id'], 'error_type': type(exc).__name__})
+    summary = 'Nenhuma oportunidade financeira verificada para o Brasil com investimento inicial zero.'
+    if confirmed:
+        summary = f'Oportunidades financeiras verificadas para o Brasil com investimento zero: {len(confirmed)}.'
+    if not dry_run and send_empty_summary and not confirmed:
+        day = now.date().isoformat()
+        marker = f'v25:multiplatform:empty:{day}'
+        if marker not in state.data['summaries']:
+            try:
+                bot.send('RADAR CRIPTO — MULTIPLATAFORMAS\n' + summary)
+                previous = state.data['summaries']
+                state.data['summaries'] = [
+                    item for item in previous if not item.startswith('v25:multiplatform:empty:')
+                ] + [marker]
+                state.save()
+                sent += 1
+            except Exception as exc:
+                errors.append({'platform': 'summary', 'error_type': type(exc).__name__})
     if not dry_run:
         state.data['platform_health'].update({h['id']:h for h in health})
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version':'2.4','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    report = {'version':'2.5','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
-              'verified_zero_investment':sum(r['financial_classification']=='ZERO_INVESTIMENTO' and r['availability']=='aberta' for r in results),
+              'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,
               'real_quiz_questions':0,
               'limitation':'Observações manuais não são descoberta contínua. Listagens API não confirmam recompensas de projetos.'}
     atomic_json(Path(reports)/'multiplatform.json',report)
@@ -198,7 +235,7 @@ def main():
         client = HttpClient(attempts=2,min_interval=1,max_retry_wait=5)
         from .bitdegree_quizzes import NoCookies
         client.session.cookies.set_policy(NoCookies())
-        return run(load_platforms(), observations, State(args.state),client,bot,args.reports,args.dry_run)
+        return run(load_platforms(), observations, State(args.state),client,bot,args.reports,args.dry_run, send_empty_summary=True)
     except Exception as exc:
         atomic_json(args.reports/'multiplatform-failure.json',{'error_type':type(exc).__name__})
         return 1

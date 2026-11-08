@@ -12,7 +12,17 @@
       "reward": "0.00001 BTC em voucher para novos usuários elegíveis; limitado a 5.000 por mês",
       "reward_type": "BTC",
       "reward_verified": true,
-      "financial_requirements": {},
+      "financial_requirements": {
+        "deposit": "unknown",
+        "purchase": "unknown",
+        "trading_volume": "unknown",
+        "paid_staking": "unknown",
+        "paid_nft": "unknown",
+        "subscription": "unknown",
+        "entry_fee": "unknown",
+        "redemption_fee": "unknown",
+        "gas": "unknown"
+      },
       "official_rules_complete": false,
       "fees": "Não confirmadas nas regras completas; saque separado não verificado",
       "brazil": "desconhecido",
@@ -34,9 +44,34 @@
         {
           "url": "https://www.binance.com/en/support/faq/detail/3819c21bd5fb493fa5057c727043cb14",
           "support": "Recompensas direcionadas a usuários selecionados com verificação de identidade e sujeitas a esgotamento."
+        },
+        {
+          "url": "https://www.binance.com/de/support/announcement/detail/5fc0f803346b4b5085b0e1c5d16d8b2c",
+          "support": "Anúncio de outubro: cadastro após 01/10/2026 UTC, KYC, quiz, voucher com validade de 14 dias e cota mensal. Novembro não verificado."
+        },
+        {
+          "url": "https://www.binance.com/en/support/faq/detail/8fb78721e97b4138b90b51239f41a9aa",
+          "support": "Voucher de token válido pode ser creditado na Spot Wallet. Disponibilidade individual do voucher não verificada."
+        },
+        {
+          "url": "https://www.binance.com/en/fee/cryptoFee",
+          "support": "Tarifa externa varia por rede. Taxa específica de resgate e valor mínimo de saque não confirmados para esta recompensa."
         }
       ],
-      "access_note": "Somente link manual. Não há permissão de coleta nem perguntas extraídas."
+      "access_note": "Somente link manual. Não há permissão de coleta nem perguntas extraídas.",
+      "kyc": "obrigatório nas regras publicadas",
+      "new_user_required": true,
+      "registration_cutoff": null,
+      "registration_cutoff_last_published": "2026-10-01T00:00:00Z (rodada de outubro, cadastro após este horário)",
+      "reward_amount": "0.00001",
+      "reward_currency": "BTC",
+      "reward_form": "voucher de token",
+      "redeemable": null,
+      "monthly_cap": 5000,
+      "november_inventory": "não confirmado",
+      "voucher_expiry_days_last_published": 14,
+      "redemption_destination": "Spot Wallet após resgate de voucher válido",
+      "withdrawal": "taxa de rede e mínimo variáveis; saque de 0.00001 BTC não confirmado"
     },
     {
       "platform_id": "binance",
@@ -50,7 +85,7 @@
       "reward_type": "USDC",
       "reward_verified": true,
       "financial_requirements": {
-        "purchase": "required"
+        "trading_volume": "required"
       },
       "official_rules_complete": false,
       "fees": "Custos de negociação; voucher de rebate não é dinheiro gratuito",
@@ -70,7 +105,11 @@
           "support": "Anúncio da conta oficial condiciona a distribuição a volume de negociação; período até 22/11/2026 07:59:59 UTC+8."
         }
       ],
-      "access_note": "Participação manual; não é oportunidade gratuita."
+      "access_note": "Participação manual; não é oportunidade gratuita.",
+      "kyc": "obrigatório conforme anúncio",
+      "redeemable": null,
+      "reward_currency": "USDC",
+      "reward_form": "distribuição condicional de pool"
     }
   ]
 }

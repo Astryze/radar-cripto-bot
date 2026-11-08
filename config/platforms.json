@@ -50,7 +50,10 @@
       "documentation": [
         "https://docs.galxe.com/galxe-integration/introduction",
         "https://docs.galxe.com/galxe-integration/getting-started/quick-start",
-        "https://help.galxe.com/en/articles/11568587-business-overview"
+        "https://help.galxe.com/en/articles/11568587-business-overview",
+        "https://docs.galxe.com/galxe-integration/api-reference/quest",
+        "https://docs.galxe.com/galxe-integration/getting-started/authentication",
+        "https://docs.galxe.com/galxe-integration/resources/rate-limits"
       ],
       "limitations": "Termos gerais não acessíveis; autorização de integração limitada à API documentada, com token de proprietário/admin. Nenhum plano pago será contratado.",
       "reward_types": "tokens; pontos; NFTs",
@@ -59,7 +62,8 @@
       "errors": [],
       "campaigns_found": [],
       "communities": [],
-      "quiz_automation_authorized": false
+      "quiz_automation_authorized": false,
+      "space_ids": []
     },
     {
       "id": "layer3",

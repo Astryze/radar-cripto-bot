@@ -21,7 +21,7 @@ def platform():
 @pytest.fixture
 def campaign():
     return {'platform_id':'zealy','title':'EXEMPLO ARTIFICIAL','url':'https://example.org/quest',
-            'official_domains':['example.org'],'official':True,'reward_verified':True,'reward_type':'USDC',
+            'official_domains':['example.org'],'official':True,'reward_verified':True,'redeemable':True,'reward_type':'USDC',
             'reward':'10 USDC; exemplo de teste','official_rules_complete':True,
             'financial_requirements':{k:'none' for k in OBLIGATIONS},'availability':'aberta',
             'brazil':'confirmado','reviewed_at':utcnow().date().isoformat(),

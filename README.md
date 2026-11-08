@@ -387,3 +387,42 @@ contém última execução, HTTP real quando houve, erros, catálogos e limitaç
 à API sem chave/admin configurado e 0 perguntas reais extraídas. A descoberta contínua
 ampla ainda não está disponível: as permissões e acessos encontrados não autorizam
 scraping geral das plataformas. Ver [`VALIDATION_V24.md`](VALIDATION_V24.md).
+
+## Radar 2.5
+
+O relatório multiplataforma separa campanha anunciada, estoque de recompensa, acesso
+brasileiro e resgate. A análise de novembro do Bitcoin Basics está em
+[VALIDATION_V25.md](VALIDATION_V25.md). O Telegram mostra primeiro as oportunidades
+verificadas por pontuação. Quando a lista está vazia, envia um aviso diário e mantém
+as campanhas pendentes no relatório JSON.
+
+A classificação financeira verifica separadamente depósito, compra, volume de
+trading, staking, NFT pago, assinatura, inscrição, resgate e gas. KYC e cadastro
+são requisitos de elegibilidade. Um voucher anunciado só entra no alerta se houver
+evidência de resgate, disponibilidade atual e elegibilidade no Brasil.
+
+### Galxe
+
+Para um Space ao qual você tem acesso autorizado, configure o ID numérico em
+`space_ids` da entrada Galxe em `config/platforms.json`. Use um token emitido
+no painel Galxe para esse acesso e guarde-o no GitHub Actions Secret
+`GALXE_ACCESS_TOKEN`. Use apenas acesso já autorizado com custo compatível.
+Sem token ou Spaces, o conector registra a execução como ignorada.
+[Autenticação oficial](https://docs.galxe.com/galxe-integration/getting-started/authentication).
+
+O conector lista a primeira página de até 20 quests em cada um de até três Spaces,
+consulta detalhes das duas primeiras por Space e indica quando a listagem é parcial.
+Ele usa o endpoint GraphQL oficial, com consultas fixas de leitura e limite de uma
+requisição por segundo. Respostas 401 e 403 encerram a consulta da fonte. Respostas
+429 adiam novas consultas, com espera persistida nas execuções agendadas.
+[Referência de quests](https://docs.galxe.com/galxe-integration/api-reference/quest) e
+[limites da API](https://docs.galxe.com/galxe-integration/resources/rate-limits).
+
+Datas, status, capacidade, pontos e gas são metadados do catálogo. Valores
+financeiros, regras completas, país e quizzes permanecem pendentes quando a resposta
+da API não os comprova. A consulta de elegibilidade por endereço fica fora do catálogo.
+
+A leitura Zealy continua restrita ao GET oficial de comunidades administradas.
+Use chave somente leitura em `ZEALY_API_KEY` para esse endpoint. As observações
+públicas manuais funcionam sem chaves Galxe ou Zealy.
+[Documentação Zealy](https://docs.zealy.io/api-reference/quests/list-quests).

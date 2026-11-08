@@ -1,0 +1,123 @@
+"""Verificação offline. Respostas HTTP simuladas não são consultas reais."""
+import json
+from datetime import timedelta
+from pathlib import Path
+from unittest.mock import Mock
+
+import pytest
+
+from src.galxe import ENDPOINT, galxe_catalog
+from src.multiplatform import classify, financial_classification, run, zealy_catalog
+from src.platform_permissions import load_platforms
+from src.state import State
+from src.utils import DeferredFetch, FetchError, HttpClient, utcnow
+
+
+def observations():
+    return json.loads(Path('config/campaign_observations.json').read_text())['campaigns']
+
+
+def test_binance_october_does_not_confirm_november():
+    btc, trading = observations()
+    assert btc['registration_cutoff'] is None
+    assert btc['monthly_cap'] == 5000
+    assert btc['kyc'].startswith('obrigatório')
+    assert btc['reward_form'] == 'voucher de token' and btc['redeemable'] is None
+    assert financial_classification(btc) == 'GRATUIDADE_NAO_CONFIRMADA'
+    assert financial_classification(trading) == 'EXIGE_CAPITAL'
+    assert classify(btc, {'name': 'Binance', 'permission': 'AUTORIZACAO_NECESSARIA'})['availability'] == 'não confirmada'
+
+
+def test_unconfirmed_binance_only_reports_empty_summary(tmp_path):
+    state = State(tmp_path / 'state.json')
+    bot = Mock()
+    for _ in range(2):
+        assert run(load_platforms(), observations(), state, Mock(records=[]), bot,
+                   tmp_path, send_empty_summary=True) == 0
+    bot.send.assert_called_once()
+    assert 'Nenhuma oportunidade financeira verificada' in bot.send.call_args.args[0]
+    report = json.loads((tmp_path / 'multiplatform.json').read_text())
+    assert report['api_http_responses'] == report['verified_zero_investment'] == 0
+
+
+@pytest.fixture
+def galxe(monkeypatch):
+    monkeypatch.setenv('GALXE_ACCESS_TOKEN', 'TESTE_OFFLINE')
+    monkeypatch.setattr('src.galxe.validate_url', Mock())
+    session = Mock(headers={})
+    client = HttpClient(session=session, sleep=Mock())
+    platform = {'enabled': True, 'permission': 'API_OFICIAL', 'space_ids': ['123'],
+                'last_audit': utcnow().date().isoformat()}
+    return platform, client
+
+
+def response(payload, status=200, headers=None):
+    result = Mock(status_code=status, headers=headers or {})
+    result.iter_content.return_value = [json.dumps(payload).encode()]
+    manager = Mock()
+    manager.__enter__ = Mock(return_value=result)
+    manager.__exit__ = Mock(return_value=False)
+    return manager
+
+
+def test_galxe_discovery_and_details(galxe):
+    platform, client = galxe
+    client.session.post.side_effect = [
+        response({'data': {'quests': {'list': [{'id': 'quest1', 'name': 'Teste', 'status': 'Active'}],
+                                      'pageInfo': {'hasNextPage': True}}}}),
+        response({'data': {'quest': {'id': 'quest1', 'gasType': 'Gasless', 'loyaltyPoints': 25}}}),
+    ]
+    rows, status = galxe_catalog(platform, client)
+    assert status == 'collected_api_catalog_partial'
+    assert rows[0]['loyaltyPoints'] == 25 and rows[0]['reward_verified'] is False
+    assert rows[0]['financial_classification'] == 'GRATUIDADE_NAO_CONFIRMADA'
+    assert rows[0]['brazil'] == 'desconhecido'
+    for call in client.session.post.call_args_list:
+        assert call.args == (ENDPOINT,)
+        assert call.kwargs['allow_redirects'] is False
+        assert call.kwargs['json']['query'].startswith('query ')
+    assert 'TESTE_OFFLINE' not in json.dumps(client.records)
+
+
+@pytest.mark.parametrize('reason', ['missing', 'expired', 'disabled'])
+def test_galxe_skips_without_authorization(galxe, monkeypatch, reason):
+    platform, client = galxe
+    if reason == 'missing':
+        monkeypatch.delenv('GALXE_ACCESS_TOKEN')
+    elif reason == 'disabled':
+        platform['enabled'] = False
+    else:
+        platform['last_audit'] = (utcnow() - timedelta(days=31)).isoformat()
+    assert galxe_catalog(platform, client)[1].startswith('skipped')
+    client.session.post.assert_not_called()
+
+
+@pytest.mark.parametrize('http_status', [302, 401, 403])
+def test_galxe_stops_on_redirect_and_auth_failure(galxe, http_status):
+    platform, client = galxe
+    client.session.post.return_value = response({}, http_status)
+    with pytest.raises(FetchError, match=f'Galxe HTTP {http_status}'):
+        galxe_catalog(platform, client)
+    client.session.post.assert_called_once()
+
+
+def test_galxe_cooldown(galxe):
+    platform, client = galxe
+    client.session.post.return_value = response({}, 429, {'Retry-After': '3600'})
+    with pytest.raises(DeferredFetch):
+        galxe_catalog(platform, client)
+    assert galxe_catalog(platform, client)[1] == 'skipped_api_cooldown'
+    client.session.post.assert_called_once()
+
+
+def test_zealy_deleted_quests_excluded(monkeypatch):
+    monkeypatch.setenv('ZEALY_API_KEY', 'TESTE_OFFLINE')
+    client = Mock()
+    client.session.headers = {}
+    client.get.return_value = (b'[{"published":true,"deleted":true,"id":"q","name":"Teste"}]',
+                               'https://api-v2.zealy.io', 'application/json')
+    platform = {'enabled': True, 'permission': 'API_OFICIAL', 'communities': ['example']}
+    assert zealy_catalog(platform, client)[0] == []
+    platform['permission'] = 'AUTORIZACAO_NECESSARIA'
+    assert zealy_catalog(platform, client)[1] == 'skipped_permission'
+    client.get.assert_called_once()

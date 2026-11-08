@@ -104,7 +104,7 @@ def atomic_json(path, data):
 class RedactFilter(logging.Filter):
     def filter(self, record):
         message = record.getMessage()
-        for key in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "ZEALY_API_KEY"):
+        for key in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "ZEALY_API_KEY", "GALXE_ACCESS_TOKEN"):
             secret = os.getenv(key)
             if secret:
                 message = message.replace(secret, "[REDACTED]")
