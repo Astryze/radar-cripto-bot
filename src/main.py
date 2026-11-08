@@ -103,6 +103,8 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
               "opportunities": [o.to_dict() for o in opportunities]}
     atomic_json(Path(report_dir) / "run.json", result)
     Path(report_dir, "summary.txt").write_text(summary, encoding="utf-8")
+    for error in errors:
+        LOG.warning("Falha registrada: %s", error)
     LOG.info("Concluído: %d campanhas, %d alertas, %d falhas", len(opportunities), sent, len(errors))
     return 2 if errors else 0
 

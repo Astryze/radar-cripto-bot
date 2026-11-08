@@ -58,6 +58,20 @@ def test_missing_credentials():
         TelegramBot(None, None)
 
 
+def test_pasted_secret_whitespace_is_trimmed(response):
+    session = Mock()
+    session.post.return_value = response()
+    TelegramBot("  123:placeholder\n", " test-chat\r\n", session, Mock()).send("test")
+    args, kwargs = session.post.call_args
+    assert args[0] == "https://api.telegram.org/bot123:placeholder/sendMessage"
+    assert kwargs["json"]["chat_id"] == "test-chat"
+
+
+def test_token_cannot_inject_url_path():
+    with pytest.raises(ValueError):
+        TelegramBot("token/another-method", "test")
+
+
 def test_api_ok_false_even_with_http_200(response):
     session = Mock()
     session.post.return_value = response(payload={"ok": False, "error_code": 400})

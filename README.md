@@ -109,6 +109,11 @@ Saídas: `0` sem erros detectados; `2` cobertura/entrega parcial; `1` falha fata
 Um job vermelho pode já ter entregue alertas: entregas confirmadas são preservadas
 antes de terminar o workflow. Os testes bloqueiam rede e não enviam Telegram real.
 
+Telegram HTTP 401/404 indica necessidade de conferir `TELEGRAM_BOT_TOKEN`: use apenas
+o token do BotFather, sem URL ou prefixo `bot`. Espaços/newlines nas extremidades
+são removidos em memória. HTTP 400/403 pode indicar chat incorreto, bot bloqueado ou
+falta de `/start`/permissão no grupo. Não compartilhe o token para pedir suporte.
+
 ## Assistente de estudo de quizzes
 
 ```bash

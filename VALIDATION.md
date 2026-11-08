@@ -50,6 +50,18 @@ entregue e é testada com mocks; execução completa com DNS normal depende do r
 - Campanhas que só revelam regras depois de login, CAPTCHA ou JavaScript privado.
 - Ganhos, cotação de tokens, resgate ou elegibilidade pessoal: não são inferidos.
 
+## Primeira execução real no GitHub
+
+Após publicação, os 120 testes e demais checks passaram no runner GitHub. Foi
+disparada também uma execução com os Secrets existentes, sem consultar seus valores.
+Cinco fontes responderam normalmente; Solana retornou HTTP 429 e Binance HTTP 202.
+O Telegram recusou o resumo com HTTP 404. A execução terminou corretamente com
+código 2 e salvou logs/relatório como artifact, sem marcar resumo falho como entregue.
+
+Essa execução motivou a normalização de espaços e quebras de linha nas extremidades
+dos Secrets, validação contra injeção de caminho no token e mensagem de diagnóstico
+específica para HTTP 401/404. Falhas externas não são escondidas para deixar o job verde.
+
 ## Inventário exato de alterações
 
 **Alterado:** `README.md`.

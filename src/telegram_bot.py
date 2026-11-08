@@ -24,8 +24,13 @@ def split_message(message, limit=3900):
 
 class TelegramBot:
     def __init__(self, token, chat_id, session=None, sleep=time.sleep, attempts=3):
+        # Secrets colados com newline/espaços não devem virar parte do endpoint.
+        token = token.strip() if isinstance(token, str) else token
+        chat_id = chat_id.strip() if isinstance(chat_id, str) else chat_id
         if not token or not chat_id:
             raise ValueError("Configure TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID nos GitHub Secrets")
+        if any(c.isspace() for c in token) or any(c in token for c in "/?#"):
+            raise ValueError("TELEGRAM_BOT_TOKEN deve conter somente o token, sem URL ou espaços internos")
         self._url = f"https://api.telegram.org/bot{token}/sendMessage"
         self._chat = chat_id
         self.session = session or requests.Session()
@@ -67,6 +72,8 @@ class TelegramBot:
             if status in {500, 502, 503, 504} and attempt + 1 < self.attempts:
                 self.sleep(2 ** attempt)
                 continue
+            if status in {401, 404}:
+                raise FetchError(f"Telegram: HTTP {status}; confira TELEGRAM_BOT_TOKEN no Secret (somente token do BotFather, sem URL/prefixo bot)")
             raise FetchError(f"Telegram: API recusou mensagem (HTTP {status}; código {code if isinstance(code, int) else 'inválido'})")
         raise FetchError("Telegram: tentativas esgotadas")
 
