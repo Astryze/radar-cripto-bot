@@ -571,3 +571,16 @@ HTTP 200 com lista vazia é consulta bem-sucedida, com zero resultados.
 O teste de conexão não envia mensagens.
 [Autenticação Zealy](https://docs.zealy.io/authentication) e
 [endpoint de catálogo](https://docs.zealy.io/api-reference/quests/list-quests).
+
+## Radar 3.1
+
+O workflow aceita execução parcial quando pelo menos uma listagem foi coletada.
+Falhas de coleta continuam no JSON e aparecem como aviso no GitHub Actions.
+Falhas de entrega ao Telegram e erros fatais conservam o código de erro.
+
+Solana respeita o cooldown após 429, e o radar continua pelas outras fontes.
+Artigos da Polygon que excedem 2 MB têm uma segunda leitura limitada a 4 MB.
+A classificação continua exigindo a página completa e evidência oficial.
+
+Os diagnósticos ficam em `reports/integrations/`, com arquivos separados para
+Solana, Polygon, Zealy e Galxe. Veja [VALIDATION_V31.md](VALIDATION_V31.md).

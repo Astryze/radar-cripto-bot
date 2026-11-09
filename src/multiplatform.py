@@ -374,6 +374,9 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
               'real_quiz_questions':0,
               'limitation':'Observações manuais não são descoberta contínua. Listagens API não confirmam recompensas de projetos.'}
     atomic_json(Path(reports)/'multiplatform.json',report)
+    for item in health:
+        if item['id'] in {'zealy', 'galxe'}:
+            atomic_json(Path(reports) / 'integrations' / f"{item['id']}.json", item)
     for diagnostic in diagnostics:
         print(diagnostic)
     for item in health:

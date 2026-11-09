@@ -20,7 +20,7 @@ def failure_reason(exc):
     return str(exc) if isinstance(exc, FetchError) else type(exc).__name__
 
 
-def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, budget_seconds=600):
+def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, budget_seconds=600, *, allow_partial=False):
     from dataclasses import replace
     from .investigation import investigate
     from .opportunity_filter import deadline_info
@@ -29,6 +29,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
     started, clock = utcnow(), time.monotonic()
     errors, opportunities, health, seen = [], [], [], set()
     sent = 0
+    delivery_failed = False
     official_domains = {d for s in sources if s.official for d in s.domains}
     if isinstance(client, HttpClient):
         client.cooldowns.update(state.data["cooldowns"])
@@ -39,7 +40,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
         prior_health = state.data["source_health"].get(source.id, {})
         status = {"id": source.id, "ok": False, "candidates": 0, "analyzed": 0,
                   "last_attempt_at": utcnow().isoformat(), "last_collected_at": prior_health.get("last_collected_at"),
-                  "http_status": None, "status": "unavailable"}
+                  "http_status": None, "status": "unavailable", "verification_errors": []}
         health.append(status)
         start_records = len(client.records) if isinstance(client, HttpClient) else 0
         if isinstance(client, HttpClient):
@@ -48,7 +49,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
         effective = replace(source, url=pending["url"]) if pending else source
         try:
             candidates = read_source(effective, client)
-            status.update(ok=True, candidates=len(candidates), status="collected", last_collected_at=utcnow().isoformat())
+            status.update(ok=True, listing_collected=True, candidates=len(candidates), status="collected", last_collected_at=utcnow().isoformat())
             if not dry_run:
                 state.data["pending_sources"].pop(source.id, None)
             LOG.info("Fonte %s: %s candidatos", source.id, len(candidates))
@@ -59,10 +60,12 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
                 state.data["pending_sources"][source.id] = {"url": exc.monitor_url, "next_retry_at": exc.next_retry_at}
             if exc.status != 202:
                 errors.append(f"{source.id}: {failure_reason(exc)}")
+            status["listing_error"] = failure_reason(exc)
             LOG.warning("Fonte %s: %s", source.id, failure_reason(exc))
             candidates = []
         except Exception as exc:
             errors.append(f"{source.id}: coleta {failure_reason(exc)}")
+            status["listing_error"] = failure_reason(exc)
             LOG.warning("Fonte %s falhou: %s", source.id, failure_reason(exc))
             candidates = []
         if isinstance(client, HttpClient):
@@ -81,6 +84,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
         investigation_failures = 0
         for candidate in candidates:
             if time.monotonic() - clock > budget_seconds:
+                status["status"] = "partial"
                 errors.append(f"{source.id}: tempo de verificação esgotado")
                 break
             key = canonical_url(candidate.url)
@@ -102,6 +106,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
                     investigation_failures += len(candidate.investigation_errors)
             except Exception as exc:
                 verification_failures += 1
+                status["verification_errors"].append({"url": key, "reason": failure_reason(exc)})
                 errors.append(f"{source.id}: página de campanha {failure_reason(exc)}")
                 candidate.verified = False
             op = classify(candidate, now=started)
@@ -119,6 +124,10 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
                 status["status"] = "partial"
                 errors.append(f"{source.id}: verificação suspensa após três falhas; cobertura parcial")
                 break
+        if (verification_failures or investigation_failures) and status["status"] == "collected":
+            status["status"] = "partial"
+        if isinstance(client, HttpClient):
+            status["http_records"] = client.records[start_records:]
         status["verification_failures"] = verification_failures
         status["investigation_failures"] = investigation_failures
     merged = {}
@@ -157,6 +166,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
                 state.mark_summary(day)
             except Exception as exc:
                 delivery_ok = False
+                delivery_failed = True
                 errors.append(f"Resumo Telegram: {failure_reason(exc)}")
         if delivery_ok:
             for op, event in events:
@@ -166,9 +176,12 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
                         state.mark(op)
                         sent += 1
                     except Exception as exc:
+                        delivery_failed = True
                         errors.append(f"Entrega Telegram: {failure_reason(exc)}")
                         break
-    result = {"version": "2.0", "started_at": started.isoformat(), "finished_at": utcnow().isoformat(),
+    partial = bool(errors or any(item["status"] != "collected" for item in health))
+    result = {"version": "3.1", "collection_status": "partial" if partial else "complete",
+              "delivery_failed": delivery_failed, "started_at": started.isoformat(), "finished_at": utcnow().isoformat(),
               "dry_run": dry_run, "sent": sent, "new_campaigns": new_count, "sources": health, "errors": errors,
               "pending_sources": pending_count,
               "http_records": client.records if isinstance(client, HttpClient) else [],
@@ -176,16 +189,23 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
               "opportunities": [o.to_dict() for o in opportunities]}
     atomic_json(Path(report_dir) / "run.json", result)
     atomic_json(Path(report_dir) / "source-health.json", health)
+    for item in health:
+        if item["id"] in {"solana", "polygon"}:
+            atomic_json(Path(report_dir) / "integrations" / f'{item["id"]}.json', item)
     Path(report_dir, "summary.txt").write_text(summary, encoding="utf-8")
     for error in errors:
         LOG.warning("Falha registrada: %s", error)
     LOG.info("Concluído: %d campanhas, %d alertas, %d falhas; %d fontes pendentes", len(opportunities), sent, len(errors), pending_count)
+    if errors and allow_partial and not delivery_failed and any(item.get("listing_collected") for item in health):
+        print("::warning::Coleta parcial. Consulte reports/source-health.json e reports/run.json.")
+        return 0
     return 2 if errors else 0
 
 
 def main():
     parser = argparse.ArgumentParser(description="Radar de campanhas públicas com zero investimento")
     parser.add_argument("--dry-run", action="store_true", help="Pesquisa sem enviar Telegram nem alterar estado")
+    parser.add_argument("--allow-partial", action="store_true", help="Aceita coleta parcial com pelo menos uma listagem válida")
     parser.add_argument("--sources", type=Path, default=Path("config/sources.json"))
     parser.add_argument("--state", type=Path, default=Path("state/radar.json"))
     parser.add_argument("--reports", type=Path, default=Path("reports"))
@@ -197,7 +217,7 @@ def main():
             raise ValueError("Nenhuma fonte habilitada")
         state = State(args.state)
         bot = None if args.dry_run else TelegramBot(os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"))
-        return run(sources, HttpClient(), state, bot, args.reports, args.dry_run)
+        return run(sources, HttpClient(), state, bot, args.reports, args.dry_run, allow_partial=args.allow_partial)
     except Exception as exc:
         LOG.error("Execução interrompida: %s", type(exc).__name__)
         atomic_json(args.reports / "failure.json", {"at": utcnow().isoformat(), "error_type": type(exc).__name__,

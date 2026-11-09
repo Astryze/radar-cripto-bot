@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from defusedxml import ElementTree
 
 from .models import Candidate, Source
-from .utils import canonical_url, parse_date, plain_text, utcnow, validate_url
+from .utils import HttpClient, ResponseTooLarge, canonical_url, parse_date, plain_text, utcnow, validate_url
 
 LOG = logging.getLogger(__name__)
 ATOM = "{http://www.w3.org/2005/Atom}"
@@ -126,7 +126,22 @@ def read_source(source, client):
 
 
 def verify_candidate(candidate, client):
-    data, final, content_type = client.get(candidate.url, candidate.source.domains)
+    try:
+        data, final, content_type = client.get(candidate.url, candidate.source.domains)
+    except ResponseTooLarge:
+        if (not isinstance(client, HttpClient) or candidate.source.id != 'polygon'
+                or candidate.source.domains != ['polygon.technology']):
+            raise
+        # Segunda leitura limitada de uma página oficial. Nunca verifica conteúdo truncado.
+        start = len(client.records)
+        try:
+            data, final, content_type = client._request(
+                candidate.url, candidate.source.domains, max_bytes=4_000_000,
+            )
+        finally:
+            for record in client.records[start:]:
+                record['fallback'] = 'polygon_full_article_4mb'
+
     if "html" not in content_type.lower():
         raise ValueError("Regras da campanha não retornaram HTML")
     text = plain_text(data, article_only=True)

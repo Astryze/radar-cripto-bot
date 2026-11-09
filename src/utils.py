@@ -123,6 +123,11 @@ def setup_logging(log_dir):
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
+class ResponseTooLarge(FetchError):
+    def __init__(self, limit):
+        super().__init__(f"Conteúdo excedeu {limit // 1_000_000} MB")
+
+
 class DeferredFetch(FetchError):
     def __init__(self, status, next_retry_at, monitor_url=None):
         self.status = status
@@ -185,11 +190,14 @@ class HttpClient:
     def get(self, url, domains):
         return self._request(url, domains)
 
-    def _request(self, url, domains, *, method='GET', payload=None, headers=None, record_url=None, cache=True):
+    def _request(self, url, domains, *, method='GET', payload=None, headers=None, record_url=None, cache=True, max_bytes=MAX_BYTES):
         from .platform_permissions import guard_request
         guard_request(url, method=method)
         if cache and url in self.cache:
-            return self.cache[url]
+            cached = self.cache[url]
+            if len(cached[0]) > max_bytes:
+                raise ResponseTooLarge(max_bytes)
+            return cached
         original_url = url
         for _redirect in range(5):
             guard_request(url, method=method)
@@ -207,6 +215,7 @@ class HttpClient:
                         self.sleep(delay)
                 self._last_request[host] = self.clock()
                 response = None
+                record = None
                 try:
                     options = {'timeout': (5, 20), 'allow_redirects': False, 'stream': True}
                     if headers is not None:
@@ -224,8 +233,9 @@ class HttpClient:
                         wait = retry_after_seconds(response.headers.get("Retry-After"), self.now())
                         # 202 não contém resultado: só consultar depois, sem inventar endpoint.
                         self._defer(url, 202, max(60, wait if wait is not None else 900), monitor)
-                    if status == 429 or 500 <= status <= 599:
+                    if status in (408, 429) or 500 <= status <= 599:
                         retry = retry_after_seconds(response.headers.get("Retry-After"), self.now())
+                        record["retry_after_seconds"] = retry
                         delay = max(2 ** attempt + self.jitter(), retry or 0)
                         limit = min(self.attempts, 2) if status == 429 else self.attempts
                         if attempt + 1 >= limit or delay > self.max_retry_wait:
@@ -233,8 +243,29 @@ class HttpClient:
                         response.close()
                         self.sleep(delay)
                         continue
+                    if status == 200:
+                        data = bytearray()
+                        for chunk in response.iter_content(65536):
+                            data.extend(chunk)
+                            if len(data) > max_bytes:
+                                record["error"] = "response_too_large"
+                                record["byte_limit"] = max_bytes
+                                raise ResponseTooLarge(max_bytes)
+                        result = bytes(data), url, record["content_type"]
+                        if cache:
+                            self.cache[original_url] = result
+                        response.close()
+                        return result
                     break
-                except requests.RequestException:
+                except requests.RequestException as exc:
+                    reason = "timeout" if isinstance(exc, requests.Timeout) else "transport"
+                    if record is None:
+                        self.records.append({
+                            "url": record_url or url, "status": None, "attempt": attempt + 1,
+                            "attempted_at": self.now().isoformat(), "content_type": "", "error": reason,
+                        })
+                    else:
+                        record["error"] = reason
                     if response is not None:
                         response.close()
                     if attempt + 1 == self.attempts:
@@ -254,20 +285,7 @@ class HttpClient:
                 response.close()
                 url = target
                 continue
-            try:
-                if response.status_code != 200:
-                    raise FetchError(f"HTTP {response.status_code}")
-                data = bytearray()
-                for chunk in response.iter_content(65536):
-                    data.extend(chunk)
-                    if len(data) > MAX_BYTES:
-                        raise FetchError("Conteúdo excedeu 2 MB")
-                result = bytes(data), url, response.headers.get("Content-Type", "")
-                if cache:
-                    self.cache[original_url] = result
-                return result
-            except requests.RequestException:
-                raise FetchError("Resposta incompleta") from None
-            finally:
-                response.close()
+            status = response.status_code
+            response.close()
+            raise FetchError(f"HTTP {status}")
         raise FetchError("Limite de redirecionamentos excedido")

@@ -82,7 +82,7 @@ jobs:
         run: |
           args=()
           if [[ "$RADAR_DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
-          python -u -m src.main "${args[@]}"
+          python -u -m src.main --allow-partial "${args[@]}"
       - name: Analisar quizzes públicos BitDegree
         if: always() && (steps.restore.outcome == 'success' || inputs.dry_run == true)
         env:
