@@ -156,12 +156,16 @@ def zealy_catalog(platform, client):
     try:
         for community in communities:
             url = f'https://api-v2.zealy.io/public/communities/{community}/quests'
+            records = getattr(client, 'records', None)
+            before = len(records) if isinstance(records, list) else 0
             body, _, kind = client.get(url, ['api-v2.zealy.io'])
             if 'json' not in kind:
                 raise ValueError('API não retornou JSON')
             data = json.loads(body)
             if not isinstance(data, list):
                 raise ValueError('Schema da API não reconhecido')
+            if isinstance(records, list) and len(records) > before and records[-1]['status'] == 200:
+                records[-1].update(community=community, catalog_results=len(data))
             truncated |= len(data) > 50
             participant = {'membership': 'não verificada'}
             if users and any(isinstance(item, dict) and item.get('published') is True
@@ -290,7 +294,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
                 errors.append({'platform':platform['id'], 'error_type':type(exc).__name__})
             records = client.records[before:]
             h['http_responses'] = [
-                {field: record[field] for field in ('url', 'status', 'attempted_at') if field in record}
+                {field: record[field] for field in ('url', 'status', 'attempted_at', 'community', 'catalog_results') if field in record}
                 for record in records
             ]
             api_responses += len(records)
@@ -363,7 +367,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version':'2.9','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    report = {'version':'3.0','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
               'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,
@@ -372,6 +376,15 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
     atomic_json(Path(reports)/'multiplatform.json',report)
     for diagnostic in diagnostics:
         print(diagnostic)
+    for item in health:
+        if item['id'] != 'zealy':
+            continue
+        for response in item['http_responses']:
+            if not response['url'].endswith('/quests'):
+                continue
+            count = response.get('catalog_results')
+            outcome = f'{count} registros na resposta' if count is not None else 'catálogo não confirmado'
+            print(f"Zealy GET {response['url']} | HTTP {response['status']} | {outcome}")
     print(f"Multiplataformas: {len(platforms)} fontes auditadas; {report['live_api_campaigns']} registros API; {report['verified_zero_investment']} gratuitas verificadas; {sent} alertas")
     return 2 if errors else 0
 

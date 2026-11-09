@@ -546,3 +546,28 @@ custos. Publicação, contador em cache e menções no texto não comprovam vaga
 gratuidade, elegibilidade brasileira ou resgate. Esses registros permanecem
 inconclusivos e fora dos alertas de oportunidades confirmadas. A consulta
 autenticada deve ser verificada com o dry-run do workflow após configurar o acesso.
+
+## Radar 3.0 — ativar a Zealy no GitHub Actions
+
+Em **Settings → Secrets and variables → Actions** do repositório:
+
+1. Em **Secrets**, crie `ZEALY_API_KEY` com a chave somente leitura emitida
+   nas configurações da comunidade Zealy que você administra.
+   `ZEALY_USER_ID` é opcional para a consulta de perfil.
+2. Em **Variables**, crie `ZEALY_COMMUNITIES` com até três subdomínios
+   autorizados separados por vírgula. Use o trecho após `/cw/` da comunidade.
+   Crie `ZEALY_READ_ONLY_KEY` com o valor `true` após confirmar o escopo GET.
+   Essas variáveis substituem os campos correspondentes do JSON em tempo de
+   execução. Valores vazios recorrem ao cadastro no repositório.
+3. Execute **Actions → Radar Cripto → Run workflow** na `main` com
+   `dry_run` marcado. O GitHub também executa um dry-run no job de validação
+   após publicação na `main`.
+
+A etapa usa a chave exclusivamente no header `x-api-key` e consulta somente
+comunidades configuradas. O log mostra endpoint, HTTP e quantidade de registros
+quando o catálogo foi decodificado. No workflow manual, o artefato
+`reports/multiplatform.json` também registra comunidade e horário.
+HTTP 200 com lista vazia é consulta bem-sucedida, com zero resultados.
+O teste de conexão não envia mensagens.
+[Autenticação Zealy](https://docs.zealy.io/authentication) e
+[endpoint de catálogo](https://docs.zealy.io/api-reference/quests/list-quests).

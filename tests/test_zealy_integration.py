@@ -150,3 +150,30 @@ def test_catalog_uses_optional_profile_but_keeps_eligibility_unconfirmed(integra
     assert row['xp_rewards'] == [20]
     assert row['brazil'] == 'desconhecido' and row['financial_classification'] == 'GRATUIDADE_NAO_CONFIRMADA'
     assert USER not in json.dumps(rows + client.records)
+
+
+def test_github_variables_configure_zealy_without_changing_repository(monkeypatch):
+    from src.integration_setup import integration_setup
+    from src.platform_permissions import load_platforms
+
+    monkeypatch.setenv('ZEALY_COMMUNITIES', 'example, second-example')
+    monkeypatch.setenv('ZEALY_READ_ONLY_KEY', 'true')
+    monkeypatch.setenv('ZEALY_API_KEY', 'SOMENTE_TESTE')
+    platform = next(item for item in load_platforms() if item['id'] == 'zealy')
+    assert platform['communities'] == ['example', 'second-example']
+    assert integration_setup(platform)['issues'] == []
+    monkeypatch.setenv('ZEALY_COMMUNITIES', 'example,')
+    monkeypatch.setenv('ZEALY_READ_ONLY_KEY', 'talvez')
+    platform = next(item for item in load_platforms() if item['id'] == 'zealy')
+    setup = integration_setup(platform)
+    assert not setup['scope_valid'] and not setup['read_only_declared']
+
+
+def test_empty_catalog_records_authenticated_response(integration):
+    client = integration.client
+    client.session.get.return_value = response([])
+    assert zealy_catalog(integration.platform, client) == ([], 'collected_api_catalog')
+    record = client.records[0]
+    assert record['status'] == 200 and record['community'] == 'example'
+    assert record['url'] == f'{BASE}/example/quests' and record['catalog_results'] == 0
+    assert 'SOMENTE_TESTE' not in json.dumps(record)

@@ -26,7 +26,10 @@ def integration_setup(platform, source=None):
         issues.append(f'escopo autorizado não configurado ({scope})')
     read_only = platform.get('read_only_key') is True if source == 'zealy' else None
     if source == 'zealy' and not read_only:
-        issues.append('chave somente leitura não declarada (read_only_key)')
+        if 'read_only_key' in platform and type(platform['read_only_key']) is not bool:
+            issues.append('declaração inválida em ZEALY_READ_ONLY_KEY/read_only_key')
+        else:
+            issues.append('chave somente leitura não declarada (read_only_key)')
     return {
         'credential_available': present,
         'scope_configured': configured,

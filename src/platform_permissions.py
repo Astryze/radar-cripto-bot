@@ -1,5 +1,6 @@
 """Cadastro central: página pública não implica autorização de coleta."""
 import json
+import os
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -15,6 +16,13 @@ def load_platforms(path=REGISTRY):
     for p in platforms:
         if p['permission'] not in PERMISSIONS or not isinstance(p['enabled'], bool):
             raise ValueError('Permissão inválida')
+        if p['id'] == 'zealy':
+            communities = os.getenv('ZEALY_COMMUNITIES', '').strip()
+            if communities:
+                p['communities'] = [entry.strip() for entry in communities.split(',')]
+            read_only = os.getenv('ZEALY_READ_ONLY_KEY', '').strip().lower()
+            if read_only:
+                p['read_only_key'] = {'true': True, 'false': False}.get(read_only)
     return platforms
 
 
