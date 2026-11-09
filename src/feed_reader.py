@@ -3,7 +3,7 @@ import logging
 import re
 from datetime import timedelta
 from dataclasses import replace
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 from defusedxml import ElementTree
@@ -21,7 +21,7 @@ def load_sources(path):
     if len({s.id for s in sources}) != len(sources):
         raise ValueError("IDs de fontes duplicados")
     for source in sources:
-        if source.kind not in {"feed", "listing", "bitdegree", "page", "json"}:
+        if source.kind not in {"feed", "listing", "bitdegree", "page", "json", "markdown"}:
             raise ValueError("Tipo de fonte inválido")
         if not 1 <= source.max_items <= 50 or not 1 <= source.max_age_days <= 365:
             raise ValueError("Limites de fonte inválidos")
@@ -30,6 +30,10 @@ def load_sources(path):
         validate_url(source.url, source.domains, resolve=False)
         for url in source.policy_urls:
             validate_url(url, source.domains, resolve=False)
+        if source.rate_limit_fallback:
+            validate_url(source.rate_limit_fallback, source.domains, resolve=False)
+            if urlsplit(source.rate_limit_fallback).hostname == urlsplit(source.url).hostname:
+                raise ValueError("Fallback precisa usar um serviço independente")
         re.compile(source.path_pattern)
     return sources
 
@@ -111,6 +115,9 @@ def read_source(source, client):
         return parse_feed(data, source)
     if source.kind == "json":
         return parse_json_source(data, source)
+    if source.kind == "markdown":
+        title, body = markdown_document(data, content_type)
+        return [Candidate(f"{source.name} — {title}"[:240], final, source, body)]
     if "html" not in content_type.lower():
         raise ValueError("Página não retornou HTML")
     if source.kind == "bitdegree":
@@ -123,6 +130,16 @@ def read_source(source, client):
             raise ValueError("Página sem título identificável")
         return [Candidate(title.get_text(" ", strip=True)[:240], final, source)]
     return parse_listing(data, source)
+
+
+def markdown_document(data, content_type):
+    if content_type.split(";")[0].strip().lower() not in {"text/plain", "text/markdown"}:
+        raise ValueError("Documento oficial não retornou Markdown")
+    body = data.decode("utf-8")
+    title = re.search(r"^# +(.+)$", body, re.MULTILINE)
+    if not title or len(body) < 80:
+        raise ValueError("Documento oficial sem conteúdo identificável")
+    return title.group(1)[:240], body
 
 
 def verify_candidate(candidate, client):
@@ -142,6 +159,12 @@ def verify_candidate(candidate, client):
             for record in client.records[start:]:
                 record['fallback'] = 'polygon_full_article_4mb'
 
+    if candidate.source.kind == "markdown":
+        _, candidate.text = markdown_document(data, content_type)
+        candidate.url = canonical_url(final)
+        candidate.verified = candidate.source.official
+        candidate.verification_url = final
+        return candidate
     if "html" not in content_type.lower():
         raise ValueError("Regras da campanha não retornaram HTML")
     text = plain_text(data, article_only=True)

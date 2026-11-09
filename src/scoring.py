@@ -39,3 +39,15 @@ def actionable(op):
         return False
     return (op.cost == Cost.FREE and op.official and op.deadline == "aberto"
             and op.eligibility != "Brasil não elegível" and "pausa" not in op.evidence)
+
+
+
+def verified_alert(op):
+    return (actionable(op) and op.eligibility == "Brasil confirmado"
+            and op.reward_status == "confirmada" and op.investigation_status == "concluída com material público"
+            and bool(op.evidence.get("gratuidade")) and bool(op.evidence.get("resgate"))
+            and bool(op.evidence.get("recompensa"))
+            and any(asset.get("kind") == "token" for asset in op.reward_assets)
+            and op.conclusion in {"GRATUITA CONFIRMADA", "GRATUITA COM REQUISITO DE KYC"}
+            and op.withdrawability.startswith("possibilidade de saque/negociação declarada")
+            and not op.eligibility_requirements)

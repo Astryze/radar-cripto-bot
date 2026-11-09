@@ -225,7 +225,11 @@ def _rewards(op, text):
             op.reward_type = "mista: pontos internos e possível prêmio em tokens (ver alocação)"
     if re.search(UNCERTAIN, normalize(" ".join(reward_lines))):
         op.reward_status = "estimada"
-    if re.search(r"(?:rewards?|tokens?) (?:are |can be )?(?:withdrawable|withdrawn|tradable)|(?:can withdraw|can trade) (?:your |the )?(?:rewards|tokens)", normalize(text)):
+    redemption_pattern = (r"(?:rewards?|tokens?) (?:are |can be )?(?:withdrawable|withdrawn|tradable)"
+                          r"|(?:can withdraw|can trade) (?:your |the )?(?:rewards|tokens)")
+    redemption = [line[:400] for line in lines if re.search(redemption_pattern, normalize(line))]
+    if redemption:
+        op.evidence["resgate"] = redemption[:3]
         op.withdrawability = "possibilidade de saque/negociação declarada pela fonte; requisitos pessoais não verificados"
     if re.search(r"(?:bits|points).{0,50}(?:not tradable|cannot be withdrawn|not withdrawable|in.game points)", normalize(text)):
         op.withdrawability = "pontos internos sem saque/negociação comprovados"

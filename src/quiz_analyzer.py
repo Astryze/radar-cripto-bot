@@ -132,7 +132,9 @@ def analyze_question(question, options, materials):
 def analyze_public_quiz(data, sources, client):
     if data.get("authorized_public_material") is not True:
         raise ValueError("Confirme que o material é público e a consulta é autorizada")
-    domains = {d for s in sources if s.official for d in s.domains}
+    domains = {d for s in sources if s.official and s.enabled for d in s.domains}
+    if not domains and (data.get("materials") or data.get("question_pages")):
+        raise ValueError("Nenhum domínio oficial habilitado para estudo")
     materials = []
     for url in data.get("materials", [])[:10]:
         validate_url(url, domains)

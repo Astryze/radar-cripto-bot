@@ -5,9 +5,9 @@ from datetime import timedelta
 from .models import Cost, Opportunity
 from .utils import normalize, parse_date, utcnow
 
-CAMPAIGN = r"\b(airdrop|learndrop|learn\s*(?:&|and)\s*earn|quest|mission|campaign|testnet|rewards? program|incentive program|token distribution|campanha|missao|distribuicao de tokens|recompensas)\b"
-ACTION = r"\b(join|participate|complete|claim|enroll|register|answer|collect|earn|solve|eligible|inscreva|participe|complete|resgate|ganhe|receba|colete)\b"
-BENEFIT = r"\b(token[s]?|airdrop|reward[s]?|points|bits|degree|prize|usdt|usdc|btc|eth|nfts?|credits|recompensa[s]?|pontos|premio[s]?)\b"
+CAMPAIGN = r"\b(airdrop|learndrop|learn\s*(?:&|and)\s*earn|quest|mission|campaign|testnet|rewards? program|incentive program|token distribution|campanha|missao|distribuicao de tokens|recompensas|bug bount(?:y|ies))\b"
+ACTION = r"\b(join|participate|complete|claim|enroll|register|answer|collect|earn|solve|eligible|inscreva|participe|complete|resgate|ganhe|receba|colete|submit)\b"
+BENEFIT = r"\b(token[s]?|airdrop|reward[s]?|points|bits|degree|prize|usdt|usdc|btc|eth|nfts?|credits|recompensa[s]?|pontos|premio[s]?|bount(?:y|ies))\b"
 FINANCE = r"\b(deposit[s]?|purchase[s]?|buy|stake|staking|fund|funding|paid nft|mint|subscription|entry fee|registration fee|membership|paid plan|pay|payment|hold|own|minimum balance|trading volume|trade|liquidity|deposito|compra|comprar|assinatura|taxa de inscricao|pagar|pagamento|saldo minimo|negociar)\b"
 MANDATORY = r"\b(required|mandatory|must|need to|minimum|at least|prerequisite|to qualify|to participate|obrigatori[oa]|necessari[oa]|deve|precisa|minimo)\b"
 OPTIONAL = r"\b(optional|optionally|not required|not necessary|no need|not mandatory|opcional|nao obrigatorio|nao e necessario|nao exige)\b"
@@ -70,6 +70,8 @@ def cost_evidence(text, official):
                 evidence["custo"].append(sentence[:400])
             elif not negated:
                 evidence["custos_ambiguos"].append(sentence[:400])
+        if re.search(r"\brequires? (?:a )?non-refundable [a-z0-9]+ burn\b", s):
+            evidence["custo"].append(sentence[:400])
         if re.search(FREE, s):
             evidence["gratuidade"].append(sentence[:400])
         if re.search(GAS, s) and not re.search(r"\b(no |without |zero |sponsored|covered|gasless|sem |patrocinad)", s):

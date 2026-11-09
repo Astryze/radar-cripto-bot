@@ -20,7 +20,7 @@ def failure_reason(exc):
     return str(exc) if isinstance(exc, FetchError) else type(exc).__name__
 
 
-def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, budget_seconds=600, *, allow_partial=False):
+def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, budget_seconds=600, *, allow_partial=False, verified_alerts=False):
     from dataclasses import replace
     from .investigation import investigate
     from .opportunity_filter import deadline_info
@@ -48,7 +48,19 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
         pending = state.data["pending_sources"].get(source.id)
         effective = replace(source, url=pending["url"]) if pending else source
         try:
-            candidates = read_source(effective, client)
+            try:
+                candidates = read_source(effective, client)
+            except DeferredFetch as exc:
+                if exc.status != 429 or not source.rate_limit_fallback:
+                    raise
+                status.update(primary_http_status=429, primary_listing_error=failure_reason(exc),
+                              primary_next_retry_at=exc.next_retry_at, fallback_url=source.rate_limit_fallback)
+                try:
+                    candidates = read_source(replace(source, url=source.rate_limit_fallback, kind="markdown"), client)
+                except Exception as fallback_exc:
+                    status["fallback_error"] = failure_reason(fallback_exc)
+                    raise
+                status["fallback_collected"] = True
             status.update(ok=True, listing_collected=True, candidates=len(candidates), status="collected", last_collected_at=utcnow().isoformat())
             if not dry_run:
                 state.data["pending_sources"].pop(source.id, None)
@@ -147,11 +159,20 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
     opportunities = sorted(merged.values(), key=lambda o: (-o.score, o.url))
     day = started.astimezone(ZoneInfo("America/Sao_Paulo")).date().isoformat()
     new_count = sum(canonical_url(op.url) not in state.data["campaigns"] for op in opportunities)
+    from .scoring import verified_alert
+    confirmed = [op for op in opportunities if verified_alert(op)]
     events = [(op, state.event(op)) for op in opportunities]
+    if verified_alerts:
+        events = [(op, event if verified_alert(op) or (
+            event and state.data["campaigns"].get(canonical_url(op.url), {}).get("notified")
+            and op.official
+        ) else None) for op, event in events]
     unavailable = sum(not h["ok"] and h["status"] != "pending" for h in health)
     pending_count = sum(h["status"] == "pending" for h in health)
     highlights = {op.url for op, event in events if event}
     summary = daily_summary(opportunities, errors, day, len(health), new_count, unavailable, pending_count, highlights)
+    if verified_alerts and not confirmed:
+        summary += "\nNenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução."
     if not dry_run:
         for op, event in events:
             state.observe(op, event)
@@ -180,7 +201,7 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
                         errors.append(f"Entrega Telegram: {failure_reason(exc)}")
                         break
     partial = bool(errors or any(item["status"] != "collected" for item in health))
-    result = {"version": "3.1", "collection_status": "partial" if partial else "complete",
+    result = {"version": "3.2", "confirmed_zero_investment": len(confirmed), "collection_status": "partial" if partial else "complete",
               "delivery_failed": delivery_failed, "started_at": started.isoformat(), "finished_at": utcnow().isoformat(),
               "dry_run": dry_run, "sent": sent, "new_campaigns": new_count, "sources": health, "errors": errors,
               "pending_sources": pending_count,
@@ -217,7 +238,7 @@ def main():
             raise ValueError("Nenhuma fonte habilitada")
         state = State(args.state)
         bot = None if args.dry_run else TelegramBot(os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"))
-        return run(sources, HttpClient(), state, bot, args.reports, args.dry_run, allow_partial=args.allow_partial)
+        return run(sources, HttpClient(), state, bot, args.reports, args.dry_run, allow_partial=args.allow_partial, verified_alerts=True)
     except Exception as exc:
         LOG.error("Execução interrompida: %s", type(exc).__name__)
         atomic_json(args.reports / "failure.json", {"at": utcnow().isoformat(), "error_type": type(exc).__name__,

@@ -584,3 +584,33 @@ A classificação continua exigindo a página completa e evidência oficial.
 
 Os diagnósticos ficam em `reports/integrations/`, com arquivos separados para
 Solana, Polygon, Zealy e Galxe. Veja [VALIDATION_V31.md](VALIDATION_V31.md).
+
+### Radar 3.2
+
+O relatório de pesquisa separa custo de participação em ZERO INVESTIMENTO,
+CUSTO CONDICIONAL, INVESTIMENTO NECESSÁRIO e NÃO CONFIRMADA. Para um novo alerta,
+o radar exige campanha oficial aberta, evidência de custo zero, Brasil confirmado
+e recompensa em token com evidência de resgate. Mudanças verificáveis de campanhas
+já notificadas continuam elegíveis para atualização.
+
+A cobertura da Solana passa pelo programa oficial do cliente Agave, publicado
+pela Anza no GitHub. O programa exige queimar SOL a cada submissão e fica fora
+dos alertas gratuitos. O antigo coletor de notícias da Solana Foundation fica
+desabilitado devido aos termos de acesso. O mecanismo de fallback HTTP 429
+preserva o cooldown da fonte primária e usa somente uma alternativa independente
+explicitamente configurada.
+
+A Zealy consulta cada comunidade declarada em `ZEALY_COMMUNITIES` (até 20),
+usando `ZEALY_API_KEY` e `ZEALY_READ_ONLY_KEY=true`. Falha em um catálogo
+não apaga os demais. O GET de quests retorna uma lista integral documentada,
+com análise local limitada a 50 registros por comunidade, indicada no relatório.
+O cliente reutiliza respostas GET dentro da execução. O relatório separado fica
+em `reports/integrations/zealy.json`.
+
+Quizzes auditados podem ser habilitados por plataforma em `config/platforms.json`
+com `quiz_automation_authorized: true` e uma entrada `public_quiz` contendo
+`authorized_public_material: true`, `question_pages` (objetos com `url`) e
+`materials` (URLs de documentação). Use apenas domínios oficiais habilitados
+e registre a permissão antes de ativar a coleta. O analisador registra evidência,
+confiança e respostas inconclusivas em `reports/platform-quizzes.json`. Nenhum
+quiz novo foi habilitado. As barreiras da BitDegree continuam em vigor.

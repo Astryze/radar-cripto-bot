@@ -134,7 +134,7 @@ def zealy_availability(metadata, now):
     return 'publicada, disponibilidade não confirmada'
 
 
-def zealy_catalog(platform, client):
+def zealy_catalog(platform, client, *, community_checks=None):
     """GET documentado, somente comunidades administradas e configuradas; nunca claims."""
     key = os.getenv('ZEALY_API_KEY', '').strip()
     communities = platform.get('communities', [])
@@ -148,6 +148,8 @@ def zealy_catalog(platform, client):
     if not setup['read_only_declared']:
         return [], 'skipped_read_only_not_declared'
     catalog = []
+    failures = []
+    successful = 0
     truncated = False
     identifier = os.getenv('ZEALY_USER_ID', '').strip()
     users = ZealyIntegration(platform, client) if identifier else None
@@ -158,12 +160,26 @@ def zealy_catalog(platform, client):
             url = f'https://api-v2.zealy.io/public/communities/{community}/quests'
             records = getattr(client, 'records', None)
             before = len(records) if isinstance(records, list) else 0
-            body, _, kind = client.get(url, ['api-v2.zealy.io'])
-            if 'json' not in kind:
-                raise ValueError('API não retornou JSON')
-            data = json.loads(body)
-            if not isinstance(data, list):
-                raise ValueError('Schema da API não reconhecido')
+            try:
+                body, _, kind = client.get(url, ['api-v2.zealy.io'])
+                if 'json' not in kind.lower():
+                    raise ValueError('API não retornou JSON')
+                data = json.loads(body)
+                if not isinstance(data, list):
+                    raise ValueError('Schema da API não reconhecido')
+            except (FetchError, ValueError, PermissionError) as exc:
+                failures.append(exc)
+                if community_checks is not None:
+                    community_checks.append({'community': community, 'endpoint': url, 'status': 'failed',
+                                             'error': type(exc).__name__,
+                                             'http_status': (records[-1]['status'] if isinstance(records, list)
+                                                             and len(records) > before else getattr(exc, 'status', None))})
+                continue
+            successful += 1
+            if community_checks is not None:
+                community_checks.append({'community': community, 'endpoint': url, 'status': 'catalog_read',
+                                         'attempted_at': utcnow().isoformat(), 'catalog_results': len(data),
+                                         'analysis_limited': len(data) > 50, 'pagination': 'not_documented'})
             if isinstance(records, list) and len(records) > before and records[-1]['status'] == 200:
                 records[-1].update(community=community, catalog_results=len(data))
             truncated |= len(data) > 50
@@ -195,7 +211,9 @@ def zealy_catalog(platform, client):
         client.session.headers.pop('x-api-key',None)
         if prior is not None:
             client.session.headers['x-api-key'] = prior
-    return catalog, 'collected_api_catalog_partial' if truncated else 'collected_api_catalog'
+    if failures and not successful:
+        raise failures[0]
+    return catalog, 'collected_api_catalog_partial' if truncated or failures else 'collected_api_catalog'
 
 
 def verified_opportunity(campaign):
@@ -264,9 +282,10 @@ def integration_report(item, confirmed):
     return f'{name} — {status}\nOportunidades gratuitas confirmadas: {count}'
 
 
-def run(platforms, observations, state, client, bot, reports, dry_run=False, *, send_empty_summary=False):
+def run(platforms, observations, state, client, bot, reports, dry_run=False, *, send_empty_summary=False, quiz_sources=()):
     health, results, sent, errors = [], [], 0, []
     pending = []
+    quiz_checks = []
     api_responses = 0
     history = state.data['platform_campaigns']
     if isinstance(client, HttpClient):
@@ -286,7 +305,10 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         if connector and platform['permission']=='API_OFICIAL':
             before = len(client.records)
             try:
-                h['campaigns_found'], h['status'] = connector(platform, client)
+                options = {}
+                if platform['id'] == 'zealy':
+                    options['community_checks'] = h['community_checks'] = []
+                h['campaigns_found'], h['status'] = connector(platform, client, **options)
             except Exception as exc:
                 h['status'] = 'api_failure'
                 h['api_error_status'] = getattr(exc, 'status', None)
@@ -307,6 +329,15 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         health.append(h)
         if platform['id']=='bitdegree':
             continue
+        quiz = platform.get('public_quiz')
+        if quiz and platform.get('quiz_automation_authorized') is True:
+            check = {'platform': platform['id'], 'status': 'not_authorized', 'questions': []}
+            quiz_checks.append(check)
+            try:
+                questions = authorized_quiz(quiz, platform, quiz_sources, client)
+                check.update(status='analyzed' if questions else 'not_authorized', questions=questions)
+            except (FetchError, PermissionError, ValueError, KeyError, TypeError) as exc:
+                check.update(status='unavailable', error=type(exc).__name__)
         for observation in observations:
             if observation['platform_id'] != platform['id']:
                 continue
@@ -367,11 +398,12 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version':'3.0','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    atomic_json(Path(reports) / 'platform-quizzes.json', quiz_checks)
+    report = {'version':'3.2','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
               'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,
-              'real_quiz_questions':0,
+              'real_quiz_questions':sum(len(check['questions']) for check in quiz_checks),
               'limitation':'Observações manuais não são descoberta contínua. Listagens API não confirmam recompensas de projetos.'}
     atomic_json(Path(reports)/'multiplatform.json',report)
     for item in health:
@@ -404,7 +436,9 @@ def main():
         client = HttpClient(attempts=2,min_interval=1,max_retry_wait=5)
         from .bitdegree_quizzes import NoCookies
         client.session.cookies.set_policy(NoCookies())
-        return run(load_platforms(), observations, State(args.state),client,bot,args.reports,args.dry_run, send_empty_summary=True)
+        from .feed_reader import load_sources
+        return run(load_platforms(), observations, State(args.state), client, bot, args.reports, args.dry_run,
+                   send_empty_summary=True, quiz_sources=load_sources(Path('config/sources.json')))
     except Exception as exc:
         atomic_json(args.reports/'multiplatform-failure.json',{'error_type':type(exc).__name__})
         return 1

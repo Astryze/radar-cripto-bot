@@ -111,18 +111,36 @@
       "discovered_from": "https://www.starknet.io/blog/"
     },
     {
-      "id": "solana",
+      "id": "solana-news",
       "name": "Solana",
       "url": "https://solana.com/news",
       "kind": "listing",
       "domains": [
-        "solana.com"
+        "solana.com",
+        "raw.githubusercontent.com"
       ],
       "official": true,
       "selector": "a[href*='/news/']",
       "path_pattern": "^https://solana\\.com/news/[^/?]+$",
       "max_items": 12,
-      "discovered_from": "https://solana.com/news"
+      "discovered_from": "https://solana.com/news",
+      "enabled": false,
+      "rate_limit_fallback": "https://raw.githubusercontent.com/anza-xyz/agave/master/SECURITY.md",
+      "policy_urls": [
+        "https://solana.com/tos"
+      ]
+    },
+    {
+      "id": "solana",
+      "name": "Solana Agave Bug Bounty (Anza)",
+      "url": "https://raw.githubusercontent.com/anza-xyz/agave/master/SECURITY.md",
+      "kind": "markdown",
+      "domains": [
+        "raw.githubusercontent.com"
+      ],
+      "official": true,
+      "max_items": 1,
+      "discovered_from": "https://github.com/anza-xyz/agave/blob/master/SECURITY.md"
     },
     {
       "id": "binance-learn",

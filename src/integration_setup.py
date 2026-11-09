@@ -13,7 +13,7 @@ def integration_setup(platform, source=None):
     secret, scope, pattern = SOURCES[source]
     present = bool(os.getenv(secret, '').strip())
     entries = platform.get(scope, [])
-    valid = (isinstance(entries, list) and len(entries) <= 3
+    valid = (isinstance(entries, list) and len(entries) <= (20 if source == 'zealy' else 3)
              and all(isinstance(entry, str) and re.fullmatch(pattern, entry) for entry in entries)
              and len(set(entries)) == len(entries))
     configured = valid and bool(entries)

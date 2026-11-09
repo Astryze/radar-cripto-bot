@@ -39,6 +39,7 @@ class Source:
     items_path: str = ""
     item_fields: dict[str, str] = field(default_factory=dict)
     min_interval_seconds: float = 0.5
+    rate_limit_fallback: str = ""
     trusted_guilds: list[str] = field(default_factory=list)
 
 
@@ -95,5 +96,12 @@ class Opportunity:
     source_id: str = ""
     eligibility_requirements: list[str] = field(default_factory=list)
 
+    @property
+    def investment_classification(self):
+        return {
+            Cost.FREE: "ZERO INVESTIMENTO", Cost.GAS: "CUSTO CONDICIONAL",
+            Cost.REQUIRED: "INVESTIMENTO NECESSÁRIO",
+        }.get(self.cost, "NÃO CONFIRMADA")
+
     def to_dict(self):
-        return asdict(self)
+        return {**asdict(self), "investment_classification": self.investment_classification}
