@@ -228,6 +228,15 @@ def _rewards(op, text):
     redemption_pattern = (r"(?:rewards?|tokens?) (?:are |can be )?(?:withdrawable|withdrawn|tradable)"
                           r"|(?:can withdraw|can trade) (?:your |the )?(?:rewards|tokens)")
     redemption = [line[:400] for line in lines if re.search(redemption_pattern, normalize(line))]
+    fee_scope = r"(?:claim|withdrawal|redemption|network|gas|transaction)"
+    for line in lines:
+        normalized = normalize(line)
+        if re.search(r"\b(?:no|without) " + fee_scope + r"(?: and " + fee_scope + r")* fees?\b", normalized):
+            # Só cobre resgate quando essa etapa é indicada explicitamente.
+            if re.search(r"\b(claim|withdrawal|redemption)\b", normalized):
+                op.evidence.setdefault("resgate_sem_taxas", []).append(line[:400])
+        elif re.search(r"\b" + fee_scope + r" fees? (?:is |are )?(?:required|mandatory|apply)\b", normalized):
+            op.evidence.setdefault("taxas_confirmadas", []).append(line[:400])
     if redemption:
         op.evidence["resgate"] = redemption[:3]
         op.withdrawability = "possibilidade de saque/negociação declarada pela fonte; requisitos pessoais não verificados"

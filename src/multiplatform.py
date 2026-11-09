@@ -145,6 +145,8 @@ def zealy_catalog(platform, client, *, community_checks=None):
         return [], 'skipped_invalid_scope'
     if not key or not communities:
         return [], 'skipped_missing_api_key_or_admin_communities'
+    if not setup['credential_format_valid']:
+        return [], 'skipped_invalid_credential'
     if not setup['read_only_declared']:
         return [], 'skipped_read_only_not_declared'
     catalog = []
@@ -271,7 +273,7 @@ def integration_diagnostic(platform, health):
         label = 'autorização de coleta desativada ou auditoria vencida'
     else:
         label = ' e '.join(setup['issues']) or 'consulta ignorada'
-    return {**setup, 'results': total, 'message': label}
+    return {**setup, 'results': total, 'authenticated_catalog_validated': status.startswith('collected_api_catalog'), 'message': label}
 
 
 def integration_report(item, confirmed):
@@ -279,7 +281,9 @@ def integration_report(item, confirmed):
     name = {'galxe': 'Galxe', 'zealy': 'Zealy'}[identifier]
     status = item['integration']['message']
     count = sum(result['platform_id'] == identifier for result in confirmed)
-    return f'{name} — {status}\nOportunidades gratuitas confirmadas: {count}'
+    pending = item['integration'].get('pending_variables', [])
+    missing = f"\nConfiguração pendente: {', '.join(pending)}" if pending else ''
+    return f'{name} — {status}{missing}\nOportunidades gratuitas confirmadas: {count}'
 
 
 def run(platforms, observations, state, client, bot, reports, dry_run=False, *, send_empty_summary=False, quiz_sources=()):
@@ -308,6 +312,8 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
                 options = {}
                 if platform['id'] == 'zealy':
                     options['community_checks'] = h['community_checks'] = []
+                else:
+                    options['space_checks'] = h['space_checks'] = []
                 h['campaigns_found'], h['status'] = connector(platform, client, **options)
             except Exception as exc:
                 h['status'] = 'api_failure'
@@ -399,7 +405,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
             state.data['cooldowns'] = client.cooldowns
         state.save()
     atomic_json(Path(reports) / 'platform-quizzes.json', quiz_checks)
-    report = {'version':'3.2','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    report = {'version':'3.3','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
               'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,

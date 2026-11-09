@@ -614,3 +614,31 @@ com `quiz_automation_authorized: true` e uma entrada `public_quiz` contendo
 e registre a permissão antes de ativar a coleta. O analisador registra evidência,
 confiança e respostas inconclusivas em `reports/platform-quizzes.json`. Nenhum
 quiz novo foi habilitado. As barreiras da BitDegree continuam em vigor.
+
+### Radar 3.3
+
+Em **Settings → Secrets and variables → Actions**, configure cada integração
+usando somente credenciais e escopos que você tem autorização para consultar.
+
+| Nome | Tipo | Finalidade | Obrigatório |
+|---|---|---|---|
+| `ZEALY_API_KEY` | Secret | Chave Zealy de leitura para o catálogo | Para Zealy |
+| `ZEALY_COMMUNITIES` | Variable | Subdomínios autorizados, separados por vírgula | Para Zealy |
+| `ZEALY_READ_ONLY_KEY` | Variable | Declare `true` após conferir o escopo de leitura da chave | Para Zealy |
+| `ZEALY_USER_ID` | Secret | Consulta opcional do usuário no escopo autorizado | Não |
+| `GALXE_ACCESS_TOKEN` | Secret | Token criado pelo proprietário ou administrador do Space | Para Galxe |
+| `GALXE_SPACE_IDS` | Variable | Até três IDs numéricos de Spaces autorizados, separados por vírgula | Para Galxe, salvo se já configurados no cadastro versionado |
+| `TELEGRAM_BOT_TOKEN` | Secret | Token do bot, sem URL ou prefixo `bot` | Para envio |
+| `TELEGRAM_CHAT_ID` | Secret | Destino do alerta ou teste | Para envio |
+
+1. Na Zealy, peça ao administrador da comunidade uma chave restrita a leitura.
+2. Na Galxe, gere o token em **Space Dashboard → Settings → Accounts**.
+3. Rode **Actions → Radar Cripto → Run workflow** com `dry_run` marcado para
+   consultar as integrações sem enviar mensagem. Veja `reports/integrations/`.
+4. Para verificar o Telegram, marque somente `telegram_test`. O workflow envia
+   uma mensagem de teste e registra o retorno da API em `telegram-test.json`.
+
+O resumo usa sete classificações de evidência. Custos e elegibilidade
+desconhecidos permanecem inconclusivos. A [documentação de fidelidade da Galxe](https://docs.galxe.com/galxe-integration/guides/loyalty-program)
+trata `loyaltyPoints` como pontos da quest. O catálogo separa esses pontos
+de recompensas em token e não presume conversão nem resgate.

@@ -13,6 +13,10 @@ on:
         description: "Pesquisar sem enviar ao Telegram (teste seguro)"
         type: boolean
         default: false
+      telegram_test:
+        description: "Enviar somente uma mensagem identificada como teste ao Telegram"
+        type: boolean
+        default: false
   push:
     branches: [main]
   pull_request:
@@ -44,6 +48,7 @@ jobs:
       - name: Diagnosticar integrações no ambiente confiável
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
+          GALXE_SPACE_IDS: ${{ vars.GALXE_SPACE_IDS }}
           GALXE_ACCESS_TOKEN: ${{ secrets.GALXE_ACCESS_TOKEN }}
           ZEALY_API_KEY: ${{ secrets.ZEALY_API_KEY }}
           ZEALY_COMMUNITIES: ${{ vars.ZEALY_COMMUNITIES }}
@@ -54,7 +59,7 @@ jobs:
   radar:
     name: Pesquisa e relatório
     needs: validate
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.telegram_test != true)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -102,6 +107,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GALXE_SPACE_IDS: ${{ vars.GALXE_SPACE_IDS }}
           GALXE_ACCESS_TOKEN: ${{ secrets.GALXE_ACCESS_TOKEN }}
           ZEALY_API_KEY: ${{ secrets.ZEALY_API_KEY }}
           ZEALY_COMMUNITIES: ${{ vars.ZEALY_COMMUNITIES }}
@@ -126,3 +132,34 @@ jobs:
             reports/
           retention-days: 14
           if-no-files-found: warn
+
+  telegram-test:
+    name: Teste isolado do Telegram
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && inputs.telegram_test == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Recusar envio quando dry-run estiver ligado
+        if: inputs.dry_run == true
+        run: |
+          echo "::error::Selecione apenas telegram_test para permitir o envio."
+          exit 1
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements.txt
+      - name: Testar envio
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m src.telegram_bot
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: telegram-test-${{ github.run_id }}
+          path: reports/telegram-test.json
+          if-no-files-found: ignore

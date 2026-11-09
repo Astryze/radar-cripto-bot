@@ -166,7 +166,7 @@ def test_verified_opportunity_requires_all_criteria(change):
 def test_report_keeps_http_evidence_without_headers(tmp_path, monkeypatch):
     client = Mock(records=[])
 
-    def collect(platform, http):
+    def collect(platform, http, *, space_checks):
         http.records.append({'url': ENDPOINT, 'status': 403, 'attempted_at': utcnow().isoformat(),
                              'headers': {'access-token': 'SOMENTE_TESTE'}})
         raise FetchError('Galxe HTTP 403')

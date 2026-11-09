@@ -51,3 +51,22 @@ def verified_alert(op):
             and op.conclusion in {"GRATUITA CONFIRMADA", "GRATUITA COM REQUISITO DE KYC"}
             and op.withdrawability.startswith("possibilidade de saque/negociação declarada")
             and not op.eligibility_requirements)
+
+
+def opportunity_classification(op, now=None):
+    from .utils import parse_date, utcnow
+    end = parse_date(op.deadline_at)
+    if op.deadline == "encerrado" or (end and end <= (now or utcnow())):
+        return "EXPIRED"
+    if op.eligibility == "Brasil não elegível":
+        return "BRAZIL_INELIGIBLE"
+    if op.cost == Cost.REQUIRED:
+        return "INVESTMENT_REQUIRED"
+    if op.cost == Cost.GAS or op.evidence.get("taxas_confirmadas"):
+        return "CONDITIONAL_COST"
+    if (verified_alert(op) and op.evidence.get("resgate_sem_taxas")
+            and not op.evidence.get("custos_ambiguos")):
+        return "ZERO_INVESTMENT_CONFIRMED"
+    if op.official and (op.cost == Cost.FREE or op.evidence.get("gratuidade")):
+        return "ZERO_INVESTMENT_UNCONFIRMED"
+    return "INSUFFICIENT_EVIDENCE"

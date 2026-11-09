@@ -1,3 +1,5 @@
+import os
+import re
 import time
 
 import requests
@@ -56,6 +58,8 @@ class TelegramBot:
                 data = {}
             status = response.status_code
             response.close()
+            if not isinstance(data, dict):
+                data = {}
             if status == 200 and data.get("ok") is True:
                 return
             code = data.get("error_code", status)
@@ -107,13 +111,14 @@ def opportunity_message(op, event="oportunidade verificada"):
         f"Rota de participação: {op.participation_route}",
         "O que fazer:", *[f"• {step}" for step in op.steps],
         "Evidência de custo zero: " + " | ".join(op.evidence.get("gratuidade", [])),
+        "Evidência de resgate: " + (" | ".join(op.evidence.get("resgate", [])) or "não comprovado"),
         "Fontes das regras: " + " | ".join(op.investigated_urls),
         f"Link para participar: {op.url}",
         "Pontos e sorteios não garantem tokens ou renda. Confira as regras antes de participar.",
     ])
 
 
-def daily_summary(opportunities, errors, day, source_count, new_count=None, unavailable=None, pending_count=0, highlight_urls=None):
+def daily_summary(opportunities, errors, day, source_count, new_count=None, unavailable=None, pending_count=0, highlight_urls=None, *, confirmed_count=None):
     from collections import Counter
     from .models import Cost
     from .scoring import actionable
@@ -122,7 +127,7 @@ def daily_summary(opportunities, errors, day, source_count, new_count=None, unav
     lines = ["RADAR CRIPTO — RELATÓRIO DIÁRIO", f"Data: {day} (Brasília)",
              f"Novas campanhas encontradas: {len(opportunities) if new_count is None else new_count}",
              f"Campanhas analisadas: {len(opportunities)}",
-             f"Gratuitas confirmadas: {counts[Cost.FREE]} (participação; não ganho garantido)",
+             f"Gratuitas confirmadas: {counts[Cost.FREE] if confirmed_count is None else confirmed_count}",
              f"Gratuitas com taxa: {counts[Cost.GAS]}",
              f"Gratuitas com KYC: {sum(o.cost == Cost.FREE and 'obrigatório' in o.kyc and o.deadline != 'encerrado' for o in opportunities)}",
              f"Gratuitas com recompensa incerta/pontos: {sum(o.conclusion == 'GRATUITA, MAS COM RECOMPENSA INCERTA' for o in opportunities)}",
@@ -142,3 +147,36 @@ def daily_summary(opportunities, errors, day, source_count, new_count=None, unav
         lines.append("Cobertura parcial — " + "; ".join(errors[:8]))
     lines.append("Pontos internos e sorteios não são dinheiro garantido. Detalhes novos/atualizados seguem em alertas separados.")
     return "\n".join(lines)
+
+
+TEST_MESSAGE = "RADAR CRIPTO — TESTE DE ENTREGA. Esta mensagem verifica o canal Telegram."
+
+
+def delivery_test(token, chat_id, *, session=None):
+    token = (token or "").strip()
+    chat_id = (chat_id or "").strip()
+    issues = []
+    if not re.fullmatch(r"[0-9]+:[A-Za-z0-9_-]+", token):
+        issues.append("TELEGRAM_BOT_TOKEN ausente ou inválido")
+    if not re.fullmatch(r"-?[1-9][0-9]*|@[A-Za-z][A-Za-z0-9_]{4,}", chat_id):
+        issues.append("TELEGRAM_CHAT_ID ausente ou inválido")
+    if issues:
+        return {"status": "invalid_configuration", "issues": issues}
+    try:
+        TelegramBot(token, chat_id, session=session, attempts=1).send(TEST_MESSAGE)
+    except FetchError as exc:
+        return {"status": "delivery_not_confirmed", "issues": [str(exc)]}
+    return {"status": "telegram_api_accepted", "issues": []}
+
+
+def main():
+    from pathlib import Path
+    from .utils import atomic_json
+    report = delivery_test(os.getenv("TELEGRAM_BOT_TOKEN"), os.getenv("TELEGRAM_CHAT_ID"))
+    atomic_json(Path("reports/telegram-test.json"), report)
+    print(f"Telegram — {report['status']}")
+    return 0 if report["status"] == "telegram_api_accepted" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

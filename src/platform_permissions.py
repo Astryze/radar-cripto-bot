@@ -16,6 +16,10 @@ def load_platforms(path=REGISTRY):
     for p in platforms:
         if p['permission'] not in PERMISSIONS or not isinstance(p['enabled'], bool):
             raise ValueError('Permissão inválida')
+        if p['id'] == 'galxe':
+            spaces = os.getenv('GALXE_SPACE_IDS', '').strip()
+            if spaces:
+                p['space_ids'] = [entry.strip() for entry in spaces.split(',')]
         if p['id'] == 'zealy':
             communities = os.getenv('ZEALY_COMMUNITIES', '').strip()
             if communities:

@@ -159,18 +159,22 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
     opportunities = sorted(merged.values(), key=lambda o: (-o.score, o.url))
     day = started.astimezone(ZoneInfo("America/Sao_Paulo")).date().isoformat()
     new_count = sum(canonical_url(op.url) not in state.data["campaigns"] for op in opportunities)
-    from .scoring import verified_alert
-    confirmed = [op for op in opportunities if verified_alert(op)]
+    from collections import Counter
+    from .scoring import opportunity_classification
+    classifications = {op.url: opportunity_classification(op, started) for op in opportunities}
+    counts = Counter(classifications.values())
+    confirmed = {url for url, label in classifications.items() if label == "ZERO_INVESTMENT_CONFIRMED"}
     events = [(op, state.event(op)) for op in opportunities]
     if verified_alerts:
-        events = [(op, event if verified_alert(op) or (
+        events = [(op, event if op.url in confirmed or (
             event and state.data["campaigns"].get(canonical_url(op.url), {}).get("notified")
             and op.official
         ) else None) for op, event in events]
     unavailable = sum(not h["ok"] and h["status"] != "pending" for h in health)
     pending_count = sum(h["status"] == "pending" for h in health)
-    highlights = {op.url for op, event in events if event}
-    summary = daily_summary(opportunities, errors, day, len(health), new_count, unavailable, pending_count, highlights)
+    highlights = {op.url for op, event in events if event and (not verified_alerts or op.url in confirmed)}
+    summary = daily_summary(opportunities, errors, day, len(health), new_count, unavailable, pending_count, highlights,
+                            confirmed_count=len(confirmed) if verified_alerts else None)
     if verified_alerts and not confirmed:
         summary += "\nNenhuma oportunidade que atenda a todos os critérios de gratuidade e resgate foi confirmada nesta execução."
     if not dry_run:
@@ -201,13 +205,19 @@ def run(sources, client, state, bot, report_dir, dry_run=False, max_alerts=10, b
                         errors.append(f"Entrega Telegram: {failure_reason(exc)}")
                         break
     partial = bool(errors or any(item["status"] != "collected" for item in health))
-    result = {"version": "3.2", "confirmed_zero_investment": len(confirmed), "collection_status": "partial" if partial else "complete",
+    result = {"version": "3.3",
+              "campaign_counts": {"found": len(opportunities), "official_material_verified": sum(op.official for op in opportunities),
+                                  "discarded": sum(counts[label] for label in ("EXPIRED", "INVESTMENT_REQUIRED", "BRAZIL_INELIGIBLE", "CONDITIONAL_COST")),
+                                  "by_classification": dict(counts)},
+               "confirmed_zero_investment": len(confirmed), "collection_status": "partial" if partial else "complete",
               "delivery_failed": delivery_failed, "started_at": started.isoformat(), "finished_at": utcnow().isoformat(),
               "dry_run": dry_run, "sent": sent, "new_campaigns": new_count, "sources": health, "errors": errors,
               "pending_sources": pending_count,
               "http_records": client.records if isinstance(client, HttpClient) else [],
               "events": [{"url": op.url, "event": event} for op, event in events if event],
-              "opportunities": [o.to_dict() for o in opportunities]}
+              "opportunities": [{**o.to_dict(), "classification": classifications[o.url],
+                                  "last_verified_at": started.isoformat() if o.official and o.url in seen else None}
+                                 for o in opportunities]}
     atomic_json(Path(report_dir) / "run.json", result)
     atomic_json(Path(report_dir) / "source-health.json", health)
     for item in health:
