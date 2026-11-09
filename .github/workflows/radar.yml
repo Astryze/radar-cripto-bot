@@ -46,6 +46,7 @@ jobs:
         env:
           GALXE_ACCESS_TOKEN: ${{ secrets.GALXE_ACCESS_TOKEN }}
           ZEALY_API_KEY: ${{ secrets.ZEALY_API_KEY }}
+          ZEALY_USER_ID: ${{ secrets.ZEALY_USER_ID }}
         run: python -m src.multiplatform --dry-run
 
   radar:
@@ -101,6 +102,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GALXE_ACCESS_TOKEN: ${{ secrets.GALXE_ACCESS_TOKEN }}
           ZEALY_API_KEY: ${{ secrets.ZEALY_API_KEY }}
+          ZEALY_USER_ID: ${{ secrets.ZEALY_USER_ID }}
           RADAR_DRY_RUN: ${{ inputs.dry_run }}
         shell: bash
         run: |

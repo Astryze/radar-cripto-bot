@@ -104,7 +104,7 @@ def atomic_json(path, data):
 class RedactFilter(logging.Filter):
     def filter(self, record):
         message = record.getMessage()
-        for key in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "ZEALY_API_KEY", "GALXE_ACCESS_TOKEN"):
+        for key in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "ZEALY_API_KEY", "ZEALY_USER_ID", "GALXE_ACCESS_TOKEN"):
             secret = os.getenv(key)
             if secret:
                 message = message.replace(secret, "[REDACTED]")
@@ -183,13 +183,16 @@ class HttpClient:
         return target
 
     def get(self, url, domains):
+        return self._request(url, domains)
+
+    def _request(self, url, domains, *, method='GET', payload=None, headers=None, record_url=None, cache=True):
         from .platform_permissions import guard_request
-        guard_request(url)
-        if url in self.cache:
+        guard_request(url, method=method)
+        if cache and url in self.cache:
             return self.cache[url]
         original_url = url
         for _redirect in range(5):
-            guard_request(url)
+            guard_request(url, method=method)
             validate_url(url, domains)
             host = urlsplit(url).hostname
             cooldown = self.cooldowns.get(host)
@@ -205,13 +208,19 @@ class HttpClient:
                 self._last_request[host] = self.clock()
                 response = None
                 try:
-                    response = self.session.get(url, timeout=(5, 20), allow_redirects=False, stream=True)
+                    options = {'timeout': (5, 20), 'allow_redirects': False, 'stream': True}
+                    if headers is not None:
+                        options['headers'] = headers
+                    if method == 'POST':
+                        response = self.session.post(url, json=payload, **options)
+                    else:
+                        response = self.session.get(url, **options)
                     status = response.status_code
-                    record = {"url": url, "status": status, "attempt": attempt + 1,
+                    record = {"url": record_url or url, "status": status, "attempt": attempt + 1,
                               "attempted_at": self.now().isoformat(), "content_type": response.headers.get("Content-Type", "")}
                     self.records.append(record)
                     if status == 202:
-                        monitor = self._monitor(response, url, domains)
+                        monitor = None if record_url else self._monitor(response, url, domains)
                         wait = retry_after_seconds(response.headers.get("Retry-After"), self.now())
                         # 202 não contém resultado: só consultar depois, sem inventar endpoint.
                         self._defer(url, 202, max(60, wait if wait is not None else 900), monitor)
@@ -238,7 +247,7 @@ class HttpClient:
             if response is None:
                 raise FetchError("Sem resposta HTTP")
             if response.status_code in {301, 302, 303, 307, 308}:
-                if host == 'api-v2.zealy.io':
+                if method != 'GET' or host == 'api-v2.zealy.io':
                     response.close()
                     raise FetchError('Redirecionamento Zealy rejeitado')
                 target = urljoin(url, response.headers.get("Location", ""))
@@ -254,7 +263,8 @@ class HttpClient:
                     if len(data) > MAX_BYTES:
                         raise FetchError("Conteúdo excedeu 2 MB")
                 result = bytes(data), url, response.headers.get("Content-Type", "")
-                self.cache[original_url] = result
+                if cache:
+                    self.cache[original_url] = result
                 return result
             except requests.RequestException:
                 raise FetchError("Resposta incompleta") from None

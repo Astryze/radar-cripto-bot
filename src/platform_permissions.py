@@ -18,21 +18,30 @@ def load_platforms(path=REGISTRY):
     return platforms
 
 
-def guard_request(url):
+def guard_request(url, *, method='GET'):
     """Protege também coletores legados e redirects antes de qualquer GET."""
     host = urlsplit(url).hostname or ''
     roots = {'binance.com','coinmarketcap.com','galxe.com','galaxy.eco','layer3.xyz',
              'zealy.io','intract.io','questn.com','revolut.com','bitdegree.org'}
     if any(host == root or host.endswith('.' + root) for root in roots):
-        # Somente endpoint GET auditado da Zealy. Não libera o resto do site.
+        # Rotas Zealy documentadas. Dados de usuário exigem escopo explícito.
         if host == 'api-v2.zealy.io':
             import re
-            if re.fullmatch(r'/public/communities/[a-z0-9-]{1,80}/quests', urlsplit(url).path):
+            match = re.fullmatch(r'/public/communities/([a-z0-9-]{1,80})/(.+)', urlsplit(url).path)
+            if match:
+                community, route = match.groups()
                 platform = next(p for p in load_platforms() if p['id']=='zealy')
                 from .utils import parse_date, utcnow
                 from datetime import timedelta
                 audited = parse_date(platform.get('last_audit'))
                 if (platform['enabled'] and platform['permission']=='API_OFICIAL' and audited
                         and utcnow()-timedelta(days=30) <= audited <= utcnow()):
-                    return
+                    if method == 'GET' and route == 'quests':
+                        return
+                    from .zealy_integration import USER_ROUTE
+                    if community in platform.get('communities', []):
+                        if method == 'GET' and USER_ROUTE.fullmatch(route):
+                            return
+                        if method == 'POST' and route == 'member' and platform.get('allow_member_post') is True:
+                            return
         raise PermissionError('Coleta da plataforma não autorizada pelo cadastro central')

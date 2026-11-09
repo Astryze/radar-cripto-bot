@@ -97,7 +97,9 @@
         "https://zealy.io/docs/integrations/api",
         "https://docs.zealy.io/api-reference/quests/list-quests",
         "https://docs.zealy.io/rate-limits",
-        "https://zealy.io/docs/start-guide/billing-and-plans"
+        "https://zealy.io/docs/start-guide/billing-and-plans",
+        "https://docs.zealy.io/api-reference/users/user-lookup",
+        "https://docs.zealy.io/api-reference/communities/community-member-check"
       ],
       "limitations": "Termos vinculados pelo rodapé não acessíveis (400). Documentação autoriza API GET para comunidade administrada; não é busca global de campanhas. Plano gratuito inclui integrações.",
       "reward_types": "USDC; tokens; XP; Zaps",
@@ -107,7 +109,8 @@
       "campaigns_found": [],
       "communities": [],
       "quiz_automation_authorized": false,
-      "read_only_key": false
+      "read_only_key": false,
+      "allow_member_post": false
     },
     {
       "id": "intract",

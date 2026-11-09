@@ -11,7 +11,8 @@ from .platform_permissions import load_platforms
 from .quiz_analyzer import analyze_public_quiz
 from .state import State
 from .telegram_bot import TelegramBot
-from .utils import HttpClient, atomic_json, canonical_url, digest, parse_date, utcnow, validate_url
+from .zealy_integration import ZealyIntegration
+from .utils import FetchError, HttpClient, atomic_json, canonical_url, digest, parse_date, utcnow, validate_url
 
 OBLIGATIONS = ('deposit','purchase','paid_staking','paid_nft','subscription','entry_fee','trading_volume','redemption_fee','gas')
 FINANCIAL = {'token','crypto','USDC','BTC'}
@@ -72,6 +73,28 @@ def zealy_quest_metadata(item):
         return sorted({value['type'] for value in objects(field)
                        if isinstance(value.get('type'), str) and value['type'] in supported})
 
+    nodes = [item.get('description')]
+    snippets = []
+    for _ in range(100):
+        if not nodes:
+            break
+        node = nodes.pop()
+        if not isinstance(node, dict):
+            continue
+        if node.get('type') == 'text' and isinstance(node.get('text'), str):
+            snippets.append(node['text'][:500])
+        children = node.get('content')
+        if isinstance(children, list):
+            nodes.extend(children[:30])
+    description = ' '.join(snippets)
+    financial_mentions = [label for label, pattern in {
+        'depósito': r'\b(deposit|depósito)\b',
+        'compra': r'\b(buy|purchase|compra)\b',
+        'trade': r'\b(trade|trading|swap)\b',
+        'staking': r'\b(stake|staking)\b',
+        'gas': r'\b(gas|network fee)\b',
+    }.items() if re.search(pattern, description, re.I)]
+
     dates = []
     for condition in objects('conditions'):
         value = condition.get('value')
@@ -89,7 +112,26 @@ def zealy_quest_metadata(item):
         'claim_limit': item.get('claimLimit') if type(item.get('claimLimit')) is int else None,
         'claim_counter': item.get('claimCounter') if type(item.get('claimCounter')) is int else None,
         'pagination_available': None,
+        'financial_mentions': financial_mentions,
+        'xp_rewards': [reward['value'] for reward in objects('rewards')
+                       if reward.get('type') == 'xp' and type(reward.get('value')) is int
+                       and reward['value'] >= 0],
     }
+
+
+def zealy_availability(metadata, now):
+    # Regras OR e contadores em cache não bastam para confirmar prazo ou estoque.
+    if metadata['condition_operator'] == 'AND':
+        for condition in metadata['date_conditions']:
+            date = parse_date(condition['at'])
+            if condition['operator'] == '<' and now >= date:
+                return 'encerrada'
+            if condition['operator'] == '>' and now <= date:
+                return 'não iniciada'
+    limit, counter = metadata['claim_limit'], metadata['claim_counter']
+    if limit is not None and limit > 0 and counter is not None and counter >= limit:
+        return 'limite indicado pelo contador da API'
+    return 'publicada, disponibilidade não confirmada'
 
 
 def zealy_catalog(platform, client):
@@ -107,6 +149,8 @@ def zealy_catalog(platform, client):
         return [], 'skipped_read_only_not_declared'
     catalog = []
     truncated = False
+    identifier = os.getenv('ZEALY_USER_ID', '').strip()
+    users = ZealyIntegration(platform, client) if identifier else None
     prior = client.session.headers.get('x-api-key')
     client.session.headers['x-api-key'] = key
     try:
@@ -119,13 +163,26 @@ def zealy_catalog(platform, client):
             if not isinstance(data, list):
                 raise ValueError('Schema da API não reconhecido')
             truncated |= len(data) > 50
+            participant = {'membership': 'não verificada'}
+            if users and any(isinstance(item, dict) and item.get('published') is True
+                             and not item.get('archived') and not item.get('deleted') for item in data[:50]):
+                try:
+                    participant = users.get_user(community, identifier)
+                except (FetchError, ValueError, PermissionError):
+                    participant = {'membership': 'não confirmada', 'lookup_failed': True}
+                    truncated = True
             for item in data[:50]:
                 if not isinstance(item,dict) or item.get('published') is not True or item.get('archived') or item.get('deleted'):
                     continue
                 if isinstance(item.get('id'),str) and isinstance(item.get('name'),str):
                     metadata = zealy_quest_metadata(item)
+                    now = utcnow()
+                    availability = zealy_availability(metadata, now)
+                    eligibility = 'banimento identificado' if participant.get('banned') else 'não confirmada'
                     catalog.append({**metadata, 'id':item['id'][:100], 'title':item['name'][:240], 'community':community,
-                                    'queried_at': utcnow().isoformat(), 'source': url,
+                                    'queried_at': now.isoformat(), 'source': url,
+                                    'availability': availability, 'participation': participant,
+                                    'eligibility': eligibility,
                                     'brazil': 'desconhecido', 'reward_verified': False,
                                     'financial_classification': 'GRATUIDADE_NAO_CONFIRMADA',
                                     'deadline': None, 'redeemable': None,
@@ -306,7 +363,7 @@ def run(platforms, observations, state, client, bot, reports, dry_run=False, *, 
         if isinstance(client, HttpClient):
             state.data['cooldowns'] = client.cooldowns
         state.save()
-    report = {'version':'2.8','at':now.isoformat(),'dry_run':dry_run,'sources':health,
+    report = {'version':'2.9','at':now.isoformat(),'dry_run':dry_run,'sources':health,
               'opportunities':results, 'sent':sent,'errors':errors,
               'live_api_campaigns':sum(len(h['campaigns_found']) for h in health),
               'verified_zero_investment':len(confirmed), 'summary':summary, 'api_http_responses':api_responses,

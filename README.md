@@ -503,3 +503,46 @@ documentado e sinaliza corte local acima de 50 entradas por comunidade.
 Tipos de recompensa, tarefas e condições observados são metadados do catálogo.
 A confirmação de custo zero, acesso brasileiro e resgate depende de evidência
 oficial adicional. Veja [VALIDATION_V28.md](VALIDATION_V28.md).
+
+## Radar 2.9 — consultas de usuários Zealy
+
+O módulo `src.zealy_integration.ZealyIntegration` oferece cinco operações.
+Os caminhos abaixo são relativos a
+`https://api-v2.zealy.io/public/communities/{subdomain}`.
+
+| Método Python | Endpoint | Resultado |
+|---|---|---|
+| `get_user` | GET `/users/{userId}` | XP, nível, ranking, banimento, papel e contagens de carteiras |
+| `lookup_user` | GET `/users` | Perfil por identificador vinculado, com filtro obrigatório |
+| `invites` | GET `/users/{userId}/invites` | Contagem por estado, paginação e indicador de corte |
+| `reviews` | GET `/reviews/users/{id}` | Contagem de flags e estrelas |
+| `membership` | POST `/member` | Associação confirmada em HTTP 200 |
+
+GET `/users` é busca filtrada, conforme a referência oficial. O POST é uma
+verificação de associação. Uma resposta 404 permanece erro de consulta e não é
+usada como prova de ausência de associação.
+[Usuários](https://docs.zealy.io/api-reference/users/user-lookup) ·
+[Associação](https://docs.zealy.io/api-reference/communities/community-member-check).
+
+Para o radar agendado, use `ZEALY_API_KEY` somente leitura, declare
+`read_only_key: true` e informe somente as comunidades autorizadas no cadastro.
+Opcionalmente, configure o UUID do seu perfil em `ZEALY_USER_ID` nos GitHub
+Secrets. Quando uma comunidade tem quests publicadas, o radar consulta o perfil
+uma vez e anexa dados mínimos de participação ao catálogo. O fluxo agendado usa
+GET e exclui identificadores de perfil, filtros, e-mails e endereços dos relatórios.
+
+O método `membership` é separado do radar agendado. Ele requer uma chave com
+permissão de POST emitida para o acesso autorizado, `read_only_key: false` e
+`allow_member_post: true` no cadastro. A API restringe chaves somente leitura a GET.
+[Permissões de chave](https://docs.zealy.io/authentication).
+
+Convites usam `page` e `page_size`, com até cinco páginas e no máximo 100
+itens por página. O cache é restrito à instância e guarda resultados minimizados.
+O transporte aplica retry limitado, backoff, Retry-After e bloqueio de
+redirecionamento Zealy. Os logs usam modelos de rotas para consultas pessoais.
+
+O catálogo aponta datas condicionais, cota indicada pela API, XP e menções a
+custos. Publicação, contador em cache e menções no texto não comprovam vaga,
+gratuidade, elegibilidade brasileira ou resgate. Esses registros permanecem
+inconclusivos e fora dos alertas de oportunidades confirmadas. A consulta
+autenticada deve ser verificada com o dry-run do workflow após configurar o acesso.
