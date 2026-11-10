@@ -84,7 +84,11 @@ def collect(inputs, output, limit=20, *, allow_remote=False):
                     raise ValueError("Downloads remotos desativados; use --allow-public-references")
                 folder = temp / str(idx)
                 folder.mkdir()
-                candidates = _collect_from_url(source, folder)
+                try:
+                    candidates = _collect_from_url(source, folder)
+                except (RuntimeError, subprocess.TimeoutExpired):
+                    print(f"Fonte pública indisponível, ignorando: {urlsplit(source).hostname}", flush=True)
+                    continue
             else:
                 p = Path(source)
                 if not p.is_file():
