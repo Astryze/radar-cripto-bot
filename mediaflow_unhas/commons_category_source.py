@@ -17,20 +17,68 @@ from PIL import Image, ImageOps, ImageStat, ImageFilter
 API = "https://commons.wikimedia.org/w/api.php"
 # Manually curated from the actual category listing of Nail_art. Each is a
 # known distinct file, not a search result that just happens to mention "nail".
+# Distinct manicure candidates not used in previous MediaFlow banks. Do not
+# dilute with room interiors, salon logos, manicure tools or celebrity images.
 PREFERRED = (
-    "Nail Art Strass.jpg",
-    "Polished purple nails with nail art on.jpg",
-    "Red nail art with white stripes.jpg",
-    "Spring on nails.jpg",
-    "Nail art with stripes.jpg",
+    "Acrylic nails, Salon Sagesse.jpg",
+    "Biab nagels.jpg",
+    "Galaxies nail art.jpg",
+    "Hermosa decoración de uñas.jpg",
+    "Nail Art NP 01.JPG",
+    "Nail Art NP 02.JPG",
+    "Nail Art NP 03.JPG",
+    "Nail Art NP 04.JPG",
+    "Nail art Feather - Colorama Flor do Deserto.jpg",
+    "Nail art example, Nov 2013.jpg",
+    "Nail Art Butterfly.jpg",
+    "Nail art - Glitter Diamond.jpg",
+    "Nail art with toothpick.jpg",
+    "Neon Nails.jpg",
+    "Pacman Nails.jpg",
+    "Pixella15376 (24300229776).jpg",
+    "Pretty nail (Sakaki) (4496244385).jpg",
+    "Stamping clover with Saint George.jpg",
+    "Starburst nail art.jpg",
+    "Stripes nails.jpg",
+    "Swirly purple konad nail art.jpg",
+    "Tribal nail art.jpg",
+    "Unhas.jpg",
+    "Watermelon nails (4494973509).jpg",
+    "Авторский дизайн.jpg",
+    "Дисней.jpg",
+    "Конкурсная.jpg",
+    "Новогодний.jpg",
+    "Професионална Ноктопластика.JPG",
+    "Професионална ноктопластика.png",
+    "ネイル (8706809030).jpg",
+    "ネイル (8706810076).jpg",
+    "Nailpolish patriotic style (4767837890).jpg",
+    "Nail Art.JPG",
+    "Nailart.jpg",
+    "Kunstnagels 004.jpg",
+    "Nail of Hakata Gal Union1.jpg",
+    "Nail of Hakata Gal Union2.jpg",
+    "Poto nail art 55.jpg",
+    "Poto nail art 678.jpg",
+    "Unique nail polish (10).JPG",
+    "Unique nail polish (12).JPG",
+    "Unique nail polish (14).JPG",
+    "Unique nail polish (15).JPG",
+    "Unique nail polish (9).JPG",
+)
+# Previously published or previewed photographs, including the old Bank B/C.
+# Never use these titles in a fresh video; a new crop is not a new photo.
+USED_TITLES = {
     "Blue cat eye nail art.jpg",
     "Complex nail art.jpg",
     "Crosses and squares nail art.jpg",
+    "Dazznailstudio.jpg",
     "Flower nail art.jpg",
     "French Manicure with Glitter nail art on ring finger.jpg",
     "French tip nail art.jpg",
     "Gel Nails Pink Orange and White Design.jpg",
     "Hologram nail art.jpg",
+    "Kostka Bojana- Extreme Form- Elatus.jpg",
     "Matte black and white polkadot nails (16476158115).jpg",
     "Matte spotted turquoise nails (15403309163).jpg",
     "Nail art - Glitter Diamond.jpg",
@@ -42,12 +90,8 @@ PREFERRED = (
     "Polished purple nails with nail art on.jpg",
     "Red nail art with white stripes.jpg",
     "Spring on nails.jpg",
-    "Starburst nail art.jpg",
-    "Stripes nails.jpg",
-    "Swirly purple konad nail art.jpg",
-    "Tribal nail art.jpg",
-    "Unhas.jpg",
-)
+}
+
 ALLOWED_LICENSES = {"cc0", "cc-by", "cc-by-sa", "public domain", "pd", "cc by", "cc by-sa"}
 USER_AGENT="MediaFlowUnhas/2.2 (GitHub: Astryze/radar-cripto-bot; nail art CC images)"
 
@@ -79,7 +123,9 @@ def fetch_curated(folder, *, minimum=10, session=None):
     manifest=[]
     seen=set()
     for i in range(0,len(PREFERRED),10):
-        batch=PREFERRED[i:i+10]
+        batch=[name for name in PREFERRED[i:i+10] if name not in USED_TITLES]
+        if not batch:
+            continue
         params={"action":"query", "prop":"imageinfo",
                 "iiprop":"url|extmetadata|size|mime",
                 "iiurlwidth":900, "format":"json","formatversion":"2",
