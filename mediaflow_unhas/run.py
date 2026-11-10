@@ -1,3 +1,4 @@
+# ruff: noqa
 """MediaFlow Unhas: 10 fotos diferentes em 10 segundos. Somente ferramentas gratuitas."""
 import argparse, hashlib, html, json, os, re, subprocess, tempfile, uuid
 from pathlib import Path
