@@ -48,3 +48,5 @@ jobs:
 # Diagnostic run: investigate Wikimedia Commons candidate rejection.
 
 # Fix: thumbnails from thumb.wikimedia.org are genuine Commons files.
+
+# Quality pass: exclude room interiors and tools; nail art closeups only.
