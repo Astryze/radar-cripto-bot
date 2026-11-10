@@ -3,7 +3,7 @@
 Input images remain genuine photos. Adaptive, modest tonal correction and crisp
 portrait layouts are applied on copies; originals and credits are preserved.
 """
-from PIL import Image, ImageEnhance, ImageFilter, ImageOps, ImageStat
+from PIL import ImageEnhance, ImageFilter, ImageOps, ImageStat
 
 SIZE=(720,1280)
 
@@ -40,13 +40,9 @@ def finish(im, *, width=720, height=1280):
     fg=ImageEnhance.Contrast(fg).enhance(1.055)
     fg=ImageEnhance.Color(fg).enhance(1.055)
     fg=fg.filter(ImageFilter.UnsharpMask(radius=1.15,percent=76,threshold=3))
-    # A very faint shadow separates photo from the generated background.
-    pad=8
+    # No opaque frame: portrait photography should fill the canvas cleanly.
     x=(width-fg.width)//2
     y=(height-fg.height)//2
-    shadow=Image.new("RGB",(fg.width+2*pad,fg.height+2*pad),(22,17,25))
-    shadow=shadow.filter(ImageFilter.GaussianBlur(6))
-    bg.paste(shadow,(x-pad,y-pad))
     bg.paste(fg,(x,y))
     return bg
 
