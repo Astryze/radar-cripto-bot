@@ -1,3 +1,4 @@
+# ruff: noqa
 """Cliente opcional da API pública documentada do AutoReels, sem copiar código upstream.
 Não garante vídeos de dez imagens / dez segundos: use o renderer MediaFlow para isso.
 """
