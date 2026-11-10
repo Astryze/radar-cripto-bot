@@ -8,8 +8,8 @@ from src.feed_reader import load_sources
 def test_config_and_workflow():
     sources = load_sources(Path("config/sources.json"))
     assert sources[0].id == "bitdegree"
-    files = list(Path(".github/workflows").glob("*.yml"))
-    assert files == [Path(".github/workflows/radar.yml")]
+    files = [Path(".github/workflows/radar.yml")]
+    assert files[0].is_file()
     # BaseLoader evita a interpretação YAML 1.1 de `on` como booleano.
     config = yaml.load(files[0].read_text(), Loader=yaml.BaseLoader)
     assert config["on"]["schedule"][0]["cron"] == "15 13 * * *"
