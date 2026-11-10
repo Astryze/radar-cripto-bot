@@ -1,0 +1,60 @@
+name: MediaFlow — Enviar vídeo aprovado ao Telegram
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - '.github/workflows/mediaflow-telegram-send-existing.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixar o MP4 já aprovado (execução 42860703348)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/Astryze/radar-cripto-bot/actions/artifacts/13785720158/zip" \
+            -o /tmp/mediaflow_existing.zip
+          python - <<'PY'
+          import zipfile
+          from pathlib import Path
+          archive=zipfile.ZipFile('/tmp/mediaflow_existing.zip')
+          videos=[n for n in archive.namelist() if n.endswith('/final.mp4') or n=='final.mp4']
+          if len(videos)!=1:
+              raise RuntimeError(f'Esperado um MP4, encontrados {len(videos)}')
+          output=Path('/tmp/mediaflow_aprovado.mp4')
+          output.write_bytes(archive.read(videos[0]))
+          if output.stat().st_size < 100000:
+              raise RuntimeError('Vídeo vazio ou inválido')
+          print(f'MP4 recuperado: {output.stat().st_size} bytes, arquivo {videos[0]}')
+          PY
+      - name: Enviar MP4 via bot Telegram e validar resposta
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          set -euo pipefail
+          test -n "${TELEGRAM_BOT_TOKEN:-}" && test -n "${TELEGRAM_CHAT_ID:-}" || { echo 'Secrets do Telegram não configurados'; exit 1; }
+          curl --silent --show-error --fail-with-body \
+            --retry 2 --max-time 120 \
+            --form "chat_id=${TELEGRAM_CHAT_ID}" \
+            --form "caption=MediaFlow Unhas — 10 fotografias novas, vídeo vertical de 10 segundos" \
+            --form "video=@/tmp/mediaflow_aprovado.mp4;type=video/mp4" \
+            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendVideo" \
+            -o /tmp/mediaflow_telegram_result.json
+          python - <<'PY'
+          import json
+          result=json.load(open('/tmp/mediaflow_telegram_result.json'))
+          if not result.get('ok'):
+              raise RuntimeError('Telegram não confirmou a entrega: '+str(result.get('description','erro')))
+          message=result['result']
+          print('TELEGRAM_DELIVERY_CONFIRMED message_id='+str(message.get('message_id')))
+          PY
