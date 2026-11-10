@@ -18,16 +18,19 @@ API = "https://commons.wikimedia.org/w/api.php"
 # Manually curated from the actual category listing of Nail_art. Each is a
 # known distinct file, not a search result that just happens to mention "nail".
 PREFERRED = (
+    "Nail Art Strass.jpg",
+    "Polished purple nails with nail art on.jpg",
+    "Red nail art with white stripes.jpg",
+    "Spring on nails.jpg",
+    "Nail art with stripes.jpg",
     "Blue cat eye nail art.jpg",
     "Complex nail art.jpg",
     "Crosses and squares nail art.jpg",
-    "Dazznailstudio.jpg",
     "Flower nail art.jpg",
     "French Manicure with Glitter nail art on ring finger.jpg",
     "French tip nail art.jpg",
     "Gel Nails Pink Orange and White Design.jpg",
     "Hologram nail art.jpg",
-    "Kostka Bojana- Extreme Form- Elatus.jpg",
     "Matte black and white polkadot nails (16476158115).jpg",
     "Matte spotted turquoise nails (15403309163).jpg",
     "Nail art - Glitter Diamond.jpg",
