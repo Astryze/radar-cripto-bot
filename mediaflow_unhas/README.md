@@ -22,3 +22,10 @@ O fluxo tenta **Pexels -> Wikimedia Commons -> ComfyUI local (opcional)**. Todas
 - O Telegram não recebe prévias de commits automáticos. Envio somente pelo acionamento manual do workflow com `enviar_telegram=true` ou execução local com `--enviar-telegram`.
 - São preservados créditos/licenças nos arquivos `credits.json`; revisar direitos de uso e as imagens antes da publicação final.
 - O modelo visual ajuda a eliminar fotos de objetos aleatórios, mas não garante sozinho beleza editorial nem correspondência perfeita de estilo.
+
+
+## Fonte sem chave — Openverse (2026-11-10)
+
+O MediaFlow agora consulta **Openverse** mesmo sem PEXELS_API_KEY. Ordem de prioridade: Pexels (quando houver chave), **Openverse sem chave**, Wikimedia Commons e ComfyUI local configurado. Openverse retorna candidatos de fontes CC; o pipeline aceita apenas licenças CC0, domínio público, CC BY e CC BY-SA com metadados e origem de atribuição, e rejeita links suspeitos/redirecionamentos. A licença deve ser conferida antes da publicação comercial; licenças CC BY e CC BY-SA têm obrigações de atribuição e podem exigir compartilhamento pela mesma licença para adaptações. Uma foto com palavras adequadas ainda precisa passar pelo filtro visual CLIP, nitidez e duplicidade.
+
+O catálogo do Openverse não é uma galeria de nail art premium e nem toda imagem estará licenciada de forma adequada. Pinterest/Douyin são úteis para inspiração, mas baixar de lá por ferramentas como gallery-dl não autoriza republicação. Somente adicionar imagens próprias, autorizadas ou com licença verificável ao material de publicação. O pipeline continua recusando gerar/enviar se faltar uma das dez fotografias necessárias.
