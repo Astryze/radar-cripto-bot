@@ -188,7 +188,10 @@ def fetch_curated(folder, *, minimum=10, session=None):
                 signature=hashlib.sha256(im.resize((40,40)).tobytes()).hexdigest()
                 if signature in seen:
                     continue
-                from quality import dhash, is_duplicate
+                try:
+                    from .quality import dhash, is_duplicate
+                except ImportError:
+                    from quality import dhash, is_duplicate
                 if is_duplicate(dhash(im), historical_hashes, threshold=4):
                     print(f"SKIP_HISTORY {name}: visually similar to past video",flush=True)
                     continue
