@@ -1,3 +1,21 @@
+# MediaFlow v2 — substituição do ComfyUI por AI Horde
+
+**Gerador padrão:** AI Horde remoto. Não exige GPU local nem instalação
+ComfyUI. Consulte [HORDE_MODE.md](HORDE_MODE.md).
+
+Com referências próprias/autorizadas:
+    python mediaflow_unhas/main.py --tema vermelhas_elegantes --referencia ./unhas.jpg --saida output/unhas
+
+Busca de referências com licença aberta (sem chave):
+    python mediaflow_unhas/main.py --tema vermelhas_elegantes --auto-references
+
+O comando somente envia vídeo se você adicionar --enviar-telegram
+e existirem 10 imagens geradas aprovadas. O modo anônimo gratuito tem filas
+e resolução limitadas; a execução real precisa ser validada. O modo anterior
+ComfyUI é legado e NÃO é necessário para o novo comando.
+
+---
+
 # MediaFlow Unhas (GitHub Actions)
 
 Módulo **independente** do Radar Cripto. Gera vídeos de 10 segundos com **10 fotos distintas** baixadas do Wikimedia Commons, organizadas em MP4 vertical 720x1280 com FFmpeg. Há 30 temas de unhas e três efeitos (zoom, fade e cortes).
