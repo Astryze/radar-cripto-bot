@@ -11,7 +11,7 @@ on:
         type: boolean
         default: false
 permissions:
-  contents: read
+  contents: write
 jobs:
   video-premium:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -39,6 +39,28 @@ jobs:
           args=(--premium-curated --saida output/unhas-premium)
           if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
           python mediaflow_unhas/photo_video.py "${args[@]}"
+      - name: Registrar IDs usados depois de gerar o vídeo
+        if: success()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("mediaflow_unhas/premium_used_ids.json")
+          credits=json.loads(Path("output/unhas-premium/sources/source_credits.json").read_text())
+          if len(credits)!=10:
+              raise RuntimeError("A produção só é válida com 10 fontes novas")
+          old=json.loads(p.read_text())
+          old["ids"]=sorted(set(old["ids"])|{int(row["pexels_photo_id"]) for row in credits})
+          p.write_text(json.dumps(old,ensure_ascii=False,indent=2)+"\n")
+          print("PHOTO_HISTORY_COMMITTED",len(old["ids"]))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mediaflow_unhas/premium_used_ids.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(mediaflow): exclude ten new luxury manicure images from future runs [skip ci]"
+            git push origin HEAD:feature/mediaflow-unhas-v04
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
