@@ -21,13 +21,19 @@ except ImportError:
     from quality import dhash, is_duplicate
     from photo_finish import finish, photo_metrics, quality_score
 
-def create_frames(sources, output, *, allow_remote=False, count=10, commons_curated=False):
+def create_frames(sources, output, *, allow_remote=False, count=10, commons_curated=False, premium_curated=False):
     """Require 10 distinct input photos, fail closed instead of repeating photos."""
-    if len(sources) < 1 and not commons_curated:
+    if len(sources) < 1 and not (commons_curated or premium_curated):
         raise ValueError("Informe pelo menos um URL ou arquivo de fotografia")
     output = Path(output)
     input_dir = output / "sources"
-    if commons_curated:
+    if premium_curated:
+        try:
+            from .premium_photo_source import collect_premium
+        except ImportError:
+            from premium_photo_source import collect_premium
+        photos = collect_premium(input_dir,count=count)
+    elif commons_curated:
         try:
             from .commons_category_source import fetch_curated
         except ImportError:
@@ -90,6 +96,7 @@ def main():
     parser.add_argument("--urls-file",help="Arquivo TXT com uma URL pública por linha")
     parser.add_argument("--auto-pinterest",action="store_true",help="Pesquisar pins públicos; pode exigir cookies ou falhar")
     parser.add_argument("--commons-curated", action="store_true", help="Baixar 10 fotografias novas de nail art selecionadas no Wikimedia Commons")
+    parser.add_argument("--premium-curated", action="store_true", help="Fotos premium Pexels com IDs públicos, sem API")
     parser.add_argument("--consulta",default="luxury nail art manicure red glitter")
     parser.add_argument("--allow-public-references",action="store_true")
     parser.add_argument("--saida",default="output/photo-video")
@@ -105,7 +112,7 @@ def main():
     args.referencia=list(dict.fromkeys(args.referencia))
     dest=Path(args.saida)
     dest.mkdir(parents=True,exist_ok=True)
-    selected,frames=create_frames(args.referencia,dest,allow_remote=args.allow_public_references,commons_curated=args.commons_curated)
+    selected,frames=create_frames(args.referencia,dest,allow_remote=args.allow_public_references,commons_curated=args.commons_curated,premium_curated=args.premium_curated)
     video=render_video(frames,dest/"final.mp4")
     (dest/"manifest.json").write_text(json.dumps({"count":len(selected),"duration_seconds":10,
        "source_photos":[str(p) for p in selected],"ai_generated":False,
