@@ -15,28 +15,27 @@ import requests
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
 PHOTOS = [
-    # Proven real Pexels photo pages; nail art is the primary subject.
-    # Priority: intricate manicure, highlights, jewellery, professional detail.
-    (10632142, "Gold glitter nail art with elegant star detail"),
-    (38901355, "Delicate pink luxury manicure with flowers"),
-    (31744665, "Natural-light nail art with refined golden details"),
-    (15491629, "Burgundy red manicured hand on gold textile"),
-    (34941684, "Elegant beige manicure with pearls"),
-    (15655125, "Glossy manicure with diamond ring and bokeh"),
-    (30992592, "Elegant ruby red manicure and rings"),
-    (34971921, "Turquoise artistic manicure with pearl ring"),
-    (35533836, "Close-up sophisticated manicured hands with rings"),
-    (39919261, "Clean French manicure and gold ring"),
-    (16363470, "Glitter manicure on soft pink textile"),
-    (29375277, "Burgundy artistic nails and golden earrings"),
-    (34835286, "Pink glitter manicure against luxurious red fabric"),
-    (34373403, "Manicured hands with gold jewellery"),
-    (9393756, "Red manicure and gold jewelry"),
-    (34997574, "French manicure with elegant gold jewelry"),
-    (34997577, "Elegant manicure close-up with a gold ring"),
-    (939836, "Soft pink polished manicure close-up"),
-    (23385307, "Elegant nail art beside lavender flowers"),
-    (5871819, "Intricate decorative nails on green backdrop"),
+    # Bank Luxo Premium 3: new Pexels IDs, prioritizing actual elaborate nail art.
+    (37869420, "Colorful detailed manicure, close-up"),
+    (16363470, "Luxury glitter manicure on pink fabric"),
+    (34871614, "Creative vivid red nail art"),
+    (29375277, "Elegant burgundy manicured nails and jewelry"),
+    (34997577, "Elegant French manicure with gold ring"),
+    (33992618, "High-fashion artistic nail art"),
+    (34835286, "Pink intricate glitter manicure on red fabric"),
+    (23385307, "Delicate artistic nails and flowers"),
+    (39365946, "Elegant manicure and rich red fashion"),
+    (34871553, "Elegant red and white detailed nail design"),
+    (34871606, "Artistic red manicure on blue background"),
+    (34871560, "Stylish red and white manicure"),
+    (34871655, "Red manicure with intricate white design"),
+    (34871570, "Detailed red nails on soft white texture"),
+    (9393756, "Red nail art with gold jewelry"),
+    (34997574, "French manicure and luxurious jewelry"),
+    (5871819, "Intricate decorative nails on green background"),
+    (939836, "Soft pink glitter manicure"),
+    (34835279, "Colorful glitter design close-up"),
+    (34373403, "Elegant hand manicure with gold accessories"),
 ]
 CDN="https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg"
 USER_AGENT="Mozilla/5.0 (compatible; MediaFlowNails/2.4; curated stock photography)"
