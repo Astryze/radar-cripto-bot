@@ -6,9 +6,9 @@ for publication. Model download from Hugging Face is required on first use.
 from functools import lru_cache
 
 GENERAL_POSITIVE = (
-    "A close-up beauty photograph of a manicured hand with painted fingernails.",
-    "A high quality salon photograph showing detailed nail art on fingernails.",
-    "A macro photograph of beautiful polished fingernails and a manicure.",
+    "A professional luxury nail salon close-up photograph with polished fingernails prominently in focus, elegant feminine hand, beautiful nail art and soft studio lighting.",
+    "A premium editorial macro photograph of flawless elaborate nail art on long glossy fingernails, highly detailed designs, tasteful jewelry and clean cuticles.",
+    "A vertical studio beauty photograph of ornate high-end manicured fingernails occupying most of the image, sparkling polish, realistic hands and subtle background.",
 )
 GENERAL_NEGATIVE = (
     "A photograph of food, pizza or a restaurant meal.",
@@ -23,10 +23,10 @@ GENERAL_NEGATIVE = (
     "A photograph of colorful rings on fingers without a manicure.",
 )
 STYLE_PROMPTS = {
-    "vermelhas_elegantes": "A close-up beauty salon photograph of fingernails painted elegant glossy red.",
+    "vermelhas_elegantes": "A premium vertical nail art salon photograph of long elegant glossy deep red and burgundy manicured fingernails prominently in focus, with sophisticated festive gold glitter, delicately painted snowflakes or tartan nail art, studio lighting.",
     "francesinha_delicada": "A close-up manicure beauty photograph of fingernails with classic white French tips.",
     "nude_sofisticadas": "A close-up manicure photograph of fingernails with elegant nude beige nail polish.",
-    "pretas_brilho": "A close-up beauty photograph of fingernails with glossy black nail polish.",
+    "pretas_brilho": "Luxury editorial macro photograph of black and gold geometric nail art on long stiletto fingernails, glossy black pointed tips, refined nude and gold details, clean manicure.",
     "rosa_bebe": "A close-up beauty photograph of fingernails with baby pink nail polish.",
     "almond": "A close-up beauty photograph of long almond shaped polished fingernails.",
     "encapsuladas": "A close-up photograph of encapsulated nail art in fingernails.",
