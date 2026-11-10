@@ -44,3 +44,5 @@ jobs:
           path: output/commons-novos/
           if-no-files-found: warn
           retention-days: 7
+
+# Diagnostic run: investigate Wikimedia Commons candidate rejection.
