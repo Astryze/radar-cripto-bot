@@ -9,6 +9,7 @@ from PIL import Image, ImageOps, ImageFilter, ImageStat
 from quality import evaluate, dhash, is_duplicate
 from visual_guard import check_image
 from pexels_source import iter_candidates
+from openverse_source import iter_candidates as openverse_candidates
 
 API="https://commons.wikimedia.org/w/api.php"
 THEMES={
@@ -93,6 +94,19 @@ def fetch(theme, output):
             print(f"Pexels indisponível: {type(error).__name__}; usando Wikimedia", flush=True)
     else:
         print("PEXELS_API_KEY ausente: Pexels não será consultado", flush=True)
+    if len(images) < 10:
+        print(f"Fonte sem chave: Openverse (Creative Commons); faltam {10-len(images)}", flush=True)
+        try:
+            for photo, attribution in openverse_candidates(theme):
+                # Filter image index metadata before paying CLIP CPU cost.
+                acceptable, _, _ = evaluate(theme, attribution.get("title") or "", {})
+                if not acceptable:
+                    continue
+                approved(photo, attribution)
+                if len(images) >= 10:
+                    break
+        except (requests.RequestException, ValueError) as error:
+            print(f"Openverse indisponível: {type(error).__name__}", flush=True)
     if len(images) < 10:
         print(f"Faltam {10-len(images)} imagens; tentando Wikimedia Commons", flush=True)
     for search in (dict.fromkeys(queries) if len(images) < 10 else []):
