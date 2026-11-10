@@ -6,6 +6,7 @@ pizza, posters, and wine). Source and license attribution are retained.
 import html
 import json
 import re
+import time
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlparse
@@ -61,7 +62,7 @@ def image_host_ok(url):
     p=urlparse(url or "")
     h=(p.hostname or "").lower()
     return p.scheme=="https" and p.port in (None,443) and not p.username and not p.password and (
-        h=="upload.wikimedia.org" or h.endswith(".upload.wikimedia.org"))
+        h in {"upload.wikimedia.org","thumb.wikimedia.org"} or h.endswith(".upload.wikimedia.org"))
 
 def fetch_curated(folder, *, minimum=10, session=None):
     """Collect unique, attribution-eligible actual nail photographs.
@@ -78,7 +79,7 @@ def fetch_curated(folder, *, minimum=10, session=None):
         batch=PREFERRED[i:i+10]
         params={"action":"query", "prop":"imageinfo",
                 "iiprop":"url|extmetadata|size|mime",
-                "iiurlwidth":1120, "format":"json","formatversion":"2",
+                "iiurlwidth":900, "format":"json","formatversion":"2",
                 "titles":"|".join("File:"+f for f in batch)}
         try:
             resp=session.get(API,params=params,headers={"User-Agent":USER_AGENT},timeout=35)
@@ -103,8 +104,13 @@ def fetch_curated(folder, *, minimum=10, session=None):
                 print(f"SKIP_HOST {name}: {(url or '')[:90]}",flush=True)
                 continue
             try:
-                img_response=session.get(url,headers={"User-Agent":USER_AGENT},
-                                         timeout=40,allow_redirects=False)
+                img_response=None
+                for retry in range(3):
+                    img_response=session.get(url,headers={"User-Agent":USER_AGENT},
+                                             timeout=40,allow_redirects=False)
+                    if img_response.status_code not in (429, 503):
+                        break
+                    time.sleep(3*(retry+1))
                 if img_response.status_code!=200 or len(img_response.content)>15_000_000:
                     print(f"SKIP_FETCH {name}: HTTP {img_response.status_code}; bytes={len(img_response.content)}",flush=True)
                     continue
@@ -131,6 +137,7 @@ def fetch_curated(folder, *, minimum=10, session=None):
                     "author":field(metadata,"Artist"), "license":field(metadata,"LicenseShortName"),
                     "license_url":field(metadata,"LicenseUrl"),"original_title":name})
                 print(f"NEW_NAIL_PHOTO {len(photos)}/{minimum}: {name}",flush=True)
+                time.sleep(0.7)
             except (OSError,requests.RequestException,ValueError):
                 continue
         if len(photos)>=minimum:
