@@ -15,21 +15,21 @@ import requests
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
 PHOTOS = [
-    # Segunda seleção com fontes verificadas; sem repetir fotos publicadas.
-    (9393229, "Manicure azul em cetim rosa com joias e brilho"),
-    (35440213, "Múltiplas manicures artísticas com composição floral"),
-    (15343609, "Manicure artística com flor branca em fundo vermelho"),
-    (32000096, "Unhas douradas em mãos com visual de moda"),
-    (31802920, "Manicure artística ao lado de flores de cerejeira"),
-    (34835279, "Nail art colorida brilhante em close-up"),
-    (5871312, "Nail art multicolorida com glitter"),
-    (12380772, "Unhas verdes elegantes com anel dourado"),
-    (34997575, "Francesinha com joias sofisticadas"),
-    (1824983, "Manicure preta com rosa branca"),
-    (9697755, "Nail art azul com detalhes prateados"),
-    (5871920, "Manicure criativa de contraste"),
-    (939836, "Manicure rosa com glitter"),
-    (31802920, "Unhas artísticas com flores delicadas"),
+    # Candidate replacement collection. These photo IDs have not appeared
+    # in a MediaFlow video; do not mix them with used-photo history.
+    (34871570, "Detailed red nail art on soft white fabric"),
+    (34871595, "Red and white nail decoration close-up"),
+    (34835280, "Pink nail art on crimson textile"),
+    (37563147, "Elegant manicure with gold rings and bead accents"),
+    (33992545, "Close-up elaborate artistic nails and stylish jewellery"),
+    (36574618, "Patterned manicure hands and fashion fabric"),
+    (34871655, "Decorative red manicure on soft white fabric"),
+    (34871560, "Detailed red-and-white salon nail design"),
+    (34871606, "Detailed manicure red-and-white pattern"),
+    (34871553, "Bright nail art detail with white decoration"),
+    (8872320, "Pink polished nails close-up in natural light"),
+    (16347200, "Bright colorful manicure and jewelry"),
+    (15271192, "Artistic glitter nail design on red background"),
 ]
 CDN="https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg"
 USER_AGENT="Mozilla/5.0 (compatible; MediaFlowNails/2.4; curated stock photography)"
