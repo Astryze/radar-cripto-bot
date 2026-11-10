@@ -15,27 +15,28 @@ import requests
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
 PHOTOS = [
-    # unique visual subjects, manually selected public Pexels stock pages
-    (35491156,"Elegant nude and glitter manicure with floral accents"),
-    (34871734,"Red and white artistic manicure with gold ring"),
-    (38784151,"Gold and white glitter manicure with jewelry"),
-    (34941688,"Gold and white floral nail design"),
-    (36207029,"Green and gold leaf nail art"),
-    (35032001,"Hand with glitter manicure and ornate ring"),
-    (34835283,"Pink glitter artistic nail art"),
-    (28712961,"Elegant crystal accent acrylic manicure"),
-    (34885845,"Red artistic nails with a gold ring"),
-    (35031996,"Intricate pink nails with gold ring"),
-    (34835286,"Pink nails and glitter on red fabric"),
-    (34373403,"Elegant manicured hands and gold jewelry"),
-    (34835279,"Colorful glitter manicure with hand"),
-    (16363470,"Elegant nails with glitter against pink fabric"),
-    (939836,"Pink manicure close-up with glitter"),
-    (23385307,"Hands and lilac blossoms showing nail art"),
-    (5871819,"Intricate decorative nails on green surface"),
-    (34835280,"Hand with manicure and jewelry on red fabric"),
-    (9393756,"Red manicured hands and gold jewelry"),
-    (29375277,"Burgundy nails with gold earrings"),
+    # Proven real Pexels photo pages; nail art is the primary subject.
+    # Priority: intricate manicure, highlights, jewellery, professional detail.
+    (10632142, "Gold glitter nail art with elegant star detail"),
+    (38901355, "Delicate pink luxury manicure with flowers"),
+    (31744665, "Natural-light nail art with refined golden details"),
+    (15491629, "Burgundy red manicured hand on gold textile"),
+    (34941684, "Elegant beige manicure with pearls"),
+    (15655125, "Glossy manicure with diamond ring and bokeh"),
+    (30992592, "Elegant ruby red manicure and rings"),
+    (34971921, "Turquoise artistic manicure with pearl ring"),
+    (35533836, "Close-up sophisticated manicured hands with rings"),
+    (39919261, "Clean French manicure and gold ring"),
+    (16363470, "Glitter manicure on soft pink textile"),
+    (29375277, "Burgundy artistic nails and golden earrings"),
+    (34835286, "Pink glitter manicure against luxurious red fabric"),
+    (34373403, "Manicured hands with gold jewellery"),
+    (9393756, "Red manicure and gold jewelry"),
+    (34997574, "French manicure with elegant gold jewelry"),
+    (34997577, "Elegant manicure close-up with a gold ring"),
+    (939836, "Soft pink polished manicure close-up"),
+    (23385307, "Elegant nail art beside lavender flowers"),
+    (5871819, "Intricate decorative nails on green backdrop"),
 ]
 CDN="https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg"
 USER_AGENT="Mozilla/5.0 (compatible; MediaFlowNails/2.4; curated stock photography)"
