@@ -5,7 +5,8 @@ from pathlib import Path
 from io import BytesIO
 from urllib.parse import urlparse
 import requests
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFilter, ImageStat
+from quality import evaluate, dhash, is_duplicate
 
 API="https://commons.wikimedia.org/w/api.php"
 THEMES={
@@ -40,37 +41,37 @@ THEMES={
 "francesinha_reversa":"reverse french manicure nails",
 "luxo_3d":"3d luxury nail art"}
 def fetch(theme, output):
-    """Search multiple nail-specific Wikimedia queries before giving up."""
+    """Only collect high-resolution nail photos demonstrably matching the theme."""
     output.mkdir(parents=True, exist_ok=True)
     session = requests.Session()
-    agent = {"User-Agent": "MediaFlowUnhas/0.6 (GitHub: Astryze/radar-cripto-bot; Wikimedia Commons image retrieval)"}
+    agent = {"User-Agent": "MediaFlowUnhas/0.8 (GitHub: Astryze/radar-cripto-bot; strict thematic image retrieval)"}
     base = {
         "action": "query", "generator": "search", "gsrnamespace": 6,
         "gsrlimit": 50, "prop": "imageinfo", "iiprop": "url|extmetadata|mime",
-        "iiurlwidth": 1200, "format": "json", "formatversion": 2
+        "iiurlwidth": 1600, "format": "json", "formatversion": 2
     }
-    queries = [
-        THEMES[theme], THEMES[theme].replace("elegant ", ""),
-        "red nail art", "red nail polish", "red manicure", "manicure fingernails",
-        "nail art", "manicure", "painted fingernails", "nail polish"
-    ] if theme == "vermelhas_elegantes" else [
-        THEMES[theme], "nail art", "manicure", "painted fingernails", "nail polish"
-    ]
-    images, credits, seen, examined = [], [], set(), set()
+    if theme == "vermelhas_elegantes":
+        queries = ["red manicure nails", "red nail art", "red fingernails manicure",
+                   "red gel manicure", "red painted nails", "red nail designs"]
+    else:
+        queries = [THEMES[theme], THEMES[theme] + " close-up", THEMES[theme] + " design"]
+    images, credits, hashes, examined = [], [], [], set()
     for search in dict.fromkeys(queries):
-        print(f"Buscando fotos: {search}", flush=True)
-        query = {**base, "gsrsearch": search}
+        print(f"Busca temática: {search}", flush=True)
         try:
-            resp = session.get(API, params=query, headers=agent, timeout=30)
+            resp = session.get(API, params={**base, "gsrsearch": search}, headers=agent, timeout=30)
             resp.raise_for_status()
             pages = resp.json().get("query", {}).get("pages", [])
         except (requests.RequestException, ValueError) as exc:
-            print(f"Busca indisponível: {type(exc).__name__}", flush=True)
+            print(f"Fonte indisponível: {type(exc).__name__}", flush=True)
             continue
+        ranked = []
         for page in pages:
-            if len(images) >= 10:
-                break
             item = (page.get("imageinfo") or [{}])[0]
+            meta = item.get("extmetadata") or {}
+            eligible, score, reason = evaluate(theme, page.get("title", ""), meta)
+            if not eligible:
+                continue
             url = item.get("thumburl") or item.get("url")
             host = urlparse(url).hostname if url else ""
             if not host or not (host == "wikimedia.org" or host.endswith(".wikimedia.org")):
@@ -80,41 +81,53 @@ def fetch(theme, output):
             if item.get("descriptionurl") in examined:
                 continue
             examined.add(item.get("descriptionurl"))
+            ranked.append((score, item, meta, url))
+        ranked.sort(reverse=True, key=lambda row: row[0])
+        for score, item, meta, url in ranked:
+            if len(images) >= 10:
+                break
             try:
-                r = session.get(url, headers=agent, timeout=25)
-                r.raise_for_status()
-                if len(r.content) > 12_000_000:
+                response = session.get(url, headers=agent, timeout=25)
+                response.raise_for_status()
+                if len(response.content) > 15_000_000:
                     continue
-                with Image.open(BytesIO(r.content)) as im:
-                    im = ImageOps.exif_transpose(im).convert("RGB")
-                    if min(im.size) < 320:
-                        continue
-                    # Robust against differently recompressed copies.
-                    small = im.resize((64, 64))
-                    digest = hashlib.sha256(small.tobytes()).hexdigest()
-                    if digest in seen:
-                        continue
-                    seen.add(digest)
-                    f = output / f"{len(images)+1:02}.jpg"
-                    im.save(f, quality=91)
-                images.append(f)
-                metadata = item.get("extmetadata") or {}
+                with Image.open(BytesIO(response.content)) as original:
+                    im = ImageOps.exif_transpose(original).convert("RGB")
+                if min(im.size) < 700 or im.width * im.height < 900_000:
+                    continue
+                ratio = im.width / im.height
+                if ratio < 0.55 or ratio > 1.6:
+                    continue
+                # Reject largely flat/blurry photos. A score is not a semantic
+                # vision classifier, so manual preview is still recommended.
+                edge_variation = ImageStat.Stat(im.resize((256, 256)).filter(ImageFilter.FIND_EDGES).convert("L")).stddev[0]
+                if edge_variation < 11:
+                    continue
+                visual_hash = dhash(im)
+                if is_duplicate(visual_hash, hashes):
+                    continue
+                hashes.append(visual_hash)
+                file = output / f"{len(images) + 1:02}.jpg"
+                im.save(file, quality=94)
+                images.append(file)
                 def field(key):
-                    return html.unescape(re.sub(r"<[^>]+>", "", metadata.get(key, {}).get("value", "")))[:500]
-                credits.append({"file": f.name, "source": item.get("descriptionurl"),
+                    return html.unescape(re.sub(r"<[^>]+>", "", meta.get(key, {}).get("value", "")))[:500]
+                credits.append({
+                    "file": file.name, "source": item.get("descriptionurl"),
                     "license": field("LicenseShortName"), "license_url": field("LicenseUrl"),
-                    "artist": field("Artist"), "search_term": search})
+                    "artist": field("Artist"), "relevance_score": score,
+                    "edge_variation": round(edge_variation, 2), "search_term": search,
+                })
             except (requests.RequestException, OSError, ValueError):
                 continue
-        print(f"Fotos distintas acumuladas: {len(images)}", flush=True)
+        print(f"Fotos qualificadas: {len(images)}/10", flush=True)
         if len(images) >= 10:
             break
-    (output / "credits.json").write_text(
-        json.dumps(credits, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    (output / "credits.json").write_text(json.dumps(credits, ensure_ascii=False, indent=2), encoding="utf-8")
     if len(images) < 10:
-        raise RuntimeError(f"Somente {len(images)} fotos distintas encontradas; não criar vídeo incompleto")
+        raise RuntimeError(f"Qualidade insuficiente: somente {len(images)} de 10 fotos de unhas aprovadas; não completar com imagens aleatórias")
     return images
+
 def render(images,out,effect):
     if len(images)<10:raise ValueError("Mínimo de 10 imagens")
     if effect not in {"zoom","fade","cortes"}:raise ValueError("Efeito inválido")
