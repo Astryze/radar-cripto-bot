@@ -46,3 +46,5 @@ jobs:
           retention-days: 7
 
 # Diagnostic run: investigate Wikimedia Commons candidate rejection.
+
+# Fix: thumbnails from thumb.wikimedia.org are genuine Commons files.
