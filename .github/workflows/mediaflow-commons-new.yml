@@ -14,7 +14,7 @@ on:
         type: boolean
         default: false
 permissions:
-  contents: read
+  contents: write
 jobs:
   gerar-video:
     runs-on: ubuntu-latest
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -42,6 +42,21 @@ jobs:
           args=(--commons-curated --saida output/commons-novos)
           if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
           python mediaflow_unhas/photo_video.py "${args[@]}"
+      - name: Registrar fotos usadas para evitar repetição em próximos vídeos
+        if: success()
+        run: |
+          python mediaflow_unhas/update_photo_history.py \
+            --credits output/commons-novos/sources/source_credits.json \
+            --source-dir output/commons-novos/sources
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mediaflow_unhas/used_photo_history.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(mediaflow): record source photos used in approved nail video [skip ci]"
+            if ! git push origin HEAD:feature/mediaflow-unhas-v04; then
+              echo "::warning::Não foi possível persistir histórico. Antes da próxima produção, registre as imagens usadas."
+            fi
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
