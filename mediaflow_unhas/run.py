@@ -40,38 +40,80 @@ THEMES={
 "francesinha_reversa":"reverse french manicure nails",
 "luxo_3d":"3d luxury nail art"}
 def fetch(theme, output):
-    output.mkdir(parents=True,exist_ok=True)
-    session=requests.Session()
-    agent={"User-Agent":"MediaFlowUnhas/0.4 (noncommercial experimental image index; contact repository owner)"}
-    query={"action":"query","generator":"search","gsrsearch":"filetype:bitmap "+THEMES[theme],
-           "gsrnamespace":6,"gsrlimit":50,"prop":"imageinfo","iiprop":"url|extmetadata|mime",
-           "iiurlwidth":1200,"format":"json","formatversion":2}
-    resp=session.get(API,params=query,headers=agent,timeout=30);resp.raise_for_status()
-    images=[]; credits=[]; seen=set()
-    for page in resp.json().get("query",{}).get("pages",[]):
-        if len(images)>=10:break
-        item=(page.get("imageinfo") or [{}])[0]
-        url=item.get("thumburl") or item.get("url")
-        host=urlparse(url).hostname if url else ""
-        if not host or not (host=="wikimedia.org" or host.endswith(".wikimedia.org")):continue
-        if item.get("mime") not in {"image/jpeg","image/png","image/webp"}:continue
+    """Search multiple nail-specific Wikimedia queries before giving up."""
+    output.mkdir(parents=True, exist_ok=True)
+    session = requests.Session()
+    agent = {"User-Agent": "MediaFlowUnhas/0.6 (GitHub: Astryze/radar-cripto-bot; Wikimedia Commons image retrieval)"}
+    base = {
+        "action": "query", "generator": "search", "gsrnamespace": 6,
+        "gsrlimit": 50, "prop": "imageinfo", "iiprop": "url|extmetadata|mime",
+        "iiurlwidth": 1200, "format": "json", "formatversion": 2
+    }
+    queries = [
+        THEMES[theme], THEMES[theme].replace("elegant ", ""),
+        "red nail art", "red nail polish", "red manicure", "manicure fingernails",
+        "nail art", "manicure", "painted fingernails", "nail polish"
+    ] if theme == "vermelhas_elegantes" else [
+        THEMES[theme], "nail art", "manicure", "painted fingernails", "nail polish"
+    ]
+    images, credits, seen, examined = [], [], set(), set()
+    for search in dict.fromkeys(queries):
+        print(f"Buscando fotos: {search}", flush=True)
+        query = {**base, "gsrsearch": search}
         try:
-            r=session.get(url,headers=agent,timeout=25);r.raise_for_status()
-            if len(r.content)>12_000_000:continue
-            with Image.open(BytesIO(r.content)) as im:
-                im=ImageOps.exif_transpose(im).convert("RGB")
-                if im.width<320 or im.height<320:continue
-                f=output/f"{len(images)+1:02}.jpg"; im.save(f,quality=91)
-            digest=hashlib.sha256(f.read_bytes()).hexdigest()
-            if digest in seen:f.unlink();continue
-            seen.add(digest);images.append(f)
-            metadata=item.get("extmetadata") or {}
-            def field(key):return html.unescape(re.sub(r"<[^>]+>","",metadata.get(key,{}).get("value","")))[:500]
-            credits.append({"file":f.name,"source":item.get("descriptionurl"),"license":field("LicenseShortName"),
-                             "license_url":field("LicenseUrl"),"artist":field("Artist")})
-        except (requests.RequestException,OSError,ValueError):continue
-    (output/"credits.json").write_text(json.dumps(credits,ensure_ascii=False,indent=2),encoding="utf-8")
-    if len(images)<10:raise RuntimeError(f"Somente {len(images)} fotos distintas encontradas; não criar vídeo incompleto")
+            resp = session.get(API, params=query, headers=agent, timeout=30)
+            resp.raise_for_status()
+            pages = resp.json().get("query", {}).get("pages", [])
+        except (requests.RequestException, ValueError) as exc:
+            print(f"Busca indisponível: {type(exc).__name__}", flush=True)
+            continue
+        for page in pages:
+            if len(images) >= 10:
+                break
+            item = (page.get("imageinfo") or [{}])[0]
+            url = item.get("thumburl") or item.get("url")
+            host = urlparse(url).hostname if url else ""
+            if not host or not (host == "wikimedia.org" or host.endswith(".wikimedia.org")):
+                continue
+            if item.get("mime") not in {"image/jpeg", "image/png", "image/webp"}:
+                continue
+            if item.get("descriptionurl") in examined:
+                continue
+            examined.add(item.get("descriptionurl"))
+            try:
+                r = session.get(url, headers=agent, timeout=25)
+                r.raise_for_status()
+                if len(r.content) > 12_000_000:
+                    continue
+                with Image.open(BytesIO(r.content)) as im:
+                    im = ImageOps.exif_transpose(im).convert("RGB")
+                    if min(im.size) < 320:
+                        continue
+                    # Robust against differently recompressed copies.
+                    small = im.resize((64, 64))
+                    digest = hashlib.sha256(small.tobytes()).hexdigest()
+                    if digest in seen:
+                        continue
+                    seen.add(digest)
+                    f = output / f"{len(images)+1:02}.jpg"
+                    im.save(f, quality=91)
+                images.append(f)
+                metadata = item.get("extmetadata") or {}
+                def field(key):
+                    return html.unescape(re.sub(r"<[^>]+>", "", metadata.get(key, {}).get("value", "")))[:500]
+                credits.append({"file": f.name, "source": item.get("descriptionurl"),
+                    "license": field("LicenseShortName"), "license_url": field("LicenseUrl"),
+                    "artist": field("Artist"), "search_term": search})
+            except (requests.RequestException, OSError, ValueError):
+                continue
+        print(f"Fotos distintas acumuladas: {len(images)}", flush=True)
+        if len(images) >= 10:
+            break
+    (output / "credits.json").write_text(
+        json.dumps(credits, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    if len(images) < 10:
+        raise RuntimeError(f"Somente {len(images)} fotos distintas encontradas; não criar vídeo incompleto")
     return images
 def render(images,out,effect):
     if len(images)<10:raise ValueError("Mínimo de 10 imagens")
