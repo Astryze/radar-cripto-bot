@@ -55,6 +55,20 @@ def auto_references(theme, folder, limit=6):
         json.dumps(credited, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     if not result:
+        print("Openverse vazio/indisponível; tentando Wikimedia Commons como fonte de referência", flush=True)
+        try:
+            from .run import fetch as fetch_wikimedia
+        except ImportError:
+            from run import fetch as fetch_wikimedia
+        try:
+            fetch_wikimedia(theme, folder)
+        except RuntimeError as exc:
+            if "Qualidade insuficiente" not in str(exc):
+                raise
+        result = sorted(p for p in folder.glob("*.jpg") if p.is_file())
+        if result:
+            print(f"Wikimedia: {len(result)} referências de unha recuperadas", flush=True)
+    if not result:
         raise RuntimeError("Nenhuma referência de manicure disponível com licença e qualidade adequadas")
     return result
 
