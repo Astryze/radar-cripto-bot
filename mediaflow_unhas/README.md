@@ -11,3 +11,14 @@ A fonte Commons nem sempre contém 10 imagens por tema. Nesses casos a execuçã
 Execução de entrega: 10 fotos distintas encontradas na Wikimedia Commons; workflow habilitado para envio Telegram em execução manual ou commit sinalizado.
 
 <!-- Execução de teste com filtro rígido e envio Telegram solicitada em 2026-11-10. -->
+
+
+## Imagens de qualidade (v0.9)
+
+O fluxo tenta **Pexels -> Wikimedia Commons -> ComfyUI local (opcional)**. Todas as fotografias são avaliadas pelo modelo visual CLIP e filtros de nitidez, resolução e duplicidade. **Se não conseguir dez imagens aprovadas, não gera vídeo e não envia ao Telegram.**
+
+- Para ativar o Pexels no GitHub Actions, adicione o segredo **PEXELS_API_KEY** em *Settings -> Secrets and variables -> Actions -> New repository secret*. A API oferece acesso gratuito conforme suas condições. Sem essa chave, a execução registra que Pexels foi ignorado.
+- O fluxo do GitHub público não hospeda uma instância ComfyUI. Para gerar imagens por IA, rode o programa em uma máquina local ou runner próprio com ComfyUI instalado e configure **COMFYUI_WORKFLOW** como caminho do workflow JSON exportado em formato API, contendo os marcadores `{{PROMPT}}` e `{{SEED}}`. O endereço **COMFYUI_SERVER** deve ser local (`http://127.0.0.1:8188`).
+- O Telegram não recebe prévias de commits automáticos. Envio somente pelo acionamento manual do workflow com `enviar_telegram=true` ou execução local com `--enviar-telegram`.
+- São preservados créditos/licenças nos arquivos `credits.json`; revisar direitos de uso e as imagens antes da publicação final.
+- O modelo visual ajuda a eliminar fotos de objetos aleatórios, mas não garante sozinho beleza editorial nem correspondência perfeita de estilo.
