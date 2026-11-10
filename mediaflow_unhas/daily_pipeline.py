@@ -6,12 +6,9 @@ quality checks pass. No paid image/video generation service is required.
 This is public-photo curation, NOT automatic ChatGPT image generation.
 """
 import argparse
-import hashlib
 import json
 import os
-import re
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
@@ -94,7 +91,9 @@ def clip_gate():
 
 def collect(outdir, history, quality_check, minimum=10):
     outdir.mkdir(parents=True,exist_ok=True)
-    images=[];credits=[];hashes=[]
+    images=[]
+    credits=[]
+    hashes=[]
     rejected={}
     for theme in SEARCHES:
         # All Openverse images are license-filtered, attribution retained.
