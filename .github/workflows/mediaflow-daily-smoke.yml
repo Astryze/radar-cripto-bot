@@ -1,0 +1,35 @@
+name: MediaFlow Unhas — Teste da coleta diária
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - '.github/workflows/mediaflow-daily-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar ferramentas
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q Pillow requests 'transformers>=4.45,<5' 'torch>=2.4'
+      - name: Testar curadoria real e MP4 sem enviar ao Telegram
+        run: |
+          python mediaflow_unhas/daily_pipeline.py --slot manha --dry-run --output output/daily-smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-daily-smoke-${{ github.run_id }}
+          path: output/daily-smoke/
+          if-no-files-found: warn
+          retention-days: 3
