@@ -10,14 +10,16 @@ import subprocess
 from urllib.parse import quote
 from pathlib import Path
 
-from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageStat
+from PIL import Image, ImageOps, ImageFilter, ImageStat
 
 try:
     from .reference_collector import collect
     from .quality import dhash, is_duplicate
+    from .photo_finish import finish, photo_metrics, quality_score
 except ImportError:
     from reference_collector import collect
     from quality import dhash, is_duplicate
+    from photo_finish import finish, photo_metrics, quality_score
 
 def create_frames(sources, output, *, allow_remote=False, count=10, commons_curated=False):
     """Require 10 distinct input photos, fail closed instead of repeating photos."""
@@ -56,12 +58,15 @@ def create_frames(sources, output, *, allow_remote=False, count=10, commons_cura
     for idx, photo in enumerate(selected, 1):
         with Image.open(photo) as raw:
             image = ImageOps.exif_transpose(raw).convert("RGB")
-            # Preserve entire photo, subtly blur the background to fit a 9:16 canvas.
-            bg = ImageOps.fit(image,(720,1280),Image.Resampling.LANCZOS)
-            bg=ImageEnhance.Brightness(bg.filter(ImageFilter.GaussianBlur(38))).enhance(0.55)
-            fg = ImageOps.contain(image,(706,1266),Image.Resampling.LANCZOS)
-            bg.paste(fg,((720-fg.width)//2,(1280-fg.height)//2))
-            bg.save(folder/f"frame_{idx:02d}.jpg",quality=93)
+            # Keep every fingernail visible; soft editorial treatment on copies.
+            finish(image).save(folder/f"frame_{idx:02d}.jpg",quality=95,subsampling=0)
+    report=[]
+    for i, photo in enumerate(selected,1):
+        with Image.open(photo) as raw:
+            metrics=photo_metrics(raw)
+        report.append({"scene":i,"original":str(photo),"quality_score":quality_score(metrics),**metrics})
+    (output/"visual_quality_report.json").write_text(
+        json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
     return selected, folder
 
 def render_video(frames, output, *, seconds=10):
