@@ -4,6 +4,9 @@ on:
     branches: [feature/mediaflow-unhas-v04]
     paths:
       - '.github/workflows/mediaflow-commons-new.yml'
+      - 'mediaflow_unhas/photo_finish.py'
+      - 'mediaflow_unhas/photo_video.py'
+      - 'mediaflow_unhas/commons_category_source.py'
   workflow_dispatch:
     inputs:
       enviar_telegram:
@@ -27,7 +30,9 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          python -m pip install Pillow requests
+          python -m pip install Pillow requests pytest
+      - name: Testar acabamento, formato e validação
+        run: python -m pytest -q mediaflow_unhas/test_photo_finish.py
       - name: Baixar fotografias novas e montar MP4 sem IA
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
