@@ -3,7 +3,6 @@
 A test only: NEVER publishes generated nail imagery to Telegram or TikTok.
 """
 import json
-import os
 from pathlib import Path
 
 from PIL import Image, ImageDraw
