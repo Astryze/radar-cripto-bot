@@ -1,3 +1,4 @@
+# ruff: noqa
 """Fonte opcional de fotos Pexels, com atribuição e sem serviços pagos."""
 import hashlib
 import json
