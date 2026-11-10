@@ -13,6 +13,7 @@ from PIL import Image, ImageOps, ImageFilter
 try:
     from .horde_provider import generate as horde_generate
     from .hf_provider import generate as hf_generate
+    from .cpu_provider import generate as cpu_generate
     from .reference_collector import collect
     from .quality import dhash, is_duplicate
     from .visual_guard import STYLE_PROMPTS, check_image
@@ -20,6 +21,7 @@ try:
 except ImportError:
     from horde_provider import generate as horde_generate
     from hf_provider import generate as hf_generate
+    from cpu_provider import generate as cpu_generate
     from reference_collector import collect
     from quality import dhash, is_duplicate
     from visual_guard import STYLE_PROMPTS, check_image
@@ -103,7 +105,9 @@ def create_video(theme, references, destination, *, allow_public=False,
         )
         try:
             seed = random.SystemRandom().randint(1, 2**31-1)
-            if os.getenv("HF_TOKEN", "").strip():
+            if os.getenv("IMAGE_PROVIDER", "").lower() == "cpu":
+                im, info = cpu_generate(source, prompt, seed=seed)
+            elif os.getenv("HF_TOKEN", "").strip():
                 try:
                     im, info = hf_generate(source, prompt, seed=seed)
                 except Exception as hf_error:
@@ -163,6 +167,7 @@ def create_video(theme, references, destination, *, allow_public=False,
 def main():
     parser = argparse.ArgumentParser(description="AI Horde: referência -> dez novas unhas -> MP4")
     parser.add_argument("--tema", choices=sorted(STYLE_PROMPTS), default="vermelhas_elegantes")
+    parser.add_argument("--provider", choices=("auto", "cpu"), default="auto")
     parser.add_argument("--referencia", action="append", default=[])
     parser.add_argument("--allow-public-references", action="store_true")
     parser.add_argument("--auto-references", action="store_true")
@@ -172,6 +177,8 @@ def main():
     parser.add_argument("--max-attempts", type=int, default=26)
     parser.add_argument("--timeout-per-image", type=int, default=360)
     args = parser.parse_args()
+    if args.provider == "cpu":
+        os.environ["IMAGE_PROVIDER"] = "cpu"
     print(create_video(args.tema, args.referencia, args.saida,
                        allow_public=args.allow_public_references,
                        automatic=args.auto_references, effect=args.efeito,
