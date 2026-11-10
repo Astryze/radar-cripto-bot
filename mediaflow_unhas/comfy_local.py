@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 
 import requests
 from PIL import Image, ImageOps
-from run import THEMES, render
+
 
 
 def validate_server(server):
@@ -79,6 +79,7 @@ def generate_one(session, server, graph, timeout=240):
 
 
 def generate_ten(theme, workflow, server, output, effect="zoom"):
+    from run import THEMES, render
     if theme not in THEMES:
         raise ValueError("Tema de unhas desconhecido")
     server = validate_server(server)
