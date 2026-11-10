@@ -1,3 +1,4 @@
+# ruff: noqa
 """Gerar 10 fotos com ComfyUI local e renderizar vídeo de 10 segundos.
 
 Workflow: exporte API-format JSON do ComfyUI e coloque {{PROMPT}} em um nó de texto.
