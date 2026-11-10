@@ -124,10 +124,12 @@ def collect(outdir, history, quality_check, minimum=10):
                 credits.append({**meta,"file":dest.name,"visual_margin":margin,
                                 "perceptual_hash":f"{signature:016x}"})
                 print(f"APPROVED {len(images)}/{minimum}: {theme} {source[:80]}",flush=True)
-                if len(images)>=minimum: break
+                if len(images)>=minimum:
+                    break
         except (requests.RequestException,ValueError,RuntimeError) as exc:
             print(f"Fonte {theme} falhou: {type(exc).__name__}",flush=True)
-        if len(images)>=minimum: break
+        if len(images)>=minimum:
+            break
     print("Rejected reasons",rejected,flush=True)
     (outdir/"credits.json").write_text(json.dumps(credits,ensure_ascii=False,indent=2),encoding="utf-8")
     if len(images)!=minimum:
