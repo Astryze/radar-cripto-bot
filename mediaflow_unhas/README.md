@@ -7,3 +7,5 @@ Execute manualmente em **Actions > MediaFlow Unhas > Run workflow**. Se houver a
 A fonte Commons nem sempre contém 10 imagens por tema. Nesses casos a execução falha, em vez de repetir fotos. Confira credits.json e licenças antes de usar comercialmente. Geração por IA (ComfyUI) e bot de comandos em tempo real estão no pacote local MediaFlow v0.4; GitHub Actions não executa o ComfyUI sem GPU. Este módulo não publica TikToks.
 
 <!-- Execução solicitada em 2026-11-10; envio de prévia ao Telegram, se o workflow iniciar. -->
+
+Execução de entrega: 10 fotos distintas encontradas na Wikimedia Commons; workflow habilitado para envio Telegram em execução manual ou commit sinalizado.
