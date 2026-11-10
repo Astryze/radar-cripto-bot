@@ -4,7 +4,6 @@ Never inserts source images directly into the output video.
 """
 import argparse
 import json
-import os
 import random
 from pathlib import Path
 
