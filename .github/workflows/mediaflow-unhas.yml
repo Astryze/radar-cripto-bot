@@ -49,6 +49,7 @@ jobs:
           TEMA: ${{ inputs.tema }}
           EFEITO: ${{ inputs.efeito }}
           ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
