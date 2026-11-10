@@ -1,5 +1,10 @@
 name: MediaFlow Unhas
 on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - 'mediaflow_unhas/**'
+      - '.github/workflows/mediaflow-unhas.yml'
   workflow_dispatch:
     inputs:
       tema:
@@ -43,7 +48,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          args=(--tema "$TEMA" --efeito "$EFEITO" --work output)
+          args=(--tema "${TEMA:-vermelhas_elegantes}" --efeito "${EFEITO:-zoom}" --work output)
           if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
           python mediaflow_unhas/run.py "${args[@]}"
       - uses: actions/upload-artifact@v4
