@@ -1,6 +1,6 @@
 # ruff: noqa
 """MediaFlow Unhas: 10 fotos diferentes em 10 segundos. Somente ferramentas gratuitas."""
-import argparse, hashlib, html, json, os, re, subprocess, tempfile, uuid
+import argparse, hashlib, html, json, os, re, subprocess, tempfile, uuid, random
 from pathlib import Path
 from io import BytesIO
 from urllib.parse import urlparse
@@ -144,6 +144,38 @@ def fetch(theme, output):
         print(f"Fotos qualificadas: {len(images)}/10", flush=True)
         if len(images) >= 10:
             break
+    # Optional local ComfyUI generation: github.com hosted runners have no local
+    # ComfyUI service, so this only activates on a configured local/self-hosted runner.
+    if len(images) < 10 and os.getenv("COMFYUI_WORKFLOW", "").strip():
+        from comfy_local import validate_server, prepare_workflow, generate_one
+        from visual_guard import STYLE_PROMPTS
+        workflow_path = Path(os.environ["COMFYUI_WORKFLOW"])
+        if not workflow_path.is_file():
+            raise RuntimeError("COMFYUI_WORKFLOW aponta para um JSON inexistente")
+        template_text = workflow_path.read_text(encoding="utf-8")
+        if "{{PROMPT}}" not in template_text or "{{SEED}}" not in template_text:
+            raise RuntimeError("ComfyUI requer {{PROMPT}} e {{SEED}} no workflow API JSON")
+        template = json.loads(template_text)
+        url = validate_server(os.getenv("COMFYUI_SERVER", "http://127.0.0.1:8188"))
+        session_ai = requests.Session()
+        generated = 0
+        attempts = max(6, (10 - len(images)) * 3)
+        for attempt in range(attempts):
+            if len(images) >= 10:
+                break
+            prompt = (STYLE_PROMPTS[theme] + " Professional macro beauty editorial, "
+                "nails occupy 70 percent of the frame, clean cuticles, photorealistic "
+                "manicure, carefully detailed salon quality, vertical portrait 9:16, "
+                f"variation {attempt+1}, no text, no logos, no watermark.")
+            graph = prepare_workflow(template, prompt, random.SystemRandom().randint(1, 2**48))
+            try:
+                im = generate_one(session_ai, url, graph, timeout=240)
+            except (requests.RequestException, RuntimeError, TimeoutError) as error:
+                print(f"ComfyUI indisponível: {type(error).__name__}", flush=True)
+                break
+            if approved(im, {"provider": "comfyui", "source": "AI generated locally", "ai_generated": True, "prompt": prompt}):
+                generated += 1
+        print(f"ComfyUI: {generated} imagens de unhas visualmente aprovadas", flush=True)
     (output / "credits.json").write_text(json.dumps(credits, ensure_ascii=False, indent=2), encoding="utf-8")
     if len(images) < 10:
         raise RuntimeError(f"Qualidade insuficiente: somente {len(images)} de 10 fotos de unhas aprovadas; não completar com imagens aleatórias")
