@@ -124,7 +124,7 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
       - name: Avisar se não houver dez fotos decoradas aprovadas
-        if: failure() && steps.render.outcome == 'failure' && env.SEND == 'true'
+        if: failure() && steps.render.outcome == 'failure' && env.SEND == 'true' && env.SLOT == 'noite'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -136,7 +136,7 @@ jobs:
           if token and chat:
               response=requests.post('https://api.telegram.org/bot'+token+'/sendMessage',
                    data={'chat_id':chat,
-                         'text':'💅 MediaFlow: vídeo do horário não enviado. Não encontrei 10 fotos inéditas com decoração aprovada ou houve erro técnico. Veja a execução no GitHub.'},
+                         'text':'💅 MediaFlow: a curadoria automática não encontrou 10 fotos inéditas de unhas decoradas com qualidade suficiente. Vídeo não enviado para evitar repetições e imagens ruins. Confira o GitHub.'},
                    timeout=25)
               print('TELEGRAM_STATUS_NOTIFICATION',response.status_code)
           PY
