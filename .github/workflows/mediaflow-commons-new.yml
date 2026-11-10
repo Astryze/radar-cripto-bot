@@ -1,0 +1,46 @@
+name: MediaFlow — 10 fotos novas de unhas
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - '.github/workflows/mediaflow-commons-new.yml'
+  workflow_dispatch:
+    inputs:
+      enviar_telegram:
+        description: Enviar vídeo ao Telegram após 10 fotos distintas
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  gerar-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar FFmpeg e PIL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install Pillow requests
+      - name: Baixar fotografias novas e montar MP4 sem IA
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
+        run: |
+          args=(--commons-curated --saida output/commons-novos)
+          if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
+          python mediaflow_unhas/photo_video.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unhas-imagens-novas-${{ github.run_id }}
+          path: output/commons-novos/
+          if-no-files-found: warn
+          retention-days: 7
