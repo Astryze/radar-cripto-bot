@@ -4,19 +4,22 @@ Never inserts source images directly into the output video.
 """
 import argparse
 import json
+import os
 import random
 from pathlib import Path
 
 from PIL import Image, ImageOps, ImageFilter
 
 try:
-    from .horde_provider import generate
+    from .horde_provider import generate as horde_generate
+    from .hf_provider import generate as hf_generate
     from .reference_collector import collect
     from .quality import dhash, is_duplicate
     from .visual_guard import STYLE_PROMPTS, check_image
     from .run import render, send_telegram
 except ImportError:
-    from horde_provider import generate
+    from horde_provider import generate as horde_generate
+    from hf_provider import generate as hf_generate
     from reference_collector import collect
     from quality import dhash, is_duplicate
     from visual_guard import STYLE_PROMPTS, check_image
@@ -85,10 +88,20 @@ def create_video(theme, references, destination, *, allow_public=False,
             "composition and manicure pattern, keep polished nails dominant in frame."
         )
         try:
-            im, info = generate(source, prompt,
-                seed=random.SystemRandom().randint(1, 2**31-1),
-                timeout=timeout_per_image)
-        except (RuntimeError, TimeoutError, ValueError, OSError) as exc:
+            seed = random.SystemRandom().randint(1, 2**31-1)
+            if os.getenv("HF_TOKEN", "").strip():
+                try:
+                    im, info = hf_generate(source, prompt, seed=seed)
+                except Exception as hf_error:
+                    print(f"Hugging Face indisponível: {type(hf_error).__name__}: {str(hf_error)[:140]}", flush=True)
+                    if os.getenv("DISABLE_HORDE_FALLBACK", "") == "1":
+                        raise
+                    im, info = horde_generate(source, prompt, seed=seed,
+                                              timeout=timeout_per_image)
+            else:
+                im, info = horde_generate(source, prompt, seed=seed,
+                                          timeout=timeout_per_image)
+        except Exception as exc:
             print(f"AI Horde tentativa {attempt+1}: {type(exc).__name__}: {str(exc)[:150]}", flush=True)
             # Avoid an expensive loop when anonymous requests are blocked.
             if attempt == 0 and "worker" in str(exc).lower():
