@@ -22,6 +22,9 @@ on:
         description: Enviar ao Telegram configurado (prévia)
         type: boolean
         default: false
+concurrency:
+  group: mediaflow-quality-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -40,11 +43,12 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           python -m pip install -r mediaflow_unhas/requirements.txt
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
       - name: Montar vídeo real de unhas
         env:
           TEMA: ${{ inputs.tema }}
           EFEITO: ${{ inputs.efeito }}
-          ENVIAR: ${{ inputs.enviar_telegram || contains(github.event.head_commit.message, '[telegram-test]') }}
+          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
