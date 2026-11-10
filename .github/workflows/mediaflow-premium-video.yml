@@ -68,3 +68,5 @@ jobs:
           path: output/unhas-premium/
           retention-days: 7
           if-no-files-found: warn
+
+# Luxo Premium 3: select fresh elaborate nail designs; never reuse previous photo IDs.
