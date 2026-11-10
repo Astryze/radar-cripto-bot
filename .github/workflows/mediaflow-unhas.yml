@@ -1,4 +1,4 @@
-name: MediaFlow Unhas
+name: MediaFlow Unhas — Validação do modo IA
 on:
   push:
     branches: [feature/mediaflow-unhas-v04]
@@ -6,31 +6,15 @@ on:
       - 'mediaflow_unhas/**'
       - '.github/workflows/mediaflow-unhas.yml'
   workflow_dispatch:
-    inputs:
-      tema:
-        description: Slug do tema de unhas
-        required: true
-        type: string
-        default: vermelhas_elegantes
-      efeito:
-        description: Efeito
-        required: true
-        type: choice
-        options: [zoom, fade, cortes]
-        default: zoom
-      enviar_telegram:
-        description: Enviar ao Telegram configurado (prévia)
-        type: boolean
-        default: false
-concurrency:
-  group: mediaflow-quality-${{ github.ref }}
-  cancel-in-progress: true
 permissions:
   contents: read
+concurrency:
+  group: mediaflow-tests-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  gerar:
+  validar:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,28 +22,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Instalar bibliotecas e FFmpeg
+      - name: Dependências de testes
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-          python -m pip install -r mediaflow_unhas/requirements.txt
-          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - name: Montar vídeo real de unhas
-        env:
-          TEMA: ${{ inputs.tema }}
-          EFEITO: ${{ inputs.efeito }}
-          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          python -m pip install Pillow requests pytest
+      - name: Compilar pipeline e verificar contratos
         run: |
-          args=(--tema "${TEMA:-vermelhas_elegantes}" --efeito "${EFEITO:-zoom}" --work output)
-          if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
-          python mediaflow_unhas/run.py "${args[@]}"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: mediaflow-unhas-${{ github.run_id }}
-          path: output/
-          if-no-files-found: warn
-          retention-days: 7
+          python -m compileall -q mediaflow_unhas
+          python -m pytest -q mediaflow_unhas/test_reference_transform.py mediaflow_unhas/test_quality.py mediaflow_unhas/test_openverse_source.py
+      - name: Aviso sobre renderização
+        run: |
+          echo "Testes validados. A produção requer ComfyUI local, GPU e workflow img2img."
+          echo "Não usamos fotos originais como quadros do vídeo; não enviamos vídeos via push."
