@@ -9,3 +9,5 @@ A fonte Commons nem sempre contém 10 imagens por tema. Nesses casos a execuçã
 <!-- Execução solicitada em 2026-11-10; envio de prévia ao Telegram, se o workflow iniciar. -->
 
 Execução de entrega: 10 fotos distintas encontradas na Wikimedia Commons; workflow habilitado para envio Telegram em execução manual ou commit sinalizado.
+
+<!-- Execução de teste com filtro rígido e envio Telegram solicitada em 2026-11-10. -->
