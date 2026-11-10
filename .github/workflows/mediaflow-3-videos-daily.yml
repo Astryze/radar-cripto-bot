@@ -1,0 +1,139 @@
+name: MediaFlow Unhas — 3 vídeos por dia no Telegram
+
+on:
+  schedule:
+    # Fuso São Paulo (UTC-3): 09:00, 14:00 e 19:00.
+    - cron: '0 12 * * *'
+    - cron: '0 17 * * *'
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: Qual vídeo do dia
+        type: choice
+        required: true
+        default: manha
+        options: [manha, tarde, noite]
+      enviar_telegram:
+        description: Enviar vídeo ao Telegram após aprovação visual
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/mediaflow-3-videos-daily.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mediaflow-unhas-diario
+  cancel-in-progress: false
+
+jobs:
+  validar-configuracao:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/mediaflow-unhas-v04
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compilar rotina e verificar seleção de legendas
+        run: |
+          python -m compileall -q mediaflow_unhas
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'mediaflow_unhas')
+          from daily_pipeline import CAPTIONS, SEARCHES, read_history
+          assert len(CAPTIONS)==3 and len(SEARCHES)>=3
+          assert 'BelaEmDetalhes' in CAPTIONS[0]
+          assert len(read_history()['sources'])>=0
+          print('MEDIAFLOW_DAILY_CONFIG_OK')
+          PY
+
+  produzir-e-enviar:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/mediaflow-unhas-v04
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar render e filtros visuais gratuitos
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -q Pillow requests 'transformers>=4.45,<5' 'torch>=2.4'
+      - name: Determinar horário brasileiro e política de envio
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          MANUAL_SLOT: ${{ inputs.slot }}
+          MANUAL_SEND: ${{ inputs.enviar_telegram }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [[ "$EVENT" == "schedule" ]]; then
+            case "$SCHEDULE" in
+              "0 12 * * *") slot=manha ;;
+              "0 17 * * *") slot=tarde ;;
+              "0 22 * * *") slot=noite ;;
+              *) echo "Horário não reconhecido: $SCHEDULE"; exit 1 ;;
+            esac
+            echo "SEND=true" >> "$GITHUB_ENV"
+          else
+            slot="${MANUAL_SLOT:-manha}"
+            echo "SEND=${MANUAL_SEND:-false}" >> "$GITHUB_ENV"
+          fi
+          echo "SLOT=$slot" >> "$GITHUB_ENV"
+      - name: Criar vídeo novo, verificar 10 fotos e entregar ao Telegram
+        id: render
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          set -euo pipefail
+          args=(--slot "$SLOT" --output "output/mediaflow-daily/$SLOT")
+          if [[ "$SEND" != "true" ]]; then args+=(--dry-run); fi
+          python mediaflow_unhas/daily_pipeline.py "${args[@]}"
+      - name: Persistir imagens já enviadas entre execuções
+        if: success() && env.SEND == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mediaflow_unhas/daily_used_photos.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(mediaflow): mark unique photos delivered by Telegram [skip ci]"
+            git push origin HEAD:feature/mediaflow-unhas-v04
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-diario-${{ github.run_id }}
+          path: output/mediaflow-daily/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Avisar se não houver dez fotos decoradas aprovadas
+        if: failure() && steps.render.outcome == 'failure' && env.SEND == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os, requests
+          token=os.getenv('TELEGRAM_BOT_TOKEN','').strip()
+          chat=os.getenv('TELEGRAM_CHAT_ID','').strip()
+          if token and chat:
+              response=requests.post('https://api.telegram.org/bot'+token+'/sendMessage',
+                   data={'chat_id':chat,
+                         'text':'💅 MediaFlow: vídeo do horário não enviado. Não encontrei 10 fotos inéditas com decoração aprovada ou houve erro técnico. Veja a execução no GitHub.'},
+                   timeout=25)
+              print('TELEGRAM_STATUS_NOTIFICATION',response.status_code)
+          PY
