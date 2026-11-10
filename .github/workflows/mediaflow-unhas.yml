@@ -28,7 +28,7 @@ jobs:
       - name: Compilar pipeline e verificar contratos
         run: |
           python -m compileall -q mediaflow_unhas
-          python -m pytest -q mediaflow_unhas/test_reference_transform.py mediaflow_unhas/test_quality.py mediaflow_unhas/test_openverse_source.py mediaflow_unhas/test_horde_provider.py
+          python -m pytest -q mediaflow_unhas/test_reference_transform.py mediaflow_unhas/test_quality.py mediaflow_unhas/test_openverse_source.py mediaflow_unhas/test_horde_provider.py mediaflow_unhas/test_hf_provider.py
       - name: Aviso sobre renderização
         run: |
           echo "Validação aprovada. Produção usa AI Horde: voluntários, fila sem SLA e resolução limitada."
