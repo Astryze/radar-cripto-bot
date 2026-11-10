@@ -37,3 +37,6 @@ TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID. O código nunca envia referências cruas.
 - O AI Horde pode recusar, bloquear ou demorar muito por depender de voluntários.
 - Modificar fotos por IA não concede automaticamente direitos comerciais de uso.
 - Workflow antigo baseado em ComfyUI fica como legado e não é obrigatório.
+
+
+Teste de produção solicitado em 2026-11-10. O push com marcador executa um ciclo sem entrega automática ao Telegram.
