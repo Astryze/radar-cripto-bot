@@ -15,27 +15,26 @@ import requests
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
 PHOTOS = [
-    # Bank Luxo Premium 3: new Pexels IDs, prioritizing actual elaborate nail art.
-    (37869420, "Colorful detailed manicure, close-up"),
-    (16363470, "Luxury glitter manicure on pink fabric"),
-    (34871614, "Creative vivid red nail art"),
-    (29375277, "Elegant burgundy manicured nails and jewelry"),
-    (34997577, "Elegant French manicure with gold ring"),
-    (33992618, "High-fashion artistic nail art"),
-    (34835286, "Pink intricate glitter manicure on red fabric"),
-    (23385307, "Delicate artistic nails and flowers"),
-    (39365946, "Elegant manicure and rich red fashion"),
-    (34871553, "Elegant red and white detailed nail design"),
-    (34871606, "Artistic red manicure on blue background"),
-    (34871560, "Stylish red and white manicure"),
-    (34871655, "Red manicure with intricate white design"),
-    (34871570, "Detailed red nails on soft white texture"),
-    (9393756, "Red nail art with gold jewelry"),
-    (34997574, "French manicure and luxurious jewelry"),
-    (5871819, "Intricate decorative nails on green background"),
-    (939836, "Soft pink glitter manicure"),
-    (34835279, "Colorful glitter design close-up"),
-    (34373403, "Elegant hand manicure with gold accessories"),
+    # Curadoria verificável: páginas públicas Pexels que descrevem nail art
+    # detalhada e próxima, não esmaltação básica nem retratos de salão.
+    (34885842, "Manicure floral rosa detalhada em fundo escuro"),
+    (34121866, "Nail art artística colorida avant-garde"),
+    (7118662, "Unhas florais com detalhes e pedras delicadas"),
+    (9697755, "Nail art azul e prata com aplicações brilhantes"),
+    (34835291, "Flores rosa e azul pintadas nas unhas"),
+    (34885844, "Unhas rosa com arte elaborada e anel dourado"),
+    (34835287, "Unhas rosa e brancas desenhadas com anel prateado"),
+    (33625363, "Manicure colorida artística com anel brilhante"),
+    (5871928, "Manicure com desenhos elaborados e reflexos"),
+    (5871920, "Manicure criativa verde com fundo amarelo"),
+    (5871311, "Manicure colorida de alto contraste"),
+    (13277177, "Manicure floral desenhada segurando folha"),
+    (247836, "Unhas artísticas em close-up com tecido"),
+    (7711501, "Unhas decoradas em ambiente externo"),
+    (34835279, "Glitter colorido em manicure close-up"),
+    (5871312, "Manicure multicolor com brilho"),
+    (10612638, "Beleza editorial com nail art e glitter"),
+    (34311632, "Manicure de alta joalheria"),
 ]
 CDN="https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg"
 USER_AGENT="Mozilla/5.0 (compatible; MediaFlowNails/2.4; curated stock photography)"
