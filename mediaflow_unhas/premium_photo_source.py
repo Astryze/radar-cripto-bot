@@ -15,26 +15,21 @@ import requests
 from PIL import Image, ImageFilter, ImageOps, ImageStat
 
 PHOTOS = [
-    # Curadoria verificável: páginas públicas Pexels que descrevem nail art
-    # detalhada e próxima, não esmaltação básica nem retratos de salão.
-    (34885842, "Manicure floral rosa detalhada em fundo escuro"),
-    (34121866, "Nail art artística colorida avant-garde"),
-    (7118662, "Unhas florais com detalhes e pedras delicadas"),
-    (9697755, "Nail art azul e prata com aplicações brilhantes"),
-    (34835291, "Flores rosa e azul pintadas nas unhas"),
-    (34885844, "Unhas rosa com arte elaborada e anel dourado"),
-    (34835287, "Unhas rosa e brancas desenhadas com anel prateado"),
-    (33625363, "Manicure colorida artística com anel brilhante"),
-    (5871928, "Manicure com desenhos elaborados e reflexos"),
-    (5871920, "Manicure criativa verde com fundo amarelo"),
-    (5871311, "Manicure colorida de alto contraste"),
-    (13277177, "Manicure floral desenhada segurando folha"),
-    (247836, "Unhas artísticas em close-up com tecido"),
-    (7711501, "Unhas decoradas em ambiente externo"),
-    (34835279, "Glitter colorido em manicure close-up"),
-    (5871312, "Manicure multicolor com brilho"),
-    (10612638, "Beleza editorial com nail art e glitter"),
-    (34311632, "Manicure de alta joalheria"),
+    # Segunda seleção com fontes verificadas; sem repetir fotos publicadas.
+    (9393229, "Manicure azul em cetim rosa com joias e brilho"),
+    (35440213, "Múltiplas manicures artísticas com composição floral"),
+    (15343609, "Manicure artística com flor branca em fundo vermelho"),
+    (32000096, "Unhas douradas em mãos com visual de moda"),
+    (31802920, "Manicure artística ao lado de flores de cerejeira"),
+    (34835279, "Nail art colorida brilhante em close-up"),
+    (5871312, "Nail art multicolorida com glitter"),
+    (12380772, "Unhas verdes elegantes com anel dourado"),
+    (34997575, "Francesinha com joias sofisticadas"),
+    (1824983, "Manicure preta com rosa branca"),
+    (9697755, "Nail art azul com detalhes prateados"),
+    (5871920, "Manicure criativa de contraste"),
+    (939836, "Manicure rosa com glitter"),
+    (31802920, "Unhas artísticas com flores delicadas"),
 ]
 CDN="https://images.pexels.com/photos/{id}/pexels-photo-{id}.jpeg"
 USER_AGENT="Mozilla/5.0 (compatible; MediaFlowNails/2.4; curated stock photography)"
