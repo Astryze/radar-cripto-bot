@@ -1,0 +1,48 @@
+name: MediaFlow — fotos premium reais de unhas
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - '.github/workflows/mediaflow-premium-video.yml'
+  workflow_dispatch:
+    inputs:
+      enviar_telegram:
+        description: Enviar se todas as 10 fotos premium forem aprovadas
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  video-premium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependências leves
+        run: |
+          python -m pip install Pillow requests
+      - name: Instalar FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Seleção premium e render MP4
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
+        run: |
+          args=(--premium-curated --saida output/unhas-premium)
+          if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
+          python mediaflow_unhas/photo_video.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-premium-${{ github.run_id }}
+          path: output/unhas-premium/
+          retention-days: 7
+          if-no-files-found: warn
