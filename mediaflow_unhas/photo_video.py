@@ -6,8 +6,8 @@ sources must be accessible and users responsible for rights/attribution.
 """
 import argparse
 import json
-import os
 import subprocess
+from urllib.parse import quote
 from pathlib import Path
 
 from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageStat
@@ -76,6 +76,8 @@ def main():
     parser=argparse.ArgumentParser(description="MediaFlow: 10 fotos em MP4 de 10 s, sem geração por IA")
     parser.add_argument("--referencia",action="append",default=[],help="URL pública ou foto local (repetível)")
     parser.add_argument("--urls-file",help="Arquivo TXT com uma URL pública por linha")
+    parser.add_argument("--auto-pinterest",action="store_true",help="Pesquisar pins públicos; pode exigir cookies ou falhar")
+    parser.add_argument("--consulta",default="luxury nail art manicure red glitter")
     parser.add_argument("--allow-public-references",action="store_true")
     parser.add_argument("--saida",default="output/photo-video")
     parser.add_argument("--enviar-telegram",action="store_true")
@@ -83,6 +85,10 @@ def main():
     if args.urls_file:
         args.referencia.extend(line.strip() for line in Path(args.urls_file).read_text(encoding="utf8").splitlines()
                                if line.strip() and not line.lstrip().startswith("#"))
+    if args.auto_pinterest:
+        query=quote(args.consulta[:100])
+        args.referencia.insert(0,f"https://www.pinterest.com/search/pins/?q={query}")
+        args.allow_public_references=True
     args.referencia=list(dict.fromkeys(args.referencia))
     dest=Path(args.saida)
     dest.mkdir(parents=True,exist_ok=True)
