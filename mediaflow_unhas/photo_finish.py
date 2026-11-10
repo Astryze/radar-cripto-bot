@@ -3,7 +3,7 @@
 Input images remain genuine photos. Adaptive, modest tonal correction and crisp
 portrait layouts are applied on copies; originals and credits are preserved.
 """
-from PIL import ImageEnhance, ImageFilter, ImageOps, ImageStat
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps, ImageStat
 
 SIZE=(720,1280)
 
