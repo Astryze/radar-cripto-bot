@@ -99,6 +99,15 @@ USED_TITLES = {
 
 ALLOWED_LICENSES = {"cc0", "cc-by", "cc-by-sa", "public domain", "pd", "cc by", "cc by-sa"}
 USER_AGENT="MediaFlowUnhas/2.2 (GitHub: Astryze/radar-cripto-bot; nail art CC images)"
+HISTORY_PATH = Path(__file__).with_name("used_photo_history.json")
+
+def previous_photos():
+    """Read persistent exact titles and 64-bit perceptual hashes from prior videos."""
+    if not HISTORY_PATH.is_file():
+        return set(USED_TITLES), set()
+    data=json.loads(HISTORY_PATH.read_text(encoding="utf-8"))
+    return set(USED_TITLES).union(data.get("titles",[])), {int(h,16) for h in data.get("hashes",[])}
+
 
 def field(metadata, key):
     return html.unescape(re.sub(r"<[^>]*>", "", str((metadata.get(key) or {}).get("value") or ""))).strip()
@@ -127,8 +136,9 @@ def fetch_curated(folder, *, minimum=10, session=None):
     photos=[]
     manifest=[]
     seen=set()
+    excluded, historical_hashes = previous_photos()
     for i in range(0,len(PREFERRED),10):
-        batch=[name for name in PREFERRED[i:i+10] if name not in USED_TITLES]
+        batch=[name for name in PREFERRED[i:i+10] if name not in excluded]
         if not batch:
             continue
         params={"action":"query", "prop":"imageinfo",
@@ -177,6 +187,10 @@ def fetch_curated(folder, *, minimum=10, session=None):
                 import hashlib
                 signature=hashlib.sha256(im.resize((40,40)).tobytes()).hexdigest()
                 if signature in seen:
+                    continue
+                from quality import dhash, is_duplicate
+                if is_duplicate(dhash(im), historical_hashes, threshold=4):
+                    print(f"SKIP_HISTORY {name}: visually similar to past video",flush=True)
                     continue
                 variation=ImageStat.Stat(im.resize((200,200)).filter(
                     ImageFilter.FIND_EDGES).convert("L")).stddev[0]
