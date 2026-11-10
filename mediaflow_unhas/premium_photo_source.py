@@ -7,11 +7,9 @@ Does not silently fill missing images with unrelated photographs.
 """
 import hashlib
 import json
-import re
 import time
 from io import BytesIO
 from pathlib import Path
-from urllib.parse import urlsplit
 
 import requests
 from PIL import Image, ImageFilter, ImageOps, ImageStat
