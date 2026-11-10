@@ -96,18 +96,22 @@ def fetch_curated(folder, *, minimum=10, session=None):
             metadata=info.get("extmetadata") or {}
             if (info.get("mime") not in ("image/jpeg","image/png","image/webp")
                 or not license_ok(metadata)):
+                print(f"SKIP_META {name}: mime={info.get('mime')} license={field(metadata, 'LicenseShortName')}", flush=True)
                 continue
             url=info.get("thumburl") or info.get("url")
             if not image_host_ok(url):
+                print(f"SKIP_HOST {name}: {(url or '')[:90]}",flush=True)
                 continue
             try:
                 img_response=session.get(url,headers={"User-Agent":USER_AGENT},
                                          timeout=40,allow_redirects=False)
                 if img_response.status_code!=200 or len(img_response.content)>15_000_000:
+                    print(f"SKIP_FETCH {name}: HTTP {img_response.status_code}; bytes={len(img_response.content)}",flush=True)
                     continue
                 with Image.open(BytesIO(img_response.content)) as original:
                     im=ImageOps.exif_transpose(original).convert("RGB")
                 if min(im.size)<480 or im.width*im.height<480_000:
+                    print(f"SKIP_DIM {name}: {im.size}",flush=True)
                     continue
                 # Distinctness: cheap 24px image hash rather than title.
                 import hashlib
