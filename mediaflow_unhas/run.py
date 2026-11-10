@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import requests
 from PIL import Image, ImageOps, ImageFilter, ImageStat
 from quality import evaluate, dhash, is_duplicate
+from visual_guard import check_image
 
 API="https://commons.wikimedia.org/w/api.php"
 THEMES={
@@ -106,6 +107,10 @@ def fetch(theme, output):
                 visual_hash = dhash(im)
                 if is_duplicate(visual_hash, hashes):
                     continue
+                visually_valid, vision_details = check_image(im, theme)
+                if not visually_valid:
+                    print(f"Visualmente rejeitada: {item.get('descriptionurl')}", flush=True)
+                    continue
                 hashes.append(visual_hash)
                 file = output / f"{len(images) + 1:02}.jpg"
                 im.save(file, quality=94)
@@ -117,6 +122,7 @@ def fetch(theme, output):
                     "license": field("LicenseShortName"), "license_url": field("LicenseUrl"),
                     "artist": field("Artist"), "relevance_score": score,
                     "edge_variation": round(edge_variation, 2), "search_term": search,
+                    "visual_review": vision_details,
                 })
             except (requests.RequestException, OSError, ValueError):
                 continue
