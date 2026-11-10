@@ -8,6 +8,7 @@ import requests
 from PIL import Image, ImageOps, ImageFilter, ImageStat
 from quality import evaluate, dhash, is_duplicate
 from visual_guard import check_image
+from pexels_source import iter_candidates
 
 API="https://commons.wikimedia.org/w/api.php"
 THEMES={
@@ -57,7 +58,44 @@ def fetch(theme, output):
     else:
         queries = [THEMES[theme], THEMES[theme] + " close-up", THEMES[theme] + " design"]
     images, credits, hashes, examined = [], [], [], set()
-    for search in dict.fromkeys(queries):
+    # Curated stock first; each photo must independently pass the visual model.
+    # Never count search result metadata alone as evidence of the image content.
+    def approved(im, credit):
+        if min(im.size) < 700 or im.width * im.height < 900_000:
+            return False
+        ratio = im.width / im.height
+        if ratio < 0.55 or ratio > 1.6:
+            return False
+        sharpness = ImageStat.Stat(im.resize((256, 256)).filter(ImageFilter.FIND_EDGES).convert("L")).stddev[0]
+        if sharpness < 11:
+            return False
+        image_hash = dhash(im)
+        if is_duplicate(image_hash, hashes):
+            return False
+        valid, vision = check_image(im, theme)
+        if not valid:
+            return False
+        hashes.append(image_hash)
+        target = output / f"{len(images)+1:02}.jpg"
+        im.save(target, quality=94)
+        images.append(target)
+        credits.append({"file": target.name, **credit, "edge_variation": round(sharpness, 2), "visual_review": vision})
+        return True
+
+    if os.getenv("PEXELS_API_KEY", "").strip():
+        print("Fonte principal: Pexels — seleção visual rigorosa", flush=True)
+        try:
+            for photo, attribution in iter_candidates(theme):
+                approved(photo, attribution)
+                if len(images) >= 10:
+                    break
+        except (requests.RequestException, ValueError) as error:
+            print(f"Pexels indisponível: {type(error).__name__}; usando Wikimedia", flush=True)
+    else:
+        print("PEXELS_API_KEY ausente: Pexels não será consultado", flush=True)
+    if len(images) < 10:
+        print(f"Faltam {10-len(images)} imagens; tentando Wikimedia Commons", flush=True)
+    for search in (dict.fromkeys(queries) if len(images) < 10 else []):
         print(f"Busca temática: {search}", flush=True)
         try:
             resp = session.get(API, params={**base, "gsrsearch": search}, headers=agent, timeout=30)
@@ -94,35 +132,12 @@ def fetch(theme, output):
                     continue
                 with Image.open(BytesIO(response.content)) as original:
                     im = ImageOps.exif_transpose(original).convert("RGB")
-                if min(im.size) < 700 or im.width * im.height < 900_000:
-                    continue
-                ratio = im.width / im.height
-                if ratio < 0.55 or ratio > 1.6:
-                    continue
-                # Reject largely flat/blurry photos. A score is not a semantic
-                # vision classifier, so manual preview is still recommended.
-                edge_variation = ImageStat.Stat(im.resize((256, 256)).filter(ImageFilter.FIND_EDGES).convert("L")).stddev[0]
-                if edge_variation < 11:
-                    continue
-                visual_hash = dhash(im)
-                if is_duplicate(visual_hash, hashes):
-                    continue
-                visually_valid, vision_details = check_image(im, theme)
-                if not visually_valid:
-                    print(f"Visualmente rejeitada: {item.get('descriptionurl')}", flush=True)
-                    continue
-                hashes.append(visual_hash)
-                file = output / f"{len(images) + 1:02}.jpg"
-                im.save(file, quality=94)
-                images.append(file)
                 def field(key):
                     return html.unescape(re.sub(r"<[^>]+>", "", meta.get(key, {}).get("value", "")))[:500]
-                credits.append({
-                    "file": file.name, "source": item.get("descriptionurl"),
+                approved(im, {
+                    "provider": "wikimedia", "source": item.get("descriptionurl"),
                     "license": field("LicenseShortName"), "license_url": field("LicenseUrl"),
-                    "artist": field("Artist"), "relevance_score": score,
-                    "edge_variation": round(edge_variation, 2), "search_term": search,
-                    "visual_review": vision_details,
+                    "artist": field("Artist"), "relevance_score": score, "search_term": search,
                 })
             except (requests.RequestException, OSError, ValueError):
                 continue
