@@ -7,7 +7,7 @@ import json
 import random
 from pathlib import Path
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFilter
 
 try:
     from .horde_provider import generate
@@ -110,7 +110,11 @@ def create_video(theme, references, destination, *, allow_public=False,
             continue
         hashes.append(output_hash)
         out = generated / f"nails_{len(accepted)+1:02}.jpg"
-        ImageOps.fit(im, (720, 1280), method=Image.Resampling.LANCZOS).save(out, quality=95)
+        background = ImageOps.fit(im, (720, 1280), method=Image.Resampling.LANCZOS)
+        background = background.filter(ImageFilter.GaussianBlur(radius=32))
+        foreground = ImageOps.contain(im, (720, 1280), method=Image.Resampling.LANCZOS)
+        background.paste(foreground, ((720 - foreground.width)//2, (1280 - foreground.height)//2))
+        background.save(out, quality=95)
         accepted.append(out)
         metadata.append({"file": out.name, "source_ref": str(source),
                          "visual": report, **info, "native_resolution": list(im.size),
