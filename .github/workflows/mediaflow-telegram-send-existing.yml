@@ -43,18 +43,27 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${TELEGRAM_BOT_TOKEN:-}" && test -n "${TELEGRAM_CHAT_ID:-}" || { echo 'Secrets do Telegram não configurados'; exit 1; }
-          curl --silent --show-error --fail-with-body \
-            --retry 2 --max-time 120 \
-            --form "chat_id=${TELEGRAM_CHAT_ID}" \
-            --form "caption=MediaFlow Unhas — 10 fotografias novas, vídeo vertical de 10 segundos" \
-            --form "video=@/tmp/mediaflow_aprovado.mp4;type=video/mp4" \
-            "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendVideo" \
-            -o /tmp/mediaflow_telegram_result.json
+          python -m pip install -q requests
           python - <<'PY'
-          import json
-          result=json.load(open('/tmp/mediaflow_telegram_result.json'))
-          if not result.get('ok'):
-              raise RuntimeError('Telegram não confirmou a entrega: '+str(result.get('description','erro')))
-          message=result['result']
-          print('TELEGRAM_DELIVERY_CONFIRMED message_id='+str(message.get('message_id')))
+          import os
+          import requests
+          token=os.environ["TELEGRAM_BOT_TOKEN"].strip()
+          chat=os.environ["TELEGRAM_CHAT_ID"].strip()
+          if not token or not chat:
+              raise RuntimeError("Credenciais Telegram vazias")
+          with open("/tmp/mediaflow_aprovado.mp4", "rb") as video:
+              response=requests.post(
+                  "https://api.telegram.org/bot"+token+"/sendVideo",
+                  data={"chat_id":chat,"caption":"MediaFlow Unhas — 10 fotografias novas, vídeo vertical de 10 segundos"},
+                  files={"video":("MediaFlow_Unhas_10_Fotos_Novas.mp4", video, "video/mp4")},
+                  timeout=120
+              )
+          print("TELEGRAM_HTTP_STATUS",response.status_code)
+          try:
+              data=response.json()
+          except ValueError:
+              raise RuntimeError("Telegram não retornou JSON de confirmação")
+          if not response.ok or not data.get("ok"):
+              raise RuntimeError("Telegram não confirmou o envio: "+str(data.get("description","erro desconhecido"))[:160])
+          print("TELEGRAM_DELIVERY_CONFIRMED message_id="+str(data["result"].get("message_id")))
           PY
