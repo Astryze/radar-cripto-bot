@@ -1,0 +1,64 @@
+name: MediaFlow Unhas — CPU Video e Telegram
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - 'mediaflow_unhas/CPU_VIDEO_TRIGGER.md'
+      - '.github/workflows/mediaflow-cpu-video.yml'
+  workflow_dispatch:
+    inputs:
+      enviar_telegram:
+        description: Enviar vídeo validado ao Telegram
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: mediaflow-cpu-video-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  produzir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Preparar ferramentas e filtros
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential cmake ffmpeg
+          python -m pip install -r mediaflow_unhas/requirements.txt
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Compilar IA local sem API externa
+        run: |
+          git clone --depth 1 --recurse-submodules https://github.com/leejet/stable-diffusion.cpp.git /tmp/sd
+          cmake -S /tmp/sd -B /tmp/sd/build -DCMAKE_BUILD_TYPE=Release -DSD_BUILD_EXAMPLES=ON
+          cmake --build /tmp/sd/build --config Release -j 2
+      - name: Baixar modelo DreamShaper LCM autenticado por SHA256
+        run: |
+          mkdir -p /tmp/model
+          curl -fL --retry 3 --max-time 1200 -o /tmp/model/DreamShaper8_LCM.safetensors https://huggingface.co/Lykon/dreamshaper-8-lcm/resolve/main/DreamShaper8_LCM.safetensors
+          echo "a4f3e1526c5dc4fcbe342f5c410d83ae202c7a415fcefcbb92e0f93fcd0a87c3  /tmp/model/DreamShaper8_LCM.safetensors" | sha256sum -c
+      - name: Produzir dez imagens e enviar vídeo aprovado ao Telegram
+        env:
+          IMAGE_PROVIDER: cpu
+          SD_CPP_BINARY: /tmp/sd/build/bin/sd-cli
+          SD_CPP_MODEL: /tmp/model/DreamShaper8_LCM.safetensors
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ENVIAR: ${{ github.event_name == 'push' || inputs.enviar_telegram }}
+        run: |
+          args=(--provider cpu --tema vermelhas_elegantes --auto-references --saida output/unhas-cpu --max-attempts 24)
+          if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
+          python mediaflow_unhas/main.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-unhas-cpu-${{ github.run_id }}
+          path: output/unhas-cpu/
+          if-no-files-found: warn
+          retention-days: 7

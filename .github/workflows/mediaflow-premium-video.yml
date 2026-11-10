@@ -1,0 +1,78 @@
+name: MediaFlow — fotos premium reais de unhas
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - '.github/workflows/mediaflow-premium-video.yml'
+  workflow_dispatch:
+    inputs:
+      enviar_telegram:
+        description: Enviar se todas as 10 fotos premium forem aprovadas
+        type: boolean
+        default: false
+permissions:
+  contents: write
+jobs:
+  video-premium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependências leves
+        run: |
+          python -m pip install Pillow requests
+      - name: Instalar FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Seleção premium e render MP4
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
+        run: |
+          args=(--premium-curated --saida output/unhas-premium)
+          if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
+          python mediaflow_unhas/photo_video.py "${args[@]}"
+      - name: Registrar IDs usados depois de gerar o vídeo
+        if: success()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p=Path("mediaflow_unhas/premium_used_ids.json")
+          credits=json.loads(Path("output/unhas-premium/sources/source_credits.json").read_text())
+          if len(credits)!=10:
+              raise RuntimeError("A produção só é válida com 10 fontes novas")
+          old=json.loads(p.read_text())
+          old["ids"]=sorted(set(old["ids"])|{int(row["pexels_photo_id"]) for row in credits})
+          p.write_text(json.dumps(old,ensure_ascii=False,indent=2)+"\n")
+          print("PHOTO_HISTORY_COMMITTED",len(old["ids"]))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mediaflow_unhas/premium_used_ids.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(mediaflow): exclude ten new luxury manicure images from future runs [skip ci]"
+            git push origin HEAD:feature/mediaflow-unhas-v04
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-premium-${{ github.run_id }}
+          path: output/unhas-premium/
+          retention-days: 7
+          if-no-files-found: warn
+
+# Luxo Premium 3: select fresh elaborate nail designs; never reuse previous photo IDs.
+
+# Curadoria rigorosa: florais desenhadas, pedrarias e unhas em close-up; nenhuma foto básica.
+
+# Segunda curadoria fotográfica: substituição de cenas visualmente fracas.
+
+# Replacement-only candidate collection, verify manually before inclusion.

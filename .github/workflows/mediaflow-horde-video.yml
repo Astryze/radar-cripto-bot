@@ -1,0 +1,61 @@
+name: MediaFlow Unhas — Produção remota (AI Horde)
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - 'mediaflow_unhas/**'
+      - '.github/workflows/mediaflow-horde-video.yml'
+  workflow_dispatch:
+    inputs:
+      tema:
+        description: Tema de unhas
+        required: true
+        default: vermelhas_elegantes
+        type: string
+      enviar_telegram:
+        description: Enviar vídeo validado ao Telegram
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: mediaflow-horde-production-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  gerar:
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[horde-video]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar FFmpeg e bibliotecas de validação
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install -r mediaflow_unhas/requirements.txt
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install 'huggingface_hub>=0.34,<2'
+      - name: Gerar 10 imagens img2img remotamente (sem ComfyUI)
+        env:
+          AI_HORDE_API_KEY: ${{ secrets.AI_HORDE_API_KEY || '0000000000' }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEMA: ${{ inputs.tema }}
+          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
+        run: |
+          args=(--tema "${TEMA:-vermelhas_elegantes}" --auto-references --saida output/unhas-horde --max-attempts 14 --timeout-per-image 240)
+          if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
+          python mediaflow_unhas/main.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-horde-${{ github.run_id }}
+          path: output/unhas-horde/
+          if-no-files-found: warn
+          retention-days: 7

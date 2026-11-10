@@ -1,0 +1,50 @@
+name: MediaFlow — teste CPU local sem API
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - 'mediaflow_unhas/cpu_provider.py'
+      - 'mediaflow_unhas/cpu_smoke.py'
+      - '.github/workflows/mediaflow-cpu-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cpu-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install build and Python dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq cmake build-essential
+          python -m pip install Pillow
+      - name: Compile stable-diffusion.cpp CPU
+        run: |
+          git clone --depth 1 --recurse-submodules https://github.com/leejet/stable-diffusion.cpp.git /tmp/stable-diffusion.cpp
+          cmake -S /tmp/stable-diffusion.cpp -B /tmp/stable-diffusion.cpp/build -DCMAKE_BUILD_TYPE=Release -DSD_BUILD_EXAMPLES=ON
+          cmake --build /tmp/stable-diffusion.cpp/build --config Release -j 2
+          /tmp/stable-diffusion.cpp/build/bin/sd-cli --help | head -25
+      - name: Download open LCM model and verify checksum
+        run: |
+          mkdir -p /tmp/mediaflow-models
+          curl -fL --retry 3 --max-time 900 -o /tmp/mediaflow-models/dreamshaper8_lcm.safetensors https://huggingface.co/Lykon/dreamshaper-8-lcm/resolve/main/DreamShaper8_LCM.safetensors
+          echo "a4f3e1526c5dc4fcbe342f5c410d83ae202c7a415fcefcbb92e0f93fcd0a87c3  /tmp/mediaflow-models/dreamshaper8_lcm.safetensors" | sha256sum -c
+      - name: CPU img2img real generation from original synthetic drawing
+        env:
+          SD_CPP_BINARY: /tmp/stable-diffusion.cpp/build/bin/sd-cli
+          SD_CPP_MODEL: /tmp/mediaflow-models/dreamshaper8_lcm.safetensors
+        run: python mediaflow_unhas/cpu_smoke.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-cpu-smoke-${{ github.run_id }}
+          path: output/cpu-smoke/
+          if-no-files-found: warn
+          retention-days: 3

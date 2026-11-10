@@ -1,0 +1,71 @@
+name: MediaFlow Unhas — Fotos para vídeo (sem IA)
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - '.github/workflows/mediaflow-photo-video.yml'
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: URLs públicas de fotos/pins, uma por linha (opcional)
+        required: false
+        type: string
+        default: ''
+      auto_pinterest:
+        description: Tentar busca pública no Pinterest
+        required: false
+        type: boolean
+        default: true
+      consulta:
+        description: Busca de nail art
+        required: false
+        type: string
+        default: luxury red glitter nail art
+      enviar_telegram:
+        description: Enviar MP4 ao Telegram se 10 fotos forem aprovadas
+        required: false
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  montar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar bibliotecas de coleta e edição
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install Pillow requests gallery-dl yt-dlp
+      - name: Buscar fotos e montar vídeo sem IA
+        env:
+          URLS: ${{ inputs.urls }}
+          AUTO: ${{ inputs.auto_pinterest }}
+          CONSULTA: ${{ inputs.consulta }}
+          ENVIAR: ${{ github.event_name == 'workflow_dispatch' && inputs.enviar_telegram }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          Path("mediaflow_input_urls.txt").write_text(os.getenv("URLS",""), encoding="utf-8")
+          PY
+          args=(--saida output/unhas-fotos --urls-file mediaflow_input_urls.txt --allow-public-references)
+          if [[ "$AUTO" != "false" ]]; then args+=(--auto-pinterest --consulta "${CONSULTA:-luxury red glitter nail art}"); fi
+          if [[ "$ENVIAR" == "true" ]]; then args+=(--enviar-telegram); fi
+          python mediaflow_unhas/photo_video.py "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mediaflow-fotos-${{ github.run_id }}
+          path: output/unhas-fotos/
+          if-no-files-found: warn
+          retention-days: 7

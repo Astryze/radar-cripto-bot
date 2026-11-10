@@ -1,0 +1,35 @@
+name: MediaFlow Unhas — Validação do modo IA
+on:
+  push:
+    branches: [feature/mediaflow-unhas-v04]
+    paths:
+      - 'mediaflow_unhas/**'
+      - '.github/workflows/mediaflow-unhas.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mediaflow-tests-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependências de testes
+        run: |
+          python -m pip install Pillow requests pytest
+      - name: Compilar pipeline e verificar contratos
+        run: |
+          python -m compileall -q mediaflow_unhas
+          python -m pytest -q mediaflow_unhas/test_reference_transform.py mediaflow_unhas/test_quality.py mediaflow_unhas/test_openverse_source.py mediaflow_unhas/test_horde_provider.py mediaflow_unhas/test_hf_provider.py
+      - name: Aviso sobre renderização
+        run: |
+          echo "Validação aprovada. Produção usa AI Horde: voluntários, fila sem SLA e resolução limitada."
+          echo "As referências não entram no vídeo; push não envia nada ao Telegram."
