@@ -40,3 +40,11 @@ TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID. O código nunca envia referências cruas.
 
 
 Teste de produção solicitado em 2026-11-10. O push com marcador executa um ciclo sem entrega automática ao Telegram.
+
+
+## Alternativas após testes de 10/11/2026
+- Teste remoto AI Horde falhou por fila acima de 160s (duas execuções).
+- Workflow de vídeo falhou antes da geração: Openverse retornou erro HTTP, sem referência.
+- Correção: recupera fotos de referência verificadas do Wikimedia Commons quando Openverse falha.
+- Novo provedor prioritário de edição img2img: Hugging Face Inference Providers, ativado somente com o Secret HF_TOKEN. Créditos de conta gratuita são limitados e podem acabar antes de 10 imagens. AI Horde permanece fallback e pode demorar.
+- Pollinations tem autenticação obrigatória e seu endpoint antigo é pouco confiável; não prometemos geração gratuita sem chave.
