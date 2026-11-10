@@ -28,8 +28,8 @@ jobs:
       - name: Compilar pipeline e verificar contratos
         run: |
           python -m compileall -q mediaflow_unhas
-          python -m pytest -q mediaflow_unhas/test_reference_transform.py mediaflow_unhas/test_quality.py mediaflow_unhas/test_openverse_source.py
+          python -m pytest -q mediaflow_unhas/test_reference_transform.py mediaflow_unhas/test_quality.py mediaflow_unhas/test_openverse_source.py mediaflow_unhas/test_horde_provider.py
       - name: Aviso sobre renderização
         run: |
-          echo "Testes validados. A produção requer ComfyUI local, GPU e workflow img2img."
-          echo "Não usamos fotos originais como quadros do vídeo; não enviamos vídeos via push."
+          echo "Validação aprovada. Produção usa AI Horde: voluntários, fila sem SLA e resolução limitada."
+          echo "As referências não entram no vídeo; push não envia nada ao Telegram."
