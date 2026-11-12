@@ -1,0 +1,47 @@
+name: MediaFlow — Testar integração REAL LTX-2.5 sem custo de GPU
+
+on:
+  push:
+    branches:
+      - feature/mediaflow-ltx25-poc
+    paths:
+      - mediaflow_unhas/ltx25/**
+      - .github/workflows/mediaflow-ltx25-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar bibliotecas de teste (sem download de modelos)
+        run: python -m pip install -q Pillow pytest
+      - name: Executar testes do comando oficial e bloqueio de geração falsa
+        run: python -m pytest mediaflow_unhas/ltx25/tests -q
+      - name: Criar entrada sintética e conferir plano (NÃO gera MP4)
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          p=Path('output/ltx25-ci')
+          p.mkdir(parents=True,exist_ok=True)
+          Image.new('RGB',(576,1024),(22,81,69)).save(p/'ci_dummy.png')
+          PY
+          python -m mediaflow_unhas.ltx25.runner \
+            --image output/ltx25-ci/ci_dummy.png \
+            --outdir output/ltx25-ci/plan
+          test -s output/ltx25-ci/plan/plan.json
+          test ! -e output/ltx25-ci/plan/nail_cat_eye_emerald_ltx25.mp4
+      - name: Salvar plano de execução (não é vídeo gerado)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mediaflow-ltx25-plano-validado
+          path: output/ltx25-ci/plan/plan.json
+          retention-days: 7
