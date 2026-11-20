@@ -678,9 +678,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-20T08:37:35.486016+00:00",
+      "last_seen": "2026-11-20T21:05:28.382808+00:00",
       "pending_event": null,
-      "last_checked": "2026-11-20T08:37:25.651228+00:00"
+      "last_checked": "2026-11-20T21:05:18.532402+00:00"
     },
     "https://www.okx.com/pt-br/help/trade-like-a-pro-hype-rules": {
       "first_seen": "2026-11-08T22:15:54.482837+00:00",
@@ -717,9 +717,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-20T08:37:35.486056+00:00",
+      "last_seen": "2026-11-20T21:05:28.382844+00:00",
       "pending_event": null,
-      "last_checked": "2026-11-20T08:37:31.019784+00:00"
+      "last_checked": "2026-11-20T21:05:23.928978+00:00"
     },
     "https://raw.githubusercontent.com/anza-xyz/agave/master/SECURITY.md": {
       "first_seen": "2026-11-09T08:01:09.974020+00:00",
@@ -757,9 +757,9 @@
         "score": 0,
         "priority": "baixa"
       },
-      "last_seen": "2026-11-20T08:37:35.485953+00:00",
+      "last_seen": "2026-11-20T21:05:28.382750+00:00",
       "pending_event": null,
-      "last_checked": "2026-11-20T08:37:12.787517+00:00"
+      "last_checked": "2026-11-20T21:05:06.213872+00:00"
     }
   },
   "source_health": {
@@ -813,8 +813,8 @@
       "ok": true,
       "candidates": 11,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:36:35.958007+00:00",
-      "last_collected_at": "2026-11-20T08:36:36.416317+00:00",
+      "last_attempt_at": "2026-11-20T21:04:38.800365+00:00",
+      "last_collected_at": "2026-11-20T21:04:39.054485+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -827,7 +827,7 @@
           "url": "https://blog.ethereum.org/en/feed.xml",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:36.212713+00:00",
+          "attempted_at": "2026-11-20T21:04:38.930397+00:00",
           "content_type": "application/xml"
         }
       ],
@@ -839,8 +839,8 @@
       "ok": true,
       "candidates": 15,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:36:36.418167+00:00",
-      "last_collected_at": "2026-11-20T08:36:36.759990+00:00",
+      "last_attempt_at": "2026-11-20T21:04:39.056057+00:00",
+      "last_collected_at": "2026-11-20T21:04:39.305938+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -853,112 +853,112 @@
           "url": "https://chain.link/blog",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:36.555197+00:00",
+          "attempted_at": "2026-11-20T21:04:39.136190+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/link-nyc-recap-2026",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:37.020665+00:00",
+          "attempted_at": "2026-11-20T21:04:39.629143+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/introducing-chainlink-fulcrum",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:37.507828+00:00",
+          "attempted_at": "2026-11-20T21:04:40.126519+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/introducing-chainlink-custodysync",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:38.011802+00:00",
+          "attempted_at": "2026-11-20T21:04:40.635495+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/chainlink-banking-capital-markets-announcements",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:38.511965+00:00",
+          "attempted_at": "2026-11-20T21:04:41.106745+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/chainlink-oracle-platform",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:39.010450+00:00",
+          "attempted_at": "2026-11-20T21:04:41.631038+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/the-swift-and-chainlink-partnership",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:39.504481+00:00",
+          "attempted_at": "2026-11-20T21:04:42.129366+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/introducing-chainlink-runtime-environment",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:40.008611+00:00",
+          "attempted_at": "2026-11-20T21:04:42.622210+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/united-states-financial-system-3-0",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:40.522286+00:00",
+          "attempted_at": "2026-11-20T21:04:43.130655+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/what-crypto-is-really-about",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:41.190733+00:00",
+          "attempted_at": "2026-11-20T21:04:43.620571+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/convergence-hackathon-winners",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:41.570948+00:00",
+          "attempted_at": "2026-11-20T21:04:44.123490+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/5-ways-to-build-with-cre",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:42.048270+00:00",
+          "attempted_at": "2026-11-20T21:04:44.621922+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/ccip-v1-6-is-now-live",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:42.504973+00:00",
+          "attempted_at": "2026-11-20T21:04:45.132183+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/empowering-developers-with-the-cct-standard",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:43.011619+00:00",
+          "attempted_at": "2026-11-20T21:04:45.634587+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/introducing-chainlink-24-7",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:43.511230+00:00",
+          "attempted_at": "2026-11-20T21:04:46.131228+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://chain.link/blog/quarterly-review-q3-2026",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:44.017045+00:00",
+          "attempted_at": "2026-11-20T21:04:46.627661+00:00",
           "content_type": "text/html; charset=utf-8"
         }
       ],
@@ -970,8 +970,8 @@
       "ok": true,
       "candidates": 12,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:36:44.212311+00:00",
-      "last_collected_at": "2026-11-20T08:36:44.595484+00:00",
+      "last_attempt_at": "2026-11-20T21:04:46.805875+00:00",
+      "last_collected_at": "2026-11-20T21:04:46.968223+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -984,91 +984,91 @@
           "url": "https://optimism.io/blog",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:44.448890+00:00",
+          "attempted_at": "2026-11-20T21:04:46.890724+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/op-mainnet-growing-role-in-onchain-finance",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:45.152548+00:00",
+          "attempted_at": "2026-11-20T21:04:47.442907+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/whitechain-moving-to-ethereum-layer-2-op-stack",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:45.718961+00:00",
+          "attempted_at": "2026-11-20T21:04:47.915522+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/before-you-build-a-chain",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:46.091426+00:00",
+          "attempted_at": "2026-11-20T21:04:48.499318+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/op-enterprise-now-supports-soneium",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:46.434583+00:00",
+          "attempted_at": "2026-11-20T21:04:48.937800+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/xstocks-native-op-mainnet-ether-fi-launch",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:47.111320+00:00",
+          "attempted_at": "2026-11-20T21:04:49.428382+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/soneium-2-tokenized-ip-op-enterprise",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:47.611052+00:00",
+          "attempted_at": "2026-11-20T21:04:50.190748+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/meritz-securities-optimism-mou-tokenized-financial-assets",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:48.097252+00:00",
+          "attempted_at": "2026-11-20T21:04:50.567549+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/upgrade-20-preparing-the-fault-proof-system-for-interop",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:48.948480+00:00",
+          "attempted_at": "2026-11-20T21:04:50.930161+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/kb-securities-securitize-optimism-tokenized-funds-op-mainnet",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:49.424859+00:00",
+          "attempted_at": "2026-11-20T21:04:51.411198+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/toss-komsco-payment-test-optimism",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:49.956337+00:00",
+          "attempted_at": "2026-11-20T21:04:51.928956+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/enterprise-account-abstraction-smart-accounts",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:50.510164+00:00",
+          "attempted_at": "2026-11-20T21:04:52.430169+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://optimism.io/blog/optimism-governance-sequencer-enterprise-facts",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:50.935350+00:00",
+          "attempted_at": "2026-11-20T21:04:52.972129+00:00",
           "content_type": "text/html; charset=utf-8"
         }
       ],
@@ -1080,8 +1080,8 @@
       "ok": true,
       "candidates": 12,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:36:51.039487+00:00",
-      "last_collected_at": "2026-11-20T08:36:51.256040+00:00",
+      "last_attempt_at": "2026-11-20T21:04:53.039755+00:00",
+      "last_collected_at": "2026-11-20T21:04:53.255059+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1094,176 +1094,176 @@
           "url": "https://www.starknet.io/blog/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:51.223534+00:00",
+          "attempted_at": "2026-11-20T21:04:53.225249+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/quantum-resistance",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:51.978813+00:00",
+          "attempted_at": "2026-11-20T21:04:53.806551+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/quantum-resistance/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:52.174317+00:00",
+          "attempted_at": "2026-11-20T21:04:54.188001+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/push-to-private",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:53.256465+00:00",
+          "attempted_at": "2026-11-20T21:04:54.672854+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/push-to-private/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:55.351182+00:00",
+          "attempted_at": "2026-11-20T21:04:55.178517+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/compliance-layer-onchain-privacy-strk20",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:55.773943+00:00",
+          "attempted_at": "2026-11-20T21:04:55.669253+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/compliance-layer-onchain-privacy-strk20/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:57.641941+00:00",
+          "attempted_at": "2026-11-20T21:04:56.187612+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/coding-agents-containers-sandboxes-developer-secrets",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:58.117562+00:00",
+          "attempted_at": "2026-11-20T21:04:56.672888+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/coding-agents-containers-sandboxes-developer-secrets/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:36:59.778487+00:00",
+          "attempted_at": "2026-11-20T21:04:57.178707+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/privacy-features-for-usdc-on-starknet",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:00.211148+00:00",
+          "attempted_at": "2026-11-20T21:04:57.671538+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/privacy-features-for-usdc-on-starknet/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:01.827371+00:00",
+          "attempted_at": "2026-11-20T21:04:58.203847+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/starkscan-explorer-data-api",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:02.292712+00:00",
+          "attempted_at": "2026-11-20T21:04:58.672922+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/starkscan-explorer-data-api/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:02.547924+00:00",
+          "attempted_at": "2026-11-20T21:04:59.171272+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/strkbtc-is-live-private-bitcoin-arrives-on-starknet",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:03.295611+00:00",
+          "attempted_at": "2026-11-20T21:04:59.910197+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/strkbtc-is-live-private-bitcoin-arrives-on-starknet/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:03.502611+00:00",
+          "attempted_at": "2026-11-20T21:05:00.214187+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/strkbtc-user-guide",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:04.361090+00:00",
+          "attempted_at": "2026-11-20T21:05:00.939425+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/strkbtc-user-guide/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:06.213359+00:00",
+          "attempted_at": "2026-11-20T21:05:01.175054+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/strkbtc-launch-guide-bridging-wallets-and-incentives",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:06.708208+00:00",
+          "attempted_at": "2026-11-20T21:05:02.609493+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/strkbtc-launch-guide-bridging-wallets-and-incentives/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:08.718171+00:00",
+          "attempted_at": "2026-11-20T21:05:02.695199+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/s-two-is-live-on-starknet-mainnet-the-fastest-prover-for-a-more-private-future",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:09.243680+00:00",
+          "attempted_at": "2026-11-20T21:05:03.809714+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/s-two-is-live-on-starknet-mainnet-the-fastest-prover-for-a-more-private-future/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:09.360284+00:00",
-          "content_type": "text/html; charset=UTF-8"
+          "attempted_at": "2026-11-20T21:05:03.902294+00:00",
+          "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.starknet.io/blog/starknet-grinta-the-architecture-of-a-more-decentralized-future",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:10.082870+00:00",
+          "attempted_at": "2026-11-20T21:05:04.395984+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/starknet-grinta-the-architecture-of-a-more-decentralized-future/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:11.893400+00:00",
+          "attempted_at": "2026-11-20T21:05:04.897539+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/starknet-foundation-delegation-program",
           "status": 301,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:12.472889+00:00",
+          "attempted_at": "2026-11-20T21:05:05.918386+00:00",
           "content_type": "text/html; charset=UTF-8"
         },
         {
           "url": "https://www.starknet.io/blog/starknet-foundation-delegation-program/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:12.570739+00:00",
-          "content_type": "text/html; charset=UTF-8"
+          "attempted_at": "2026-11-20T21:05:06.055174+00:00",
+          "content_type": "text/html; charset=utf-8"
         }
       ],
       "verification_failures": 0,
@@ -1274,8 +1274,8 @@
       "ok": true,
       "candidates": 1,
       "analyzed": 1,
-      "last_attempt_at": "2026-11-20T08:37:12.621881+00:00",
-      "last_collected_at": "2026-11-20T08:37:12.787257+00:00",
+      "last_attempt_at": "2026-11-20T21:05:06.108148+00:00",
+      "last_collected_at": "2026-11-20T21:05:06.213642+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1288,7 +1288,7 @@
           "url": "https://raw.githubusercontent.com/anza-xyz/agave/master/SECURITY.md",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:12.786802+00:00",
+          "attempted_at": "2026-11-20T21:05:06.213164+00:00",
           "content_type": "text/plain; charset=utf-8"
         }
       ],
@@ -1313,8 +1313,8 @@
       "ok": true,
       "candidates": 4,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:37:12.966224+00:00",
-      "last_collected_at": "2026-11-20T08:37:13.169263+00:00",
+      "last_attempt_at": "2026-11-20T21:05:06.368257+00:00",
+      "last_collected_at": "2026-11-20T21:05:06.476603+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1327,7 +1327,7 @@
           "url": "https://blog.arbitrum.io/rss/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:13.135700+00:00",
+          "attempted_at": "2026-11-20T21:05:06.455403+00:00",
           "content_type": "application/rss+xml; charset=utf-8"
         }
       ],
@@ -1339,8 +1339,8 @@
       "ok": true,
       "candidates": 15,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:37:13.172660+00:00",
-      "last_collected_at": "2026-11-20T08:37:13.375237+00:00",
+      "last_attempt_at": "2026-11-20T21:05:06.479545+00:00",
+      "last_collected_at": "2026-11-20T21:05:06.573710+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1353,7 +1353,7 @@
           "url": "https://www.base.org/blog/rss.xml",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:13.351125+00:00",
+          "attempted_at": "2026-11-20T21:05:06.555541+00:00",
           "content_type": "application/rss+xml; charset=utf-8"
         }
       ],
@@ -1365,8 +1365,8 @@
       "ok": true,
       "candidates": 12,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:37:13.376010+00:00",
-      "last_collected_at": "2026-11-20T08:37:13.601392+00:00",
+      "last_attempt_at": "2026-11-20T21:05:06.574352+00:00",
+      "last_collected_at": "2026-11-20T21:05:06.748489+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1379,91 +1379,91 @@
           "url": "https://polygon.technology/blog",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:13.555463+00:00",
+          "attempted_at": "2026-11-20T21:05:06.705940+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/nuvera-polygon-oms-stablecoin-settlement",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:14.001276+00:00",
+          "attempted_at": "2026-11-20T21:05:07.189645+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/how-to-simplify-user-onboarding-for-a-web3-app",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:14.513856+00:00",
+          "attempted_at": "2026-11-20T21:05:07.706222+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/sofiusd-lands-on-polygon",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:15.011822+00:00",
+          "attempted_at": "2026-11-20T21:05:08.212594+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/trails-partners-with-foresight-to-bring-1-click-fund-flows-to-prediction-markets",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:15.515766+00:00",
+          "attempted_at": "2026-11-20T21:05:08.681997+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/scaling-web3-apps-without-sacrificing-ux",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:16.005583+00:00",
+          "attempted_at": "2026-11-20T21:05:09.189186+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/mpc-wallets-payments-products",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:16.511947+00:00",
+          "attempted_at": "2026-11-20T21:05:09.751619+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/trails-partners-with-katana-to-solve-defi-fragmentation-with-1-click-liquidity-and-real-yield",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:17.017143+00:00",
+          "attempted_at": "2026-11-20T21:05:10.249282+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/which-structural-challenges-keep-crypto-payments-from-scaling",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:17.514527+00:00",
+          "attempted_at": "2026-11-20T21:05:10.692257+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/what-is-an-embedded-wallet",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:18.005194+00:00",
+          "attempted_at": "2026-11-20T21:05:11.180635+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/polygon-oms-supports-solana",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:18.523633+00:00",
+          "attempted_at": "2026-11-20T21:05:11.688689+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/trails-integrates-circle-cctp-for-1-click-cross-chain-usdc-transactions",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:19.011600+00:00",
+          "attempted_at": "2026-11-20T21:05:12.228008+00:00",
           "content_type": "text/html"
         },
         {
           "url": "https://polygon.technology/blog/gasless-transactions-gas-abstraction-meta-transactions",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:19.515037+00:00",
+          "attempted_at": "2026-11-20T21:05:12.706465+00:00",
           "content_type": "text/html"
         }
       ],
@@ -1475,8 +1475,8 @@
       "ok": true,
       "candidates": 10,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:37:19.685589+00:00",
-      "last_collected_at": "2026-11-20T08:37:20.134196+00:00",
+      "last_attempt_at": "2026-11-20T21:05:12.827225+00:00",
+      "last_collected_at": "2026-11-20T21:05:13.259479+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1489,77 +1489,77 @@
           "url": "https://www.zksync.io/blog",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:20.081555+00:00",
+          "attempted_at": "2026-11-20T21:05:13.207191+00:00",
+          "content_type": "text/html; charset=utf-8"
+        },
+        {
+          "url": "https://www.zksync.io/blog/zksync-era-testnet-chain-312",
+          "status": 200,
+          "attempt": 1,
+          "attempted_at": "2026-11-20T21:05:13.454052+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/xsolla-zk-open-network-game-commerce",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:20.353744+00:00",
+          "attempted_at": "2026-11-20T21:05:13.955817+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/matter-labs-completes-soc-2-type-2-examination",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:20.972677+00:00",
+          "attempted_at": "2026-11-20T21:05:14.423277+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/introducing-prividium-commander",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:21.440956+00:00",
+          "attempted_at": "2026-11-20T21:05:14.917104+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/introducing-airbender-prime",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:21.808748+00:00",
+          "attempted_at": "2026-11-20T21:05:15.431308+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/prividium-japan-nexbridge",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:22.451125+00:00",
+          "attempted_at": "2026-11-20T21:05:16.006341+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/nexbridge-matter-labs-prividium-japan",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:23.020059+00:00",
+          "attempted_at": "2026-11-20T21:05:16.528828+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/sovereign-stack-open-source-finance",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:23.440259+00:00",
+          "attempted_at": "2026-11-20T21:05:16.925283+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/prividium-core-open-source",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:23.988710+00:00",
+          "attempted_at": "2026-11-20T21:05:17.527794+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.zksync.io/blog/open-sourcing-prividium-permissioning-engine",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:24.437827+00:00",
-          "content_type": "text/html; charset=utf-8"
-        },
-        {
-          "url": "https://www.zksync.io/blog/eravm-security-update",
-          "status": 200,
-          "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:24.842525+00:00",
+          "attempted_at": "2026-11-20T21:05:17.935723+00:00",
           "content_type": "text/html; charset=utf-8"
         }
       ],
@@ -1571,8 +1571,8 @@
       "ok": true,
       "candidates": 3,
       "analyzed": 0,
-      "last_attempt_at": "2026-11-20T08:37:24.926906+00:00",
-      "last_collected_at": "2026-11-20T08:37:25.085265+00:00",
+      "last_attempt_at": "2026-11-20T21:05:17.987080+00:00",
+      "last_collected_at": "2026-11-20T21:05:18.033525+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1585,7 +1585,7 @@
           "url": "https://scroll.ghost.io/rss/",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:25.054950+00:00",
+          "attempted_at": "2026-11-20T21:05:18.019349+00:00",
           "content_type": "application/rss+xml; charset=utf-8"
         }
       ],
@@ -1597,8 +1597,8 @@
       "ok": true,
       "candidates": 20,
       "analyzed": 2,
-      "last_attempt_at": "2026-11-20T08:37:25.087845+00:00",
-      "last_collected_at": "2026-11-20T08:37:25.650898+00:00",
+      "last_attempt_at": "2026-11-20T21:05:18.035788+00:00",
+      "last_collected_at": "2026-11-20T21:05:18.532096+00:00",
       "http_status": 200,
       "status": "collected",
       "verification_errors": [],
@@ -1611,147 +1611,147 @@
           "url": "https://www.okx.com/pt-br/help/section/faq-rewards",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:25.609895+00:00",
+          "attempted_at": "2026-11-20T21:05:18.499594+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/deposit-match-faq",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:25.945293+00:00",
+          "attempted_at": "2026-11-20T21:05:18.844269+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/why-cant-i-withdraw-my-rewards",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:26.474671+00:00",
+          "attempted_at": "2026-11-20T21:05:19.360523+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/faq-tradeback-voucher",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:26.990979+00:00",
+          "attempted_at": "2026-11-20T21:05:19.833781+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/ofc-trade-and-earn-faq",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:27.438199+00:00",
+          "attempted_at": "2026-11-20T21:05:20.377082+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/what-is-the-new-user-full-rebate-program",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:27.942559+00:00",
+          "attempted_at": "2026-11-20T21:05:20.823100+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/vip-merch-reward",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:28.469550+00:00",
+          "attempted_at": "2026-11-20T21:05:21.328149+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/why-cant-i-join-a-campaign",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:28.933172+00:00",
+          "attempted_at": "2026-11-20T21:05:21.832919+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/community-feedback-program-terms-and-conditions",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:29.476443+00:00",
+          "attempted_at": "2026-11-20T21:05:22.358571+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/okx-learn-to-earn-btc-halving-2024-event-rules",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:29.944064+00:00",
+          "attempted_at": "2026-11-20T21:05:22.857267+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/okx-learn-to-earn-with-okx-and-ton-the-open-network-phase-two-event-rules",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:30.441741+00:00",
+          "attempted_at": "2026-11-20T21:05:23.331001+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/okx-trading-rebate-card-terms-and-conditions",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:30.953033+00:00",
+          "attempted_at": "2026-11-20T21:05:23.871768+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/trade-like-a-pro-hype-rules",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:31.441138+00:00",
+          "attempted_at": "2026-11-20T21:05:24.325058+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/okx-contract-voucher-and-usage-rules",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:31.935624+00:00",
+          "attempted_at": "2026-11-20T21:05:24.839677+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/okx-web3-wallet-customer-review-reward-from-sourceforge-terms-and-conditions",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:32.437373+00:00",
+          "attempted_at": "2026-11-20T21:05:25.387412+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/okx-customer-review-reward-from-sourceforge-terms-and-conditions",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:32.944088+00:00",
+          "attempted_at": "2026-11-20T21:05:25.856694+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/okx-candidate-privacy-notice",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:33.456893+00:00",
+          "attempted_at": "2026-11-20T21:05:26.378892+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/terms-of-service",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:33.960441+00:00",
+          "attempted_at": "2026-11-20T21:05:26.854632+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/privacy-policy-statement",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:34.441945+00:00",
+          "attempted_at": "2026-11-20T21:05:27.353670+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/risk-compliance-disclosure",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:34.939000+00:00",
+          "attempted_at": "2026-11-20T21:05:27.817200+00:00",
           "content_type": "text/html; charset=utf-8"
         },
         {
           "url": "https://www.okx.com/pt-br/help/whistleblower-notice",
           "status": 200,
           "attempt": 1,
-          "attempted_at": "2026-11-20T08:37:35.436198+00:00",
+          "attempted_at": "2026-11-20T21:05:28.334330+00:00",
           "content_type": "text/html; charset=utf-8"
         }
       ],
@@ -1934,7 +1934,7 @@
       "id": "binance",
       "permission": "AUTORIZACAO_NECESSARIA",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -1946,7 +1946,7 @@
       "id": "coinmarketcap",
       "permission": "AUTORIZACAO_NECESSARIA",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -1958,7 +1958,7 @@
       "id": "galxe",
       "permission": "API_OFICIAL",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -1989,7 +1989,7 @@
       "id": "layer3",
       "permission": "AUTOMACAO_PROIBIDA",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -2001,7 +2001,7 @@
       "id": "zealy",
       "permission": "API_OFICIAL",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -2034,7 +2034,7 @@
       "id": "intract",
       "permission": "AUTOMACAO_PROIBIDA",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -2046,7 +2046,7 @@
       "id": "questn",
       "permission": "AUTORIZACAO_NECESSARIA",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -2058,7 +2058,7 @@
       "id": "revolut",
       "permission": "ACESSO_PUBLICO_MANUAL",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
@@ -2070,7 +2070,7 @@
       "id": "bitdegree",
       "permission": "AUTOMACAO_PROIBIDA",
       "last_audit": "2026-11-08",
-      "last_execution": "2026-11-20T08:37:38.045934+00:00",
+      "last_execution": "2026-11-20T21:05:29.107742+00:00",
       "http_status": null,
       "errors": [],
       "campaigns_found": [],
